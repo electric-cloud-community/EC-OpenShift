@@ -1,0 +1,15 @@
+<plugin>
+  <author>Electric Cloud</author>
+  <authorUrl>http://www.electric-cloud.com/support</authorUrl>
+  <category>Container Management</category>
+  <commander-version min="6.0" />
+  <configure>ec_config</configure>
+  <depends min="1.4.1">EC-PluginManager</depends>
+  <depends min="1.0.0.8">EC-Kubernetes</depends>
+  <description>Integrates with OpenShift cluster to run Docker containers on an OpenShift cluster.</description>
+  <help>help.xml</help>
+  <key>EC-OpenShift</key>
+  <label>EC-OpenShift</label>
+  <!--A build number will be appended to the version when the plugin is built on the build server-->
+  <version>1.0.1</version>
+</plugin>
