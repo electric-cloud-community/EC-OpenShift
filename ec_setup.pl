@@ -70,7 +70,7 @@ if ( !$errorMessage ) {
         my $artifactVersion = $am->publish(
             {   groupId         => "com.electriccloud",
                 artifactKey     => "EC-OpenShift-Grapes",
-                version         => "1.0.1",
+                version         => "1.0.0",
                 includePatterns => "**",
                 fromDirectory   => "$pluginDir/lib/grapes",
                 description => "JARs that EC-OpenShift plugin procedures depend on"

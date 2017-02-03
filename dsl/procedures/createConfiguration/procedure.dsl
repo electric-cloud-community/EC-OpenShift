@@ -13,17 +13,8 @@ procedure 'CreateConfiguration',
       releaseMode: 'none',
       timeLimitUnits: 'minutes', {
 
-    	  actualParameter 'additionalArtifactVersion', 'com.electriccloud:EC-OpenShift-Grapes:1.0.1'
+    	  actualParameter 'additionalArtifactVersion', 'com.electriccloud:EC-OpenShift-Grapes:1.0.0'
     }
-
-    step 'testConnection',
-            command: new File(pluginDir, 'dsl/procedures/createConfiguration/steps/testConnection.groovy').text,
-            errorHandling: 'abortProcedure',
-            exclusiveMode: 'none',
-            postProcessor: 'postp',
-            releaseMode: 'none',
-            shell: 'ec-groovy',
-            timeLimitUnits: 'minutes'
 
     step 'createConfiguration',
             command: new File(pluginDir, 'dsl/procedures/createConfiguration/steps/createConfiguration.pl').text,

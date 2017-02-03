@@ -20,3 +20,29 @@ if (!resultsPropertySheet) {
 
 //// -- Driver script logic to provision cluster -- //
 EFClient efClient = new EFClient()
+OpenShiftClient client = new OpenShiftClient()
+
+def pluginConfig = client.getPluginConfig(efClient, clusterName, clusterOrEnvProjectName, environmentName)
+String accessToken = client.retrieveAccessToken (pluginConfig)
+
+def clusterParameters = efClient.getProvisionClusterParameters(
+                clusterName,
+                clusterOrEnvProjectName,
+                environmentName)
+
+String clusterEndpoint = pluginConfig.clusterEndpoint
+String namespace = clusterParameters.project
+
+client.deployService(
+        efClient,
+        accessToken,
+        clusterEndpoint,
+        namespace,
+        serviceName,
+        serviceProjectName,
+        applicationName,
+        applicationRevisionId,
+        clusterName,
+        clusterOrEnvProjectName,
+        environmentName,
+        resultsPropertySheet)

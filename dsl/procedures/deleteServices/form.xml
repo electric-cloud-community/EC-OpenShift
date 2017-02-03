@@ -21,13 +21,13 @@
         <label>Configuration:</label>
         <property>config</property>
         <required>1</required>
-        <documentation>The name of an existing configuration which holds all the connection information for OpenShift cluster.</documentation>
+        <documentation>The name of an existing configuration which holds all the connection information for the Kubernetes cluster.</documentation>
     </formElement> 
     <formElement>
         <type>entry</type>
-        <label>Project Name:</label>
-        <property>project</property>
+        <label>Project name:</label>
+        <property>namespace</property>
         <required>1</required>
-        <documentation>The name of project to which the services and deployments should be deployed.</documentation>
-    </formElement>    
+        <documentation>The name of the namespace on which cleanup procedure should be performed.</documentation>
+    </formElement>
 </editor>
