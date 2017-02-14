@@ -5,7 +5,7 @@
   <commander-version min="6.0" />
   <configure>ec_config</configure>
   <depends min="1.4.1">EC-PluginManager</depends>
-  <depends min="1.0.0.8">EC-Kubernetes</depends>
+  <!-- <depends min="1.0.0.8">EC-Kubernetes</depends> -->
   <description>Integrates with OpenShift cluster to run Docker containers on an OpenShift cluster.</description>
   <help>help.xml</help>
   <key>EC-OpenShift</key>
