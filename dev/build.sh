@@ -19,5 +19,5 @@ if [ $DEPLOY -eq 1 ]; then
   echo "Installing plugin ..."
   ectool --server localhost login admin changeme
   ectool installPlugin ./out/EC-OpenShift.jar --force 1
-  ectool promotePlugin EC-OpenShift-1.0.0
+  ectool promotePlugin EC-OpenShift-1.2.0
 fi  
