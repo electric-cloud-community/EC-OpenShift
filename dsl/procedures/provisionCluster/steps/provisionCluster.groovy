@@ -18,7 +18,7 @@ if (resp.status == 200){
 	efClient.logger INFO, "The service is reachable at ${clusterEndpoint}"
 }
 if (resp.status >= 400){
-	efClient.handleProcedureError("The Kubernetes cluster at ${clusterEndpoint} was not reachable. Health check at $healthCheckUrl failed with $resp.statusLine")
+	efClient.handleProcedureError("The Kubernetes cluster at ${clusterEndpoint} was not reachable. Health check at $openshiftHealthUrl failed with $resp.statusLine")
 }
 
 
