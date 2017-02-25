@@ -61,7 +61,7 @@ if ( !$errorMessage ) {
     # This is here because we cannot do publishArtifactVersion in dsl today
 
     # delete artifact if it exists first
-    $commander->deleteArtifactVersion("com.electriccloud:EC-OpenShift-Grapes:1.0.1");
+    $commander->deleteArtifactVersion("com.electriccloud:EC-OpenShift-Grapes:1.0.0");
 
     if ( $promoteAction eq "promote" ) {
 
