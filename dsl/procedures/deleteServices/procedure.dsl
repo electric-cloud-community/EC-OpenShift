@@ -7,17 +7,17 @@ procedure 'Cleanup Cluster - Experimental',
     property 'standardStepPicker', value: false
 
 	step 'setup',
-      subproject: '',
-      subprocedure: 'Setup',
-      command: null,
-      errorHandling: 'failProcedure',
-      exclusiveMode: 'none',
-      postProcessor: 'postp',
-      releaseMode: 'none',
-      timeLimitUnits: 'minutes', {
+          subproject: '/plugins/EC-Kubernetes/project',
+          subprocedure: 'Setup',
+          command: null,
+          errorHandling: 'failProcedure',
+          exclusiveMode: 'none',
+          postProcessor: 'postp',
+          releaseMode: 'none',
+          timeLimitUnits: 'minutes', {
 
-    	  actualParameter 'additionalArtifactVersion', ''
-    }
+        	  actualParameter 'additionalArtifactVersion', 'com.electriccloud:EC-OpenShift-Grapes:1.0.0'
+        }
 
 	step 'cleanup',
 	  command: new File(pluginDir, 'dsl/procedures/deleteServices/steps/deleteServices.groovy').text,

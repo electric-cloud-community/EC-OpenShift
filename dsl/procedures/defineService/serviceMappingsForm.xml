@@ -42,6 +42,36 @@
         <initiallyChecked>0</initiallyChecked>
         <documentation>Whether to enable client-IP based session affinity. Defaults to round robin if not checked.</documentation>
     </formElement>
+    <!--Route parameters begin -->
+    <formElement>
+        <type>entry</type>
+        <label>Route Name:</label>
+        <property>routeName</property>
+        <required>0</required>
+        <documentation>A unique name for the route within the OpenShift project. The route will be created if it does not already exist.</documentation>
+    </formElement>
+    <formElement>
+        <type>entry</type>
+        <label>Route Hostname:</label>
+        <property>routeHostname</property>
+        <required>0</required>
+        <documentation>Public hostname for the route. The hostname can't be changed after the route is created.</documentation>
+    </formElement>
+    <formElement>
+        <type>entry</type>
+        <label>Route Path:</label>
+        <property>routePath</property>
+        <required>0</required>
+        <documentation>Path that the router watches to route traffic to the service. If not specified, will default to '/'.</documentation>
+    </formElement>
+    <formElement>
+        <type>entry</type>
+        <label>Route Target Port:</label>
+        <property>routeTargetPort</property>
+        <required>0</required>
+        <documentation>Target port of the service to route the traffic.</documentation>
+    </formElement>
+    <!--Route parameters end -->
     <formElement>
         <type>checkbox</type>
         <label>Create or update Additional Resource in the Cluster?</label>

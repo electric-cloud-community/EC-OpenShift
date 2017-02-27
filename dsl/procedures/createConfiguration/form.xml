@@ -32,19 +32,20 @@
     </formElement>
     <formElement>
         <type>entry</type>
-        <label>The Openshift API Endpoint:</label>
+        <label>Openshift API Endpoint:</label>
         <property>clusterEndpoint</property>
         <required>1</required>
         <documentation>The endpoint at which Openshift API will be reachable. Must be a IP address or a resolvable DNS name.</documentation>
     </formElement>
     <formElement>
         <type>credential</type>
-        <label>Bearer Token of Openshift Cluster:</label>
+        <label>Service Account:</label>
         <property>credential</property>
         <required>1</required>
-        <passwordLabel>Openshift Bearer token:</passwordLabel>
+        <userNameLabel>Name:</userNameLabel>
+        <passwordLabel>Bearer token:</passwordLabel>
         <credentialType>key</credentialType>
-        <documentation>The bearer token related to a serviceAccount which has access to create resources in the Openshift cluster</documentation>
+        <documentation>The bearer token for the service account that has access to create resources in the Openshift cluster</documentation>
         <attachedAsParameterToStep>createAndAttachCredential</attachedAsParameterToStep>
     </formElement>    
     <formElement>
