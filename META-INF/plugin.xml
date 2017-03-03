@@ -3,6 +3,7 @@
   <authorUrl>http://www.electric-cloud.com/support</authorUrl>
   <category>Container Management</category>
   <commander-version min="6.0" />
+  <pluginWizardBased>true</pluginWizardBased>
   <configure>ec_config</configure>
   <depends min="1.4.1">EC-PluginManager</depends>
   <!-- <depends min="1.0.0.8">EC-Kubernetes</depends> -->

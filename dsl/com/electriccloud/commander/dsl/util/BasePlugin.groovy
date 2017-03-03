@@ -24,7 +24,7 @@ abstract class BasePlugin extends DslDelegatingScript {
 					</step>
 				""".stripIndent(),
 			description: propDescription
-	} 
+	}
 
 	def setupPluginMetadata(String pluginDir, String pluginKey, String pluginName, String pluginCategory) {
 		getProcedures(pluginName).each { proc ->
@@ -36,7 +36,7 @@ abstract class BasePlugin extends DslDelegatingScript {
 				def description = proc.description
 				stepPicker (label, pluginKey, proc.procedureName, pluginCategory, description)
 			}
-			
+
 		}
 
 		// configure the plugin icon if is exists
@@ -64,7 +64,7 @@ abstract class BasePlugin extends DslDelegatingScript {
 
 	def cleanup(String pluginKey, String pluginName, String pluginCategory) {
 		getProcedures(pluginName).each { proc ->
-			
+
 			def addStepPicker = shouldAddStepPicker(pluginName, proc.procedureName)
 			// delete the step picker if it was added by setupPluginMetadata
 			if (addStepPicker) {
@@ -75,7 +75,7 @@ abstract class BasePlugin extends DslDelegatingScript {
 					deleteProperty propertyName: propName
 				}
 			}
-			
+
 		}
 	}
 
@@ -125,15 +125,15 @@ abstract class BasePlugin extends DslDelegatingScript {
 
 		// Loop over the sub-directories in the procedures directory
 		// and evaluate procedures if a procedure.dsl file exists
-		
+
 		File procsDir = new File(pluginDir, 'dsl/procedures')
-		procsDir.eachDir { 
-			
+		procsDir.eachDir {
+
             File procDslFile = getProcedureDSLFile(it)
 			if (procDslFile?.exists()) {
 				println "Processing procedure DSL file ${procDslFile.absolutePath}"
 				def proc = loadProcedure(pluginDir, pluginKey, pluginName, procDslFile.absolutePath)
-				
+
 				//create formal parameters using form.xml
 				File formXml = new File(it, 'form.xml')
 				if (formXml.exists()) {
@@ -142,9 +142,9 @@ abstract class BasePlugin extends DslDelegatingScript {
 				}
 
 			}
-			
+
 		}
-		
+
 		// plugin boiler-plate
 		setupPluginMetadata(pluginDir, pluginKey, pluginName, pluginCategory)
 	}
@@ -154,7 +154,7 @@ abstract class BasePlugin extends DslDelegatingScript {
 		if (procedureDir.name.toLowerCase().endsWith('_ignore')) {
 			return null
 		}
-		
+
 		File procDSLFile = new File(procedureDir, 'procedure.dsl')
 		if(procDSLFile.exists()) {
 			return procDSLFile
@@ -166,10 +166,10 @@ abstract class BasePlugin extends DslDelegatingScript {
 	def loadProcedure(String pluginDir, String pluginKey, String pluginName, String dslFile) {
 		return evalInlineDsl(dslFile, [pluginKey: pluginKey, pluginName: pluginName, pluginDir: pluginDir])
 	}
-	
+
 	//Helper function to load another dsl script and evaluate it in-context
 	def evalInlineDsl(String dslFile, Map bindingMap) {
-	
+
 		CompilerConfiguration cc = new CompilerConfiguration();
 		cc.setScriptBaseClass(DelegatingScript.class.getName());
 		GroovyShell sh = new GroovyShell(this.class.classLoader, bindingMap? new Binding(bindingMap) : new Binding(), cc);
@@ -177,13 +177,13 @@ abstract class BasePlugin extends DslDelegatingScript {
 		script.setDelegate(this);
 		return script.run();
 	}
-	
+
 	def buildFormalParametersFromFormXml(def proc, File formXml) {
-	
+
 		def formElements = new XmlSlurper().parseText(formXml.text)
-		
+
 		procedure proc.procedureName, {
-				
+
 			ec_parameterForm = formXml.text
 			formElements.formElement.each { formElement ->
 				formalParameter "$formElement.property",
@@ -213,6 +213,20 @@ abstract class BasePlugin extends DslDelegatingScript {
 								checkedValue = formElement.checkedValue?:'true'
 								uncheckedValue = formElement.uncheckedValue?:'false'
 								initiallyChecked = formElement.initiallyChecked?:'0'
+							} else if ('select' == formElement.type.toString() ||
+									'radio' == formElement.type.toString()) {
+								int count = 0
+								property "options", {
+									formElement.option.each { option ->
+										count++
+										property "option$count", {
+											property 'text', value: "${option.name}"
+											property 'value', value: "${option.value}"
+										}
+									}
+									type = 'list'
+									optionCount = count
+								}
 							}
 						}
 					}
