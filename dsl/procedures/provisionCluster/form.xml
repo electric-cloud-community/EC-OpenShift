@@ -25,9 +25,9 @@
     </formElement> 
     <formElement>
         <type>entry</type>
-        <label>Project Name:</label>
+        <label>OpenShift Project:</label>
         <property>project</property>
         <required>1</required>
-        <documentation>The name of project to which the services and deployments should be deployed.</documentation>
+        <documentation>The name of the OpenShift project to which the services and deployments should be deployed. If the project does not exist, it will be created during service deployment.</documentation>
     </formElement>    
 </editor>
