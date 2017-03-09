@@ -4,14 +4,6 @@
         <title>EC-OpenShift Plugin</title>
         <link rel="stylesheet" href="../../plugins/@PLUGIN_NAME@/pluginhelp.css" type="text/css" media="screen"/>
     </head>
-        <style>
-    table, th, td {
-        border: 1px solid black;
-    }
-    p.important {
-    color: BLUE;
-    }
-    </style>
     <body>
         <div class="help">
             <h1>EC-OpenShift</h1>
@@ -19,7 +11,6 @@
             <hr style="margin-left: -10px; margin-top: 10px; height: 1px; width: 100%; color: #5981BD;" noshade="noshade" />
             <h3 id="overview">Overview</h3>
             <p>EC-OpenShift plugin integrates with an OpenShift cluster. The plugin assumes that you already have a OpenShift cluster depoyed and available to access API. You would also need a service account which has full access on projects that you intend to use through this plugin.</p>
-            <p class="important">Please note that some of names given in Flow UI will be modified to comply with the naming conventions of Kubernetes. Specifically characters such as "space , _ " will be converted to "-". Such parameters are marked with a asterisk (*)  in procedure details</p>
             <h1>Contents</h1>
             <ul>
                 <li><a href="#overview">Overview</a></li>
@@ -29,7 +20,6 @@
                     <li><a href="#ProvisionCluster">Provision Cluster</a></li>
                     <li><a href="#DeployService">Deploy service</a></li>
                 </ul>
-                <li><a href="#releaseNotes">Release Notes</a></li>
             </ul>
             <div id="CreateConfiguration">
                 <a name="CreateConfiguration" id="CreateConfigurationLink"></a>
@@ -70,7 +60,11 @@
                     </ul>
                 </li>
             </div>
-            <h1 id="procedures">Plugin Procedures</h1> 
+            <h1 id="procedures">Plugin Procedures</h1>
+            <p>
+                IMPORTANT: For all parameter descriptions below, required parameters are shown in
+                <span class="required">bold italics</span>. Please note that some of names given in ElectricFlow UI will be modified to comply with the naming conventions of Kubernetes. Specifically characters such as "space , _ " will be converted to "-". Such parameters are marked with an asterisk (*).
+            </p>
             <div id="ProvisionCluster">
                 <h2>Provision Cluster</h2>
                 <p>The procedure checks if the OpenShift cluster exists and is reachable with provided details.</p>
