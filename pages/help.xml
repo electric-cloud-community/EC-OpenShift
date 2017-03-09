@@ -26,7 +26,7 @@
                 <li><a href="#CreateConfiguration">Plugin Configuration</a></li>
                  <li><a href="#procedures">Plugin Procedures</a></li>
                 <ul>
-                    <li><a href="#ProvisionCluster">Check cluster</a></li>
+                    <li><a href="#ProvisionCluster">Provision Cluster</a></li>
                     <li><a href="#DeployService">Deploy service</a></li>
                 </ul>
                 <li><a href="#releaseNotes">Release Notes</a></li>
@@ -72,9 +72,9 @@
             </div>
             <h1 id="procedures">Plugin Procedures</h1> 
             <div id="ProvisionCluster">
-                <h2>Check Cluster</h2>
-                <p>The procedure checks if the cluster exists and is reachable with provided details.</p>
-                <h3>Check Cluster Parameters</h3>
+                <h2>Provision Cluster</h2>
+                <p>The procedure checks if the OpenShift cluster exists and is reachable with provided details.</p>
+                <h3>Provision Cluster Parameters</h3>
                 <table class="grid">
                     <thead>
                         <tr>
@@ -84,12 +84,12 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td class="required">Configuration *</td>
-                            <td>Bearer token which has authorization to access API. The bearer token should correspond to a ServiceAccount</td>
+                            <td class="required">Configuration</td>
+                            <td>The name of an existing plugin configuration which holds all the connection information for OpenShift cluster.</td>
                         </tr>
                         <tr>
-                            <td class="required">Openshift API Endpoint *</td>
-                            <td>The base URL of cluster's API endpoint</td>
+                            <td class="required">OpenShift Project</td>
+                            <td>The name of an existing configuration which holds all the connection information for OpenShift cluster.</td>
                         </tr>
 
                     </tbody>
@@ -108,31 +108,31 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td class="required">Service Name *</td>
+                            <td class="required">Service Name</td>
                             <td>The name of the service in Deploy that encapsulates the service to be deployed on the OpenShift cluster.</td>
                         </tr>
                         <tr>
-                            <td class="required">Service Projet Name *</td>
+                            <td class="required">Service Project Name</td>
                             <td>The name of the project that the service belongs to. In case of an application-level service it also owns the application.</td>
                         </tr>
                         <tr>
-                            <td class="required">Application Name *</td>
+                            <td>Application Name</td>
                             <td>The name of the application that the service belongs to. Not applicable for a top-level service.</td>
                         </tr>
                         <tr>
-                            <td class="required">Application Revision ID</td>
+                            <td>Application Revision ID</td>
                             <td>Revision Id of the application version that the service belongs to.</td>
                         </tr>  
                         <tr>
-                            <td class="required">Cluster name *</td>
+                            <td class="required">Cluster name</td>
                             <td>The name of the cluster in Deploy that encapsulates the OpenShift cluster on which the service is to be deployed.</td>
                         </tr>                        
                         <tr>
-                            <td class="required">Cluster or environment project name</td>
+                            <td>Cluster or environment project name</td>
                             <td>The name of the project that the cluster belongs to if it is a top-level project cluster. Or the name of the project that the environment belongs to if it is an environment-scoped cluster.</td>
                         </tr>
                         <tr>
-                            <td class="required">Environment Name</td>
+                            <td>Environment Name</td>
                             <td>The name of the environment that the cluster belongs to. Not applicable for a top-level project cluster.</td>
                         </tr>
                     </tbody>
