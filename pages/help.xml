@@ -22,7 +22,7 @@
                 </ul>
             </ul>
             <div id="CreateConfiguration">
-                <a name="CreateConfiguration" id="CreateConfigurationLink"></a>
+                <a name='CreateConfiguration' id="CreateConfiguration"> </a>
                 <h2>Plugin Configurations</h2>
                 <!-- If the plugin has separate configurations then include
                      this section, otherwise omit this whole section. We don't
