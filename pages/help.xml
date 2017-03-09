@@ -85,10 +85,10 @@
                     <tbody>
                         <tr>
                             <td class="required">Configuration *</td>
-                            <td>The berar token for accessing the cluster</td>
+                            <td>Bearer token which has authorization to access API. The bearer token should correspond to a ServiceAccount</td>
                         </tr>
                         <tr>
-                            <td class="required">Cluster API endpoint *</td>
+                            <td class="required">Openshift API Endpoint *</td>
                             <td>The base URL of cluster's API endpoint</td>
                         </tr>
 
