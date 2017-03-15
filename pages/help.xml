@@ -10,17 +10,26 @@
             <p>Plugin version @PLUGIN_VERSION@</p>
             <hr style="margin-left: -10px; margin-top: 10px; height: 1px; width: 100%; color: #5981BD;" noshade="noshade" />
             <h3 id="overview">Overview</h3>
-            <p>EC-OpenShift plugin integrates with an OpenShift cluster. The plugin assumes that you already have a OpenShift cluster depoyed and available to access API. You would also need a service account which has full access on projects that you intend to use through this plugin.</p>
+            <p>EC-OpenShift plugin integrates with the OpenShift container platform allowing you to coordinate and manage microservices-based applications deployments and releases on both on-premise and hosted OpenShift offerings.</p>
             <h1>Contents</h1>
             <ul>
-                <li><a href="#overview">Overview</a></li>
+			    <li><a href="#overview">Overview</a></li>
+				<li><a href="#prerequisites">Prerequisites</a></li>
                 <li><a href="#CreateConfiguration">Plugin Configuration</a></li>
                  <li><a href="#procedures">Plugin Procedures</a></li>
                 <ul>
                     <li><a href="#ProvisionCluster">Provision Cluster</a></li>
-                    <li><a href="#DeployService">Deploy service</a></li>
+                    <li><a href="#DeployService">Deploy Service</a></li>
                 </ul>
             </ul>
+			<h2 id="prerequisites">Prerequisites</h2>
+			<ol>
+			<li>EC-Kubernetes plugin version 1.0.*</li>
+			<li>RedHat OpenShift 3 cluster - RedHat OpenShift Online, RedHat OpenShift Dedicated, or RedHat OpenShift On-premise.</li>
+			<li>A service account with cluster access on RedHat OpenShift Dedicated and RedHat OpenShift On-premise - The service account token will be used to authenticate against the Kubernetes and OpenShift APIs for managing projects (namespaces) and deploying services.</li>
+			</ol>
+            <p>
+			</p>
             <div id="CreateConfiguration">
                 <a name='CreateConfiguration' id="CreateConfiguration"> </a>
                 <h2>Plugin Configurations</h2>
@@ -46,19 +55,54 @@
                 <h3>Creating Plugin Configurations</h3>
                 <p>To create plugin configurations in ElectricFlow,
                 do these steps:</p>
-                
+                <ul>
                 <li>Go to <b>Administration</b> &gt; <b>Plugins</b> to open the Plugin Manager.</li>
                     <li>Find the EC-OpenShift row.</li>
                     <li>Click <b>Configure</b> to open the
                     OpenShift Configurations page.</li>
                     <li>Click <b>Create Configuration</b>.</li>
-                    <li>For communicating with OpenShift cluster, you need two configurations:<br/>
-                    <ul type="square">
-                        <li>1. Base address of API Endpoint URL </li>
-                        <li>2. Bearer token which has authorization to access API. The bearer token should correspond to a ServiceAccount
-                        </li>
-                    </ul>
-                </li>
+                    <li>Enter the following configuration parameters for communicating with the OpenShift cluster:</li></ul>
+					<p><img src="../../plugins/@PLUGIN_NAME@/images/ConfigurationParameters.png" alt="screenshot" /></p>
+					<h3>Configuration Parameters</h3>
+					<table class="grid">
+                <thead>
+                    <tr>
+                        <th>Parameter</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="required">Configuration</td>
+
+                        <td>Provide a unique name for the
+                        configuration, keeping in mind that you may
+                        need to create additional configurations
+                        over time. </td>
+                    </tr>
+
+                    <tr>
+                        <td>Description</td>
+                        <td>Provide some description for configuration.</td>
+                    </tr>
+
+                    <tr>
+                        <td class="required">OpenShift API Endpoint</td>
+                        <td>The endpoint at which OpenShift API can be reached. Must be an IP address or a resolvable DNS name.</td>
+                    </tr>
+					<tr>
+                        <td class="required">Service Account</td>
+
+                        <td><i>Name</i>: Service account name.<br />
+                         <i>Private Key</i>: Provide the bearer token for the service account that has access to create resources in the OpenShift cluster. This bearer token will be used to deploying services on the OpenShift cluster.</td>
+                    </tr>
+                    <tr>
+                        <td>Debug level</td>
+                        <td>Log level to use for logging output. Error=4, Warning=3, Info=2, Debug=1. Info by default.</td>
+                    </tr>
+                </tbody>
+            </table>
+			  
             </div>
             <h1 id="procedures">Plugin Procedures</h1>
             <p>
@@ -88,10 +132,11 @@
 
                     </tbody>
                 </table>
+				<p><img src="../../plugins/@PLUGIN_NAME@/images/ProvisionCluster.png" alt="screenshot" /></p>
             </div> 
             <div id="DeployService">
                 <h2>Deploy service</h2>
-                <p>This procedure deploys a service and application to a already provisioned cluster</p>
+                <p>This procedure deploys a service, creating or updating pod definitions, service and deployment in the OpenShift project on the cluster. The OpenShift project(namespace) is created if it does not exist.</p>
                 <h3>Depoy Service Parameters</h3>
                 <table class="grid">
                     <thead>
@@ -131,6 +176,7 @@
                         </tr>
                     </tbody>
                 </table>
+				<p><img src="../../plugins/@PLUGIN_NAME@/images/DeployService.png" alt="screenshot" /></p>
             </div>
         </div>
 	</body>
