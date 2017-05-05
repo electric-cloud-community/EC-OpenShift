@@ -16,13 +16,21 @@ procedure 'Provision Cluster',
     	  actualParameter 'additionalArtifactVersion', 'com.electriccloud:EC-OpenShift-Grapes:1.0.0'
     }
 
-	step 'provisionCluster', 
+	step 'generateHostsFile', 
 	  command: new File(pluginDir, 'dsl/procedures/provisionCluster/steps/provisionCluster.groovy').text,
 	  errorHandling: 'failProcedure',
 	  exclusiveMode: 'none',
 	  postProcessor: 'postp',
 	  releaseMode: 'none',
 	  shell: 'ec-groovy',
+	  timeLimitUnits: 'minutes'
+
+	step 'provisionCluster', 
+	  command: "ansible-playbook $pluginDir/openshift-ansible/playbooks/byo/config.yml -i hosts",
+	  errorHandling: 'failProcedure',
+	  exclusiveMode: 'none',
+	  postProcessor: 'postp',
+	  releaseMode: 'none',
 	  timeLimitUnits: 'minutes'
 	  
 }
