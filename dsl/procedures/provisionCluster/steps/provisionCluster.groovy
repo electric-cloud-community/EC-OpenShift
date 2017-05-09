@@ -18,12 +18,12 @@ nodes
 [OSEv3:vars]
 ansible_ssh_user=cc_chanat
 ansible_become=true
-openshift_master_htpasswd_file=/etc/ansible/passwordfile
+openshift_master_htpasswd_file=/home/vagrant/passwordfile
 deployment_type=origin
 containerized=true
 openshift_release=\"1.4.0\"
 openshift_master_overwrite_named_certificates=true
-openshift_master_named_certificates=[{\"certfile\": \"/home/cc_chanat/certs/ecloud.infracloud.website.cert\", \"keyfile\": \"/home/cc_chanat/certs/ecloud.infracloud.website.key\"}]
+openshift_master_named_certificates=[{\"certfile\": \"/home/vagrant/ecloud.infracloud.website.cert\", \"keyfile\": \"/home/vagrant/ecloud.infracloud.website.key\"}]
 openshift_master_cluster_hostname=$openshift_hostname
 openshift_master_cluster_public_hostname=$openshift_public_hostname
  
