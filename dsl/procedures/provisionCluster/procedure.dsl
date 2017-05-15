@@ -87,7 +87,7 @@ procedure 'Provision Cluster',
 	  timeLimitUnits: 'minutes'
 
 	step 'provisionCluster', 
-	  command: "export ANSIBLE_ROLES_PATH=$pluginDir/openshift-ansible/roles;export ANSIBLE_CONFIG=$pluginDir/openshift-ansible/ansible.cfg;ansible-playbook $pluginDir/openshift-ansible/playbooks/byo/config.yml -i ./hosts -M $pluginDir/openshift-ansible/library",
+	  command: "cd $pluginDir/openshift-ansible; export ANSIBLE_ROLES_PATH=$pluginDir/openshift-ansible/roles;export ANSIBLE_CONFIG=$pluginDir/openshift-ansible/ansible.cfg;ansible-playbook -vvvv $pluginDir/openshift-ansible/playbooks/byo/config.yml -i /tmp/hosts -M $pluginDir/openshift-ansible/library",
 	  errorHandling: 'failProcedure',
 	  exclusiveMode: 'none',
 	  postProcessor: 'postp',
