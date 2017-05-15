@@ -16,25 +16,6 @@ procedure 'Provision Cluster',
     	  actualParameter 'additionalArtifactVersion', 'com.electriccloud:EC-OpenShift-Grapes:1.0.0'
     }
 
-    step 'Import Master Node',
-      command: "",
-      releaseMode: 'none',
-      projectName: 'EC-OpenShift-1.2.0',
-      subprocedure: 'Import',
-      subproject: '/plugins/EC-ESX/project',
-      errorHandling: 'failProcedure',
-      timeLimitUnits: 'minutes', {
-
-	      actualParameter 'connection_config', '$[esx_config]'
-		  actualParameter 'esx_datastore', '$[esx_datastore]'
-		  actualParameter 'esx_host', '$[esx_host]'
-		  actualParameter 'esx_number_of_vms', '1'
-		  actualParameter 'esx_source_directory', '/home/vagrant/CentOS7-master/CentOS7-master.ovf'
-		  actualParameter 'esx_vmname', 'OpenShift-Master'
-		  actualParameter 'ovftool_path', '$[ovftool_path]'
-		  actualParameter 'esx_vm_poweron', '1'
-    
-    }
 
     step 'Import worker Node1',
       command: "",
