@@ -25,6 +25,36 @@
     </formElement> 
     <formElement>
         <type>entry</type>
+        <label>ESX config:</label>
+        <property>esx_config</property>
+        <required>1</required>
+        <documentation>The name of the OpenShift project to which the services and deployments should be deployed. If the project does not exist, it will be created during service deployment.</documentation>
+    </formElement>  
+    <formElement>
+        <type>entry</type>
+        <label>ESX Datastore:</label>
+        <property>esx_datastore</property>
+        <required>1</required>
+        <documentation>The name of the OpenShift project to which the services and deployments should be deployed. If the project does not exist, it will be created during service deployment.</documentation>
+    </formElement>  
+    <formElement>
+        <type>entry</type>
+        <label>ESX Host:</label>
+        <property>esx_host</property>
+        <required>1</required>
+        <documentation>The name of the OpenShift project to which the services and deployments should be deployed. If the project does not exist, it will be created during service deployment.</documentation>
+    </formElement>  
+
+       
+    <formElement>
+        <type>entry</type>
+        <label>ovftool_path:</label>
+        <property>ovftool_path</property>
+        <required>1</required>
+        <documentation>The name of the OpenShift project to which the services and deployments should be deployed. If the project does not exist, it will be created during service deployment.</documentation>
+    </formElement>  
+    <formElement>
+        <type>entry</type>
         <label>OpenShift Project:</label>
         <property>project</property>
         <required>1</required>
