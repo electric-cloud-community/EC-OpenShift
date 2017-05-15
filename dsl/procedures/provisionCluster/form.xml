@@ -64,5 +64,12 @@
         <property>openshift_nodes</property>
         <required>1</required>
         <documentation>Comma seperated list of VMs to add to cluster.</documentation>
-    </formElement>    
+    </formElement>
+    <formElement>
+        <type>entry</type>
+        <label>User login to use:</label>
+        <property>user_login</property>
+        <required>1</required>
+        <documentation>The user to log in with.</documentation>
+    </formElement>     
 </editor>

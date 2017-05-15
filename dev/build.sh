@@ -13,7 +13,7 @@ rm ./out/EC-OpenShift.jar
 rm ./EC-OpenShift.zip
 
 jar cvf ./out/EC-OpenShift.jar dsl/ META-INF/ pages/ lib/ htdocs/
-zip -r ./EC-OpenShift.zip dsl/ META-INF/ pages/ lib/ htdocs/
+zip -r ./EC-OpenShift.zip dsl/ META-INF/ pages/ lib/ htdocs/ openshift-ansible/
 
 if [ $DEPLOY -eq 1 ]; then
   echo "Installing plugin ..."

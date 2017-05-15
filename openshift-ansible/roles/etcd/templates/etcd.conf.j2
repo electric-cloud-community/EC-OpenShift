@@ -18,7 +18,8 @@ ETCD_DATA_DIR={{ etcd_data_dir }}
 #ETCD_SNAPSHOT_COUNTER=10000
 ETCD_HEARTBEAT_INTERVAL=500
 ETCD_ELECTION_TIMEOUT=2500
-ETCD_LISTEN_CLIENT_URLS={{ etcd_listen_client_urls }}
+ETCD_LISTEN_CLIENT_URLS=https://127.0.0.1:2379
+#ETCD_LISTEN_CLIENT_URLS={{ etcd_listen_client_urls }}
 #ETCD_MAX_SNAPSHOTS=5
 #ETCD_MAX_WALS=5
 #ETCD_CORS=
@@ -44,7 +45,8 @@ ETCD_INITIAL_CLUSTER_TOKEN={{ etcd_initial_cluster_token }}
 #ETCD_DISCOVERY_FALLBACK=proxy
 #ETCD_DISCOVERY_PROXY=
 {% endif %}
-ETCD_ADVERTISE_CLIENT_URLS={{ etcd_advertise_client_urls }}
+ETCD_ADVERTISE_CLIENT_URLS=https://127.0.0.1:2379
+#ETCD_ADVERTISE_CLIENT_URLS={{ etcd_advertise_client_urls }}
 
 #[proxy]
 #ETCD_PROXY=off
