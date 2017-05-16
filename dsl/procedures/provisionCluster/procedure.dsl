@@ -37,6 +37,16 @@ procedure 'Provision Cluster',
     
     }
 
+    step 'Get Master IP', 
+	  command: new File(pluginDir, 'dsl/procedures/provisionCluster/steps/getIp.groovy').text,
+	  errorHandling: 'failProcedure',
+	  exclusiveMode: 'none',
+	  postProcessor: 'postp',
+	  releaseMode: 'none',
+	  shell: 'ec-groovy',
+	  timeLimitUnits: 'minutes'
+
+
     step 'Import worker Node2',
       command: "",
       releaseMode: 'none',
