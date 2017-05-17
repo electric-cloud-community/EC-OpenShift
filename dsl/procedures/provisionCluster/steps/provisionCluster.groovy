@@ -1,13 +1,26 @@
 $[/myProject/scripts/preamble]
 
+def jobId = "$[/myJob]"
+EFClient efClient = new EFClient()
+def result
+
+def queryArgs = [
+                jobId: jobId
+        ]
+
+result = efClient.doHttpGet("/rest/v1.0/properties/OpenShiftMasterIP",true, queryArgs)
+
+def openShiftMasterIP=result.data.property.value
+println openShiftMasterIP
+
 def pluginProjectName = '$[/myProject/projectName]'
 // Input parameters
 def configName = '$[config]'
 
 def openshift_hostname = '$[openshift_hostname]'
 def openshift_public_hostname = '$[openshift_public_hostname]'
-def openshift_ip = '$[openshift_ip]'
-def openshift_public_ip = '$[openshift_public_ip]'
+def openshift_ip = '127.0.0.1'
+def openshift_public_ip = openShiftMasterIP
 def openshift_nodes = '$[openshift_nodes]'.replaceAll(",","\n")
 def user_login = '$[user_login]'
 

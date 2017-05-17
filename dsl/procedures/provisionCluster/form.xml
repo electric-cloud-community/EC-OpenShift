@@ -76,20 +76,6 @@
     </formElement>  
     <formElement>
         <type>entry</type>
-        <label>OpenShift IP:</label>
-        <property>openshift_ip</property>
-        <required>1</required>
-        <documentation>The name of the OpenShift project to which the services and deployments should be deployed. If the project does not exist, it will be created during service deployment.</documentation>
-    </formElement>  
-    <formElement>
-        <type>entry</type>
-        <label>OpenShift Public IP:</label>
-        <property>openshift_public_ip</property>
-        <required>1</required>
-        <documentation>The name of the OpenShift project to which the services and deployments should be deployed. If the project does not exist, it will be created during service deployment.</documentation>
-    </formElement>  
-    <formElement>
-        <type>entry</type>
         <label>List of cluster members:</label>
         <property>openshift_nodes</property>
         <required>1</required>
