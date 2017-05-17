@@ -15,8 +15,7 @@ procedure 'Provision Cluster',
 
     	  actualParameter 'additionalArtifactVersion', 'com.electriccloud:EC-OpenShift-Grapes:1.0.0'
     }
-
-
+   
     step 'Import worker Node1',
       command: "",
       releaseMode: 'none',
@@ -30,14 +29,14 @@ procedure 'Provision Cluster',
 		  actualParameter 'esx_datastore', '$[esx_datastore]'
 		  actualParameter 'esx_host', '$[esx_host]'
 		  actualParameter 'esx_number_of_vms', '1'
-		  actualParameter 'esx_source_directory', '/home/vagrant/CentOS7-node1/CentOS7-node1.ovf'
+		  actualParameter 'esx_source_directory', '/home/vagrant/OpenShift-Node1/OpenShift-Node1.ovf'
 		  actualParameter 'esx_vmname', 'OpenShift-Node1'
 		  actualParameter 'ovftool_path', '$[ovftool_path]'
 		  actualParameter 'esx_vm_poweron', '1'
     
     }
 
-    step 'Get Master IP', 
+  	step 'Get Master IP', 
 	  command: new File(pluginDir, 'dsl/procedures/provisionCluster/steps/getIp.groovy').text,
 	  errorHandling: 'failProcedure',
 	  exclusiveMode: 'none',
@@ -45,7 +44,6 @@ procedure 'Provision Cluster',
 	  releaseMode: 'none',
 	  shell: 'ec-groovy',
 	  timeLimitUnits: 'minutes'
-
 
     step 'Import worker Node2',
       command: "",
@@ -60,7 +58,7 @@ procedure 'Provision Cluster',
 		  actualParameter 'esx_datastore', '$[esx_datastore]'
 		  actualParameter 'esx_host', '$[esx_host]'
 		  actualParameter 'esx_number_of_vms', '1'
-		  actualParameter 'esx_source_directory', '/home/vagrant/CentOS7-node2/CentOS7-node2.ovf'
+		  actualParameter 'esx_source_directory', '/home/vagrant/OpenShift-Node2/OpenShift-Node2.ovf'
 		  actualParameter 'esx_vmname', 'OpenShift-Node2'
 		  actualParameter 'ovftool_path', '$[ovftool_path]'
 		  actualParameter 'esx_vm_poweron', '1'
