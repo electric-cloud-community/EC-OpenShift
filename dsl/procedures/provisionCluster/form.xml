@@ -76,6 +76,34 @@
     </formElement>  
     <formElement>
         <type>entry</type>
+        <label>OpenShift Master Node Memory (in MBs):</label>
+        <property>master_memory</property>
+        <required>1</required>
+        <documentation>The name of the OpenShift project to which the services and deployments should be deployed. If the project does not exist, it will be created during service deployment.</documentation>
+    </formElement>  
+    <formElement>
+        <type>entry</type>
+        <label>OpenShift Master Node CPUs:</label>
+        <property>master_cpu</property>
+        <required>1</required>
+        <documentation>The name of the OpenShift project to which the services and deployments should be deployed. If the project does not exist, it will be created during service deployment.</documentation>
+    </formElement> 
+    <formElement>
+        <type>entry</type>
+        <label>OpenShift Worker Node Memory (in MBs):</label>
+        <property>node_memory</property>
+        <required>1</required>
+        <documentation>The name of the OpenShift project to which the services and deployments should be deployed. If the project does not exist, it will be created during service deployment.</documentation>
+    </formElement> 
+     <formElement>
+        <type>entry</type>
+        <label>OpenShift Worker Node CPUs:</label>
+        <property>node_cpu</property>
+        <required>1</required>
+        <documentation>The name of the OpenShift project to which the services and deployments should be deployed. If the project does not exist, it will be created during service deployment.</documentation>
+    </formElement>
+    <formElement>
+        <type>entry</type>
         <label>List of cluster members:</label>
         <property>openshift_nodes</property>
         <required>1</required>

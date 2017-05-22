@@ -29,7 +29,10 @@ procedure 'Provision Cluster',
 		  actualParameter 'esx_datastore', '$[esx_datastore]'
 		  actualParameter 'esx_host', '$[esx_host]'
 		  actualParameter 'esx_number_of_vms', '1'
-		  actualParameter 'esx_source_directory', '/home/vagrant/CentOS7_v4/CentOS7_v4.ovf'
+		  actualParameter 'esx_properties', 'hostname=gopmaster'
+		  actualParameter 'esx_vm_memory', '$[master_memory]'
+		  actualParameter 'esx_vm_num_cpus', '$[master_cpu]'
+		  actualParameter 'esx_source_directory', '/home/vagrant/CentOS7/CentOS7.ovf'
 		  actualParameter 'esx_vmname', 'OpenShift-Master'
 		  actualParameter 'ovftool_path', '$[ovftool_path]'
 		  actualParameter 'esx_vm_poweron', '1'
@@ -59,12 +62,15 @@ procedure 'Provision Cluster',
 		  actualParameter 'esx_datastore', '$[esx_datastore]'
 		  actualParameter 'esx_host', '$[esx_host]'
 		  actualParameter 'esx_number_of_vms', '1'
-		  actualParameter 'esx_source_directory', '/home/vagrant/OpenShift-Node1/OpenShift-Node1.ovf'
+		  actualParameter 'esx_properties', 'hostname=gopnode1'
+		  actualParameter 'esx_vm_memory', '$[node_memory]'
+		  actualParameter 'esx_vm_num_cpus', '$[node_cpu]'
+		  actualParameter 'esx_source_directory', '/home/vagrant/CentOS7/CentOS7.ovf'
 		  actualParameter 'esx_vmname', 'OpenShift-Node1'
 		  actualParameter 'ovftool_path', '$[ovftool_path]'
 		  actualParameter 'esx_vm_poweron', '1'
     
-    }
+    }  
 
     step 'Import worker Node2',
       command: "",
@@ -79,13 +85,15 @@ procedure 'Provision Cluster',
 		  actualParameter 'esx_datastore', '$[esx_datastore]'
 		  actualParameter 'esx_host', '$[esx_host]'
 		  actualParameter 'esx_number_of_vms', '1'
-		  actualParameter 'esx_source_directory', '/home/vagrant/OpenShift-Node2/OpenShift-Node2.ovf'
+		  actualParameter 'esx_properties', 'hostname=gopnode2'
+		  actualParameter 'esx_vm_memory', '$[node_memory]'
+		  actualParameter 'esx_vm_num_cpus', '$[node_cpu]'
+		  actualParameter 'esx_source_directory', '/home/vagrant/CentOS7/CentOS7.ovf'
 		  actualParameter 'esx_vmname', 'OpenShift-Node2'
 		  actualParameter 'ovftool_path', '$[ovftool_path]'
 		  actualParameter 'esx_vm_poweron', '1'
     
     }
-     
 
 	step 'generateHostsFile', 
 	  command: new File(pluginDir, 'dsl/procedures/provisionCluster/steps/provisionCluster.groovy').text,
