@@ -15,14 +15,15 @@ def propertySheetId = result.data.job.propertySheet.property[0].propertySheetId
 result = efClient.doHttpGet("/rest/v1.0/propertySheets/$propertySheetId")
 
 println result.data.propertySheet.property[0].propertyName
-println result.data.propertySheet.property[0].propertySheetId
+//println result.data.propertySheet.property[0].propertySheetId
 
-propertySheetId = result.data.propertySheet.property[0].propertySheetId
+/*propertySheetId = result.data.propertySheet.property[0].propertySheetId
 
 result = efClient.doHttpGet("/rest/v1.0/propertySheets/$propertySheetId")
+*/
 
-println result.data.propertySheet.property[0].propertyName
-println result.data.propertySheet.property[0].propertySheetId
+//println result.data.propertySheet.property[0].propertyName
+//println result.data.propertySheet.property[0].propertySheetId
 println result.data.propertySheet.property[0].value
 
 def esx_vm = result.data.propertySheet.property[0].value
