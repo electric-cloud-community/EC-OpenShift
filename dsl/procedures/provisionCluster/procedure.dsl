@@ -36,6 +36,7 @@ procedure 'Provision Cluster',
 		  actualParameter 'esx_vmname', 'OpenShift-Master'
 		  actualParameter 'ovftool_path', '$[ovftool_path]'
 		  actualParameter 'esx_vm_poweron', '1'
+		  actualParameter 'esx_properties_location', '/myJob/ESX'
     
     }
 
