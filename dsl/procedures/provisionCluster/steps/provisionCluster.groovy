@@ -19,9 +19,10 @@ def configName = '$[config]'
 
 def openshift_hostname = '$[openshift_hostname]'
 def openshift_public_hostname = '$[openshift_public_hostname]'
-def openshift_ip = '127.0.0.1'
+//def openshift_ip = '127.0.0.1'
+def openshift_ip = openShiftMasterIP
 def openshift_public_ip = openShiftMasterIP
-def openshift_nodes = '$[openshift_nodes]'.replaceAll(",","\n")
+def openshift_nodes = '$[openshift_nodes]'.replaceAll(",","deployment_type=origin \n")
 def user_login = '$[user_login]'
 
 def text ="""[OSEv3:children]
@@ -37,17 +38,17 @@ deployment_type=origin
 containerized=true
 openshift_release=\"1.4.0\"
 #openshift_master_overwrite_named_certificates=true
-#openshift_master_named_certificates=[{\"certfile\": \"/home/vagrant/ecloud.infracloud.website.cert\", \"keyfile\": \"/home/vagrant/ecloud.infracloud.website.key\"}]
+#openshift_master_named_certificates=[{\"certfile\": \"/home/vagrant/hmmaster.od.electric-cloud.com.cert\", \"keyfile\": \"/home/vagrant/hmmaster.od.electric-cloud.com.key\"}]
 openshift_master_cluster_hostname=$openshift_hostname
 openshift_master_cluster_public_hostname=$openshift_public_hostname
 osm_cluster_network_cidr=\"10.130.0.0/14\"
  
 [masters]
-$openshift_hostname openshift_ip=\"$openshift_ip\" openshift_public_ip=\"$openshift_public_ip\" openshift_node_labels=\"{'region':'infra','zone':'default'}\" openshift_hostname=\"$openshift_hostname\" openshift_public_hostname=\"$openshift_public_hostname\" containerized=\"true\"
+$openshift_hostname openshift_ip=\"$openshift_ip\" openshift_public_ip=\"$openshift_public_ip\" openshift_node_labels=\"{'region':'infra','zone':'default'}\" openshift_hostname=\"$openshift_hostname\" openshift_public_hostname=\"$openshift_public_hostname\" containerized=\"true\" deployment_type=origin
  
  
 [etcd]
-$openshift_hostname
+$openshift_hostname openshift_ip=$openshift_public_ip
 
 [nodes]
 $openshift_nodes"""
