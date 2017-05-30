@@ -16,13 +16,21 @@ procedure 'Provision Cluster',
     	  actualParameter 'additionalArtifactVersion', 'com.electriccloud:EC-OpenShift-Grapes:1.0.0'
     }
    
+    step 'Prepare Setup', 
+	  command: new File(pluginDir, 'dsl/procedures/provisionCluster/steps/prepare.groovy').text,
+	  errorHandling: 'failProcedure',
+	  exclusiveMode: 'none',
+	  postProcessor: 'postp',
+	  releaseMode: 'none',
+	  shell: 'ec-groovy',
+	  timeLimitUnits: 'minutes'
+
+
     step 'Generate Certs', {
 	    description = ''
 	    alwaysRun = '0'
 	    broadcast = '0'
-	    command = '''htpasswd -b -c passwordfile test test
-	openssl genrsa -out $[openshift_public_hostname].key 2048;
-	openssl req -new -x509 -key $[openshift_public_hostname].key -out $[openshift_public_hostname].cert -days 3650 -subj /CN=$[openshift_public_hostname]'''
+	    command = "htpasswd -b -c passwordfile test test"
 	    errorHandling = 'failProcedure'
 	    exclusiveMode = 'none'
 	    logFileName = ''
@@ -48,7 +56,7 @@ procedure 'Provision Cluster',
 		  actualParameter 'esx_datastore', '$[esx_datastore]'
 		  actualParameter 'esx_host', '$[esx_host]'
 		  actualParameter 'esx_number_of_vms', '1'
-		  actualParameter 'esx_properties', 'hostname=gopmaster'
+		  actualParameter 'esx_properties', 'hostname=$[openshift_public_hostname]'
 		  actualParameter 'esx_vm_memory', '$[master_memory]'
 		  actualParameter 'esx_vm_num_cpus', '$[master_cpu]'
 		  actualParameter 'esx_source_directory', '/home/vagrant/CentOS7/CentOS7.ovf'
@@ -82,7 +90,7 @@ procedure 'Provision Cluster',
 		  actualParameter 'esx_datastore', '$[esx_datastore]'
 		  actualParameter 'esx_host', '$[esx_host]'
 		  actualParameter 'esx_number_of_vms', '1'
-		  actualParameter 'esx_properties', 'hostname=gopnode1'
+		  actualParameter 'esx_properties', 'hostname=$[node-1]'
 		  actualParameter 'esx_vm_memory', '$[node_memory]'
 		  actualParameter 'esx_vm_num_cpus', '$[node_cpu]'
 		  actualParameter 'esx_source_directory', '/home/vagrant/CentOS7/CentOS7.ovf'
@@ -105,7 +113,7 @@ procedure 'Provision Cluster',
 		  actualParameter 'esx_datastore', '$[esx_datastore]'
 		  actualParameter 'esx_host', '$[esx_host]'
 		  actualParameter 'esx_number_of_vms', '1'
-		  actualParameter 'esx_properties', 'hostname=gopnode2'
+		  actualParameter 'esx_properties', 'hostname=$[node-2]'
 		  actualParameter 'esx_vm_memory', '$[node_memory]'
 		  actualParameter 'esx_vm_num_cpus', '$[node_cpu]'
 		  actualParameter 'esx_source_directory', '/home/vagrant/CentOS7/CentOS7.ovf'

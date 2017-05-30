@@ -111,6 +111,13 @@
     </formElement>
     <formElement>
         <type>entry</type>
+        <label>Domain Name:</label>
+        <property>domain_name</property>
+        <required>1</required>
+        <documentation>Comma seperated list of VMs to add to cluster.</documentation>
+    </formElement>
+    <formElement>
+        <type>entry</type>
         <label>User login to use:</label>
         <property>user_login</property>
         <required>1</required>

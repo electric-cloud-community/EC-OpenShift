@@ -19,10 +19,17 @@ def configName = '$[config]'
 
 def openshift_hostname = '$[openshift_hostname]'
 def openshift_public_hostname = '$[openshift_public_hostname]'
+def domain_name = '$[domain_name]'
 //def openshift_ip = '127.0.0.1'
 def openshift_ip = openShiftMasterIP
 def openshift_public_ip = openShiftMasterIP
-def openshift_nodes = '$[openshift_nodes]'.replaceAll(",","deployment_type=origin \n")
+String[] nodes = '$[openshift_nodes]'.split(',')
+def nodeList = ""
+for (String node: nodes) {
+    nodeList = nodeList + "${node}.${domain_name} deployment_type=origin\n".toString()
+}
+
+
 def user_login = '$[user_login]'
 def workspaceDir = System.getenv("COMMANDER_WORKSPACE")
 
@@ -38,27 +45,25 @@ openshift_master_htpasswd_file=$workspaceDir/passwordfile
 deployment_type=origin
 containerized=true
 openshift_release=\"1.4.0\"
-#openshift_master_overwrite_named_certificates=true
-#openshift_master_named_certificates=[{\"certfile\": \"$workspaceDir/$openshift_public_hostname.cert\", \"keyfile\": \"$workspaceDir/$openshift_public_hostname.key\"}]
-openshift_master_cluster_hostname=$openshift_hostname
-openshift_master_cluster_public_hostname=$openshift_public_hostname
+openshift_master_cluster_hostname=${openshift_hostname}.${domain_name}
+openshift_master_cluster_public_hostname=${openshift_public_hostname}.${domain_name}
 osm_cluster_network_cidr=\"10.130.0.0/14\"
  
 [masters]
-$openshift_hostname openshift_ip=\"$openshift_ip\" openshift_public_ip=\"$openshift_public_ip\" openshift_node_labels=\"{'region':'infra','zone':'default'}\" openshift_hostname=\"$openshift_hostname\" openshift_public_hostname=\"$openshift_public_hostname\" containerized=\"true\" deployment_type=origin
+$openshift_hostname.${domain_name} openshift_ip=\"$openshift_ip\" openshift_public_ip=\"$openshift_public_ip\" openshift_node_labels=\"{'region':'infra','zone':'default'}\" openshift_hostname=\"${openshift_hostname}.${domain_name}\" openshift_public_hostname=\"${openshift_public_hostname}.${domain_name}\" containerized=\"true\" deployment_type=origin
  
  
 [etcd]
-$openshift_hostname openshift_ip=$openshift_public_ip
+$openshift_hostname.${domain_name} openshift_ip=$openshift_public_ip
 
 [nodes]
-$openshift_nodes"""
+${openshift_public_hostname}.${domain_name} deployment_type=origin
+$nodeList"""
 
 def binding = ["openshift_hostname":openshift_hostname, 
 			   "openshift_public_hostname":openshift_public_hostname,
 			   "openshift_ip":openshift_ip,
 			   "openshift_public_ip":openshift_public_ip,
-			   "openshift_nodes":openshift_nodes,
 			   "user_login": user_login]
 
 def engine = new groovy.text.SimpleTemplateEngine() 
