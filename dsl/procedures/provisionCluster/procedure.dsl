@@ -16,6 +16,25 @@ procedure 'Provision Cluster',
     	  actualParameter 'additionalArtifactVersion', 'com.electriccloud:EC-OpenShift-Grapes:1.0.0'
     }
    
+    step 'Generate Certs', {
+	    description = ''
+	    alwaysRun = '0'
+	    broadcast = '0'
+	    command = '''htpasswd -b -c passwordfile test test
+	openssl genrsa -out $[openshift_public_hostname].key 2048;
+	openssl req -new -x509 -key $[openshift_public_hostname].key -out $[openshift_public_hostname].cert -days 3650 -subj /CN=$[openshift_public_hostname]'''
+	    errorHandling = 'failProcedure'
+	    exclusiveMode = 'none'
+	    logFileName = ''
+	    parallel = '0'
+	    projectName = 'EC-OpenShift-1.2.0'
+	    releaseMode = 'none'
+	    subprocedure = null
+	    subproject = null
+	    timeLimitUnits = 'minutes'
+	    
+  	}
+
     step 'Import Master Node',
       command: "",
       releaseMode: 'none',

@@ -24,6 +24,7 @@ def openshift_ip = openShiftMasterIP
 def openshift_public_ip = openShiftMasterIP
 def openshift_nodes = '$[openshift_nodes]'.replaceAll(",","deployment_type=origin \n")
 def user_login = '$[user_login]'
+def workspaceDir = System.getenv("COMMANDER_WORKSPACE")
 
 def text ="""[OSEv3:children]
 masters
@@ -33,12 +34,12 @@ nodes
 [OSEv3:vars]
 ansible_ssh_user=$user_login
 ansible_become=true
-openshift_master_htpasswd_file=/home/vagrant/passwordfile
+openshift_master_htpasswd_file=$workspaceDir/passwordfile
 deployment_type=origin
 containerized=true
 openshift_release=\"1.4.0\"
 #openshift_master_overwrite_named_certificates=true
-#openshift_master_named_certificates=[{\"certfile\": \"/home/vagrant/hmmaster.od.electric-cloud.com.cert\", \"keyfile\": \"/home/vagrant/hmmaster.od.electric-cloud.com.key\"}]
+#openshift_master_named_certificates=[{\"certfile\": \"$workspaceDir/$openshift_public_hostname.cert\", \"keyfile\": \"$workspaceDir/$openshift_public_hostname.key\"}]
 openshift_master_cluster_hostname=$openshift_hostname
 openshift_master_cluster_public_hostname=$openshift_public_hostname
 osm_cluster_network_cidr=\"10.130.0.0/14\"
