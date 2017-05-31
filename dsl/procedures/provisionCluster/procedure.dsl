@@ -43,29 +43,7 @@ procedure 'Provision Cluster',
 	    
   	}
 
-    step 'Import Master Node',
-      command: "",
-      releaseMode: 'none',
-      projectName: 'EC-OpenShift-1.2.0',
-      subprocedure: 'Import',
-      subproject: '/plugins/EC-ESX/project',
-      errorHandling: 'failProcedure',
-      timeLimitUnits: 'minutes', {
-
-	      actualParameter 'connection_config', '$[esx_config]'
-		  actualParameter 'esx_datastore', '$[esx_datastore]'
-		  actualParameter 'esx_host', '$[esx_host]'
-		  actualParameter 'esx_number_of_vms', '1'
-		  actualParameter 'esx_properties', 'hostname=$[openshift_public_hostname]'
-		  actualParameter 'esx_vm_memory', '$[master_memory]'
-		  actualParameter 'esx_vm_num_cpus', '$[master_cpu]'
-		  actualParameter 'esx_source_directory', '/home/vagrant/CentOS7/CentOS7.ovf'
-		  actualParameter 'esx_vmname', 'OpenShift-Master'
-		  actualParameter 'ovftool_path', '$[ovftool_path]'
-		  actualParameter 'esx_vm_poweron', '1'
-		  actualParameter 'esx_properties_location', '/myJob/ESX'
     
-    }
 
   	step 'Get Master IP', 
 	  command: new File(pluginDir, 'dsl/procedures/provisionCluster/steps/getIp.groovy').text,
@@ -75,53 +53,6 @@ procedure 'Provision Cluster',
 	  releaseMode: 'none',
 	  shell: 'ec-groovy',
 	  timeLimitUnits: 'minutes'
-
-
-	step 'Import worker Node1',
-      command: "",
-      releaseMode: 'none',
-      projectName: 'EC-OpenShift-1.2.0',
-      subprocedure: 'Import',
-      subproject: '/plugins/EC-ESX/project',
-      errorHandling: 'failProcedure',
-      timeLimitUnits: 'minutes', {
-
-	      actualParameter 'connection_config', '$[esx_config]'
-		  actualParameter 'esx_datastore', '$[esx_datastore]'
-		  actualParameter 'esx_host', '$[esx_host]'
-		  actualParameter 'esx_number_of_vms', '1'
-		  actualParameter 'esx_properties', 'hostname=$[node-1]'
-		  actualParameter 'esx_vm_memory', '$[node_memory]'
-		  actualParameter 'esx_vm_num_cpus', '$[node_cpu]'
-		  actualParameter 'esx_source_directory', '/home/vagrant/CentOS7/CentOS7.ovf'
-		  actualParameter 'esx_vmname', 'OpenShift-Node1'
-		  actualParameter 'ovftool_path', '$[ovftool_path]'
-		  actualParameter 'esx_vm_poweron', '1'
-    
-    }  
-
-    step 'Import worker Node2',
-      command: "",
-      releaseMode: 'none',
-      projectName: 'EC-OpenShift-1.2.0',
-      subprocedure: 'Import',
-      subproject: '/plugins/EC-ESX/project',
-      errorHandling: 'failProcedure',
-      timeLimitUnits: 'minutes', {
-
-	      actualParameter 'connection_config', '$[esx_config]'
-		  actualParameter 'esx_datastore', '$[esx_datastore]'
-		  actualParameter 'esx_host', '$[esx_host]'
-		  actualParameter 'esx_number_of_vms', '1'
-		  actualParameter 'esx_properties', 'hostname=$[node-2]'
-		  actualParameter 'esx_vm_memory', '$[node_memory]'
-		  actualParameter 'esx_vm_num_cpus', '$[node_cpu]'
-		  actualParameter 'esx_source_directory', '/home/vagrant/CentOS7/CentOS7.ovf'
-		  actualParameter 'esx_vmname', 'OpenShift-Node2'
-		  actualParameter 'ovftool_path', '$[ovftool_path]'
-		  actualParameter 'esx_vm_poweron', '1'
-    
-    }
 
 	step 'generateHostsFile', 
 	  command: new File(pluginDir, 'dsl/procedures/provisionCluster/steps/provisionCluster.groovy').text,
@@ -133,12 +64,33 @@ procedure 'Provision Cluster',
 	  timeLimitUnits: 'minutes'
 
 	step 'provisionCluster', 
-	  command: "cd $pluginDir/openshift-ansible; export ANSIBLE_ROLES_PATH=$pluginDir/openshift-ansible/roles;export ANSIBLE_CONFIG=$pluginDir/openshift-ansible/ansible.cfg;ansible-playbook -vvvv $pluginDir/openshift-ansible/playbooks/byo/config.yml -i /tmp/hosts -M $pluginDir/openshift-ansible/library",
+	  command: "",
 	  errorHandling: 'failProcedure',
 	  exclusiveMode: 'none',
 	  postProcessor: 'postp',
 	  releaseMode: 'none',
 	  timeLimitUnits: 'minutes'
+	
+    def project_name = '$[project]'
+	step 'configureCluster', 
+	  command: "ansible-playbook $pluginDir/ansible-scripts/get_service_token.yml -i /tmp/hosts --extra-vars \"project_name=$project_name\"",
+	  errorHandling: 'failProcedure',
+	  exclusiveMode: 'none',
+	  postProcessor: "postp --load $pluginDir/dsl/postp_matchers.pl",
+	  releaseMode: 'none',
+	  timeLimitUnits: 'minutes'
 	  
+	def ip = '$[OpenShiftMasterIP]',
+	    config_name = '$[plugin_config_name]',
+	    service_token = '$[service_token]'
+
+	step 'createPluginConfiguration', 
+	  command: "ectool evalDsl --dslFile $pluginDir/dsl/createPluginConfig.dsl --parameters '{\"ip\":\"${ip}\",\"config_name\":\"${config_name}\",\"service_token\":\"${service_token}\"}'",
+	  errorHandling: 'failProcedure',
+	  exclusiveMode: 'none',
+	  postProcessor: "postp",
+	  releaseMode: 'none',
+	  timeLimitUnits: 'minutes'
+	
 }
   

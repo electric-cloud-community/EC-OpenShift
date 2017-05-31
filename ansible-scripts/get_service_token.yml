@@ -1,0 +1,25 @@
+---
+- hosts: masters
+  remote_user: root
+  tasks:
+  - name: add
+    shell: |
+        oc login --username=test --password=test;
+        oadm --config='/etc/origin/master/admin.kubeconfig' policy add-cluster-role-to-user admin test;
+        oadm --config='/etc/origin/master/admin.kubeconfig' policy add-cluster-role-to-user cluster-admin test;
+        oc new-project {{ project_name }};
+        oc create sa motorbike;
+        oadm --config='/etc/origin/master/admin.kubeconfig' policy add-cluster-role-to-user cluster-admin system:serviceaccount:{{ project_name }}:motorbike;
+        oadm --config='/etc/origin/master/admin.kubeconfig' policy add-cluster-role-to-user cluster-reader system:serviceaccount:{{ project_name }}:motorbike;
+        oadm --config='/etc/origin/master/admin.kubeconfig' policy add-cluster-role-to-user admin system:serviceaccount:{{ project_name }}:motorbike;
+        oadm --config='/etc/origin/master/admin.kubeconfig' policy add-cluster-role-to-user admin system:serviceaccount:{{ project_name }}:motorbike;
+        > /root/service_token;
+        oc describe secret `oc describe sa motorbike | grep Tokens | awk '{ print $2}'` | grep token: | awk '{print $2}' > /root/service_token;
+        oadm --config='/etc/origin/master/admin.kubeconfig' policy add-scc-to-user privileged system:serviceaccount:{{ project_name }}:motorbike;
+        oadm router motorbike --service-account=motorbike
+
+  - name: display_token
+    shell: cat /root/service_token
+    register: hello
+
+  - debug: msg="{{ hello.stdout }}"
