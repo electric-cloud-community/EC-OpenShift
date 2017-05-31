@@ -34,6 +34,7 @@ procedure 'Provision Cluster',
         condition: '$[openshiftNotPresent]',
         timeLimitUnits: 'minutes'
 
+
     step 'Import Master Node',
       command: "",
       releaseMode: 'none',
@@ -56,8 +57,6 @@ procedure 'Provision Cluster',
 		  actualParameter 'ovftool_path', '$[ovftool_path]'
 		  actualParameter 'esx_vm_poweron', '1'
 		  actualParameter 'esx_properties_location', '/myJob/ESX'
-    
-    }
 
   	step 'Get Master IP', 
 	  command: new File(pluginDir, 'dsl/procedures/provisionCluster/steps/getIp.groovy').text,
@@ -68,6 +67,7 @@ procedure 'Provision Cluster',
 	  shell: 'ec-groovy',
 	  condition: '$[openshiftNotPresent]',
 	  timeLimitUnits: 'minutes'
+
 
 	step 'Import worker Node1',
       command: "",
@@ -128,7 +128,7 @@ procedure 'Provision Cluster',
 	  timeLimitUnits: 'minutes'
 
 	step 'provisionCluster', 
-	  command: "cd $pluginDir/openshift-ansible; export ANSIBLE_ROLES_PATH=$pluginDir/openshift-ansible/roles;export ANSIBLE_CONFIG=$pluginDir/openshift-ansible/ansible.cfg;ansible-playbook -vvvv $pluginDir/openshift-ansible/playbooks/byo/config.yml -i /tmp/hosts -M $pluginDir/openshift-ansible/library",
+	  command: "",
 	  errorHandling: 'failProcedure',
 	  exclusiveMode: 'none',
 	  postProcessor: 'postp',
@@ -144,7 +144,15 @@ procedure 'Provision Cluster',
 	  postProcessor: "postp --load $pluginDir/dsl/postp_matchers.pl",
 	  releaseMode: 'none',
 	  timeLimitUnits: 'minutes'
-	  
+	
+    def project_name = '$[project]'
+	step 'configureCluster', 
+	  command: "ansible-playbook $pluginDir/ansible-scripts/get_service_token.yml -i /tmp/hosts --extra-vars \"project_name=$project_name\"",
+	  errorHandling: 'failProcedure',
+	  exclusiveMode: 'none',
+	  postProcessor: "postp --load $pluginDir/dsl/postp_matchers.pl",
+	  releaseMode: 'none',
+	  timeLimitUnits: 'minutes'
 
 	step 'createPluginConfiguration', 
 	  command: new File(pluginDir, 'dsl/createPluginConfig.dsl').text,	 
