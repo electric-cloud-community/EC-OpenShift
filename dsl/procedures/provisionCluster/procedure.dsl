@@ -26,22 +26,13 @@ procedure 'Provision Cluster',
 	  timeLimitUnits: 'minutes'
 
 
-    step 'Generate Certs', {
-	    description = ''
-	    alwaysRun = '0'
-	    broadcast = '0'
-	    command = "htpasswd -b -c passwordfile test test"
-	    errorHandling = 'failProcedure'
-	    exclusiveMode = 'none'
-	    logFileName = ''
-	    parallel = '0'
-	    projectName = 'EC-OpenShift-1.2.0'
-	    releaseMode = 'none'
-	    subprocedure = null
-	    subproject = null
-	    timeLimitUnits = 'minutes'
-	    
-  	}
+	step 'Generate Certs',
+		command: "htpasswd -b -c passwordfile test test",
+		releaseMode: 'none',
+        projectName: 'EC-OpenShift-1.2.0',
+        errorHandling: 'failProcedure',
+        condition: '$[openshiftNotPresent]',
+        timeLimitUnits: 'minutes'
 
     step 'Import Master Node',
       command: "",
@@ -50,6 +41,7 @@ procedure 'Provision Cluster',
       subprocedure: 'Import',
       subproject: '/plugins/EC-ESX/project',
       errorHandling: 'failProcedure',
+      condition: '$[openshiftNotPresent]',
       timeLimitUnits: 'minutes', {
 
 	      actualParameter 'connection_config', '$[esx_config]'
@@ -60,7 +52,7 @@ procedure 'Provision Cluster',
 		  actualParameter 'esx_vm_memory', '$[master_memory]'
 		  actualParameter 'esx_vm_num_cpus', '$[master_cpu]'
 		  actualParameter 'esx_source_directory', '/home/vagrant/CentOS7/CentOS7.ovf'
-		  actualParameter 'esx_vmname', 'OpenShift-Master'
+		  actualParameter 'esx_vmname', 'OpenShift-$[openshift_public_hostname]'
 		  actualParameter 'ovftool_path', '$[ovftool_path]'
 		  actualParameter 'esx_vm_poweron', '1'
 		  actualParameter 'esx_properties_location', '/myJob/ESX'
@@ -74,8 +66,8 @@ procedure 'Provision Cluster',
 	  postProcessor: 'postp',
 	  releaseMode: 'none',
 	  shell: 'ec-groovy',
+	  condition: '$[openshiftNotPresent]',
 	  timeLimitUnits: 'minutes'
-
 
 	step 'Import worker Node1',
       command: "",
@@ -84,6 +76,7 @@ procedure 'Provision Cluster',
       subprocedure: 'Import',
       subproject: '/plugins/EC-ESX/project',
       errorHandling: 'failProcedure',
+      condition: '$[openshiftNotPresent]',
       timeLimitUnits: 'minutes', {
 
 	      actualParameter 'connection_config', '$[esx_config]'
@@ -94,11 +87,11 @@ procedure 'Provision Cluster',
 		  actualParameter 'esx_vm_memory', '$[node_memory]'
 		  actualParameter 'esx_vm_num_cpus', '$[node_cpu]'
 		  actualParameter 'esx_source_directory', '/home/vagrant/CentOS7/CentOS7.ovf'
-		  actualParameter 'esx_vmname', 'OpenShift-Node1'
+		  actualParameter 'esx_vmname', 'OpenShift-$[node-1]'
 		  actualParameter 'ovftool_path', '$[ovftool_path]'
 		  actualParameter 'esx_vm_poweron', '1'
     
-    }  
+    }
 
     step 'Import worker Node2',
       command: "",
@@ -107,6 +100,7 @@ procedure 'Provision Cluster',
       subprocedure: 'Import',
       subproject: '/plugins/EC-ESX/project',
       errorHandling: 'failProcedure',
+      condition: '$[openshiftNotPresent]',
       timeLimitUnits: 'minutes', {
 
 	      actualParameter 'connection_config', '$[esx_config]'
@@ -117,7 +111,7 @@ procedure 'Provision Cluster',
 		  actualParameter 'esx_vm_memory', '$[node_memory]'
 		  actualParameter 'esx_vm_num_cpus', '$[node_cpu]'
 		  actualParameter 'esx_source_directory', '/home/vagrant/CentOS7/CentOS7.ovf'
-		  actualParameter 'esx_vmname', 'OpenShift-Node2'
+		  actualParameter 'esx_vmname', 'OpenShift-$[node-2]'
 		  actualParameter 'ovftool_path', '$[ovftool_path]'
 		  actualParameter 'esx_vm_poweron', '1'
     
@@ -130,6 +124,7 @@ procedure 'Provision Cluster',
 	  postProcessor: 'postp',
 	  releaseMode: 'none',
 	  shell: 'ec-groovy',
+	  condition: '$[openshiftNotPresent]',
 	  timeLimitUnits: 'minutes'
 
 	step 'provisionCluster', 
@@ -138,7 +133,27 @@ procedure 'Provision Cluster',
 	  exclusiveMode: 'none',
 	  postProcessor: 'postp',
 	  releaseMode: 'none',
+	  condition: '$[openshiftNotPresent]',
+	  timeLimitUnits: 'minutes'
+	
+    def project_name = '$[project]'
+	step 'configureCluster', 
+	  command: "ansible-playbook $pluginDir/ansible-scripts/get_service_token.yml -i /tmp/hosts --extra-vars \"project_name=$project_name\"",
+	  errorHandling: 'failProcedure',
+	  exclusiveMode: 'none',
+	  postProcessor: "postp --load $pluginDir/dsl/postp_matchers.pl",
+	  releaseMode: 'none',
 	  timeLimitUnits: 'minutes'
 	  
+
+	step 'createPluginConfiguration', 
+	  command: new File(pluginDir, 'dsl/createPluginConfig.dsl').text,	 
+	  errorHandling: 'failProcedure',
+	  exclusiveMode: 'none',
+	  shell: 'ectool evalDsl --dslFile {0}',
+	  postProcessor: "postp",
+	  releaseMode: 'none',
+	  timeLimitUnits: 'minutes'
+	
 }
   
