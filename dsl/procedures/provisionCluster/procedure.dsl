@@ -29,10 +29,10 @@ procedure 'Provision Cluster',
 	step 'Generate Certs',
 		command: "htpasswd -b -c passwordfile test test",
 		releaseMode: 'none',
-        projectName: 'EC-OpenShift-1.2.0',
-        errorHandling: 'failProcedure',
-        condition: '$[openshiftNotPresent]',
-        timeLimitUnits: 'minutes'
+	    projectName: 'EC-OpenShift-1.2.0',
+	    errorHandling: 'failProcedure',
+	    condition: '$[openshiftNotPresent]',
+	    timeLimitUnits: 'minutes'
 
 
     step 'Import Master Node',
@@ -153,6 +153,15 @@ procedure 'Provision Cluster',
 	  postProcessor: "postp",
 	  releaseMode: 'none',
 	  timeLimitUnits: 'minutes'
+
+
+    step 'Wait for PluginConfig to populate',
+        command: "sleep 30s",
+        releaseMode: 'none',
+        projectName: 'EC-OpenShift-1.2.0',
+        errorHandling: 'failProcedure',
+        condition: '$[openshiftNotPresent]',
+        timeLimitUnits: 'minutes'
 	
 }
   
