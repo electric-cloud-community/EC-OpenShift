@@ -18,14 +18,7 @@
 <editor>
     <formElement>
         <type>entry</type>
-        <label>Configuration:</label>
-        <property>config</property>
-        <required>1</required>
-        <documentation>The name of an existing configuration which holds all the connection information for OpenShift cluster.</documentation>
-    </formElement> 
-    <formElement>
-        <type>entry</type>
-        <label>ESX config:</label>
+        <label>EC-ESX plugin config:</label>
         <property>esx_config</property>
         <required>1</required>
         <documentation>The name of the OpenShift project to which the services and deployments should be deployed. If the project does not exist, it will be created during service deployment.</documentation>
@@ -43,9 +36,7 @@
         <property>esx_host</property>
         <required>1</required>
         <documentation>The name of the OpenShift project to which the services and deployments should be deployed. If the project does not exist, it will be created during service deployment.</documentation>
-    </formElement>  
-
-       
+    </formElement>        
     <formElement>
         <type>entry</type>
         <label>ovftool_path:</label>
@@ -59,11 +50,11 @@
         <property>project</property>
         <required>1</required>
         <documentation>The name of the OpenShift project to which the services and deployments should be deployed. If the project does not exist, it will be created during service deployment.</documentation>
-    </formElement>  
+    </formElement>
     <formElement>
         <type>entry</type>
-        <label>OpenShift Hostname:</label>
-        <property>openshift_hostname</property>
+        <label>OpenShift VM name prefix:</label>
+        <property>openshift_hostname_prefix</property>
         <required>1</required>
         <documentation>The name of the OpenShift project to which the services and deployments should be deployed. If the project does not exist, it will be created during service deployment.</documentation>
     </formElement>  
@@ -73,14 +64,7 @@
         <property>plugin_config_name</property>
         <required>1</required>
         <documentation>The name of the OpenShift project to which the services and deployments should be deployed. If the project does not exist, it will be created during service deployment.</documentation>
-    </formElement> 
-    <formElement>
-        <type>entry</type>
-        <label>OpenShift Public Hostname:</label>
-        <property>openshift_public_hostname</property>
-        <required>1</required>
-        <documentation>The name of the OpenShift project to which the services and deployments should be deployed. If the project does not exist, it will be created during service deployment.</documentation>
-    </formElement>  
+    </formElement>   
     <formElement>
         <type>entry</type>
         <label>OpenShift Master Node Memory (in MBs):</label>
@@ -110,10 +94,30 @@
         <documentation>The name of the OpenShift project to which the services and deployments should be deployed. If the project does not exist, it will be created during service deployment.</documentation>
     </formElement>
     <formElement>
+      <type>radio</type>
+      <label>Topology:</label>
+      <property>topology</property>
+      <required>1</required>
+      <documentation>Indicates which openshift topology to deploy</documentation>
+      <option>
+         <name>Minimal (1 Master, 1 Etcd both on same machine)</name>
+         <value>minimal</value>
+      </option>
+      <option>
+         <name>Multiple Etcd (1 Master, 3 Etcd, master and Etcd on saperate machines)</name>
+         <value>multipleEtcd</value>
+      </option>
+      <option>
+         <name>Multiple Etcd + HAProxy (3 Masters, 3 Etcd, 1 HAProxy)</name>
+         <value>haproxy</value>
+      </option>
+   </formElement>
+    <formElement>
         <type>entry</type>
-        <label>List of cluster members:</label>
-        <property>openshift_nodes</property>
+        <label>Number of worker nodes:</label>
+        <property>no_openshift_nodes</property>
         <required>1</required>
+        <expand>0</expand>
         <documentation>Comma seperated list of VMs to add to cluster.</documentation>
     </formElement>
     <formElement>
