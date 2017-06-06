@@ -1,21 +1,21 @@
 $[/myProject/scripts/preamble]
+import groovy.json.*
 
-/*
 // Get Master VM IP from Properties set by EC-ESX plugin
 def jobId = "$[/myJob]"
 EFClient efClient = new EFClient()
 def result
+def uri = "/rest/v1.0/properties/ESX/master1/vms"
 def queryArgs = [
                 jobId: jobId
         ]
+result = efClient.doHttpGet(uri,true, queryArgs)
+def vms=result.data.property.value
 
-result = efClient.doHttpGet("/rest/v1.0/properties/OpenShiftMasterIP",true, queryArgs)
-def openShiftMasterIP=result.data.property.value
+def jsonSlurper = new JsonSlurper()
+def object = jsonSlurper.parseText(vms)
+def openShiftMasterIP = object.ip_address[0]
 println openShiftMasterIP
-*/
-
-
-def openShiftMasterIP="1.2.3.4"
 
 // Input parameters
 def pluginProjectName = '$[/myProject/projectName]'
@@ -36,7 +36,7 @@ def etcdList = "${hostname_prefix}master.${domain_name}\n"
 // Prepare default nodeList
 int no_openshift_nodes = '$[no_openshift_nodes]' as Integer
 def nodeList = ""
-for (int i = 0; i<no_openshift_nodes; i++) {
+for (int i = 1; i<=no_openshift_nodes; i++) {
     nodeList += "${hostname_prefix}node${i}.${domain_name} deployment_type=origin\n".toString()
 }
 
@@ -62,14 +62,24 @@ switch('$[topology]') {
 
 	    // construct etcd list
 	    etcdList = ""
-	    for(int i=0;i<3;i++){
-		    etcdList += "${hostname_prefix}etcd${i}.${domain_name}\n".toString()
+	    for(int i=1;i<=3;i++){
+		    etcdList += "${hostname_prefix}etcd${i}.${domain_name} deployment_type=origin\n".toString()
 	    }
 
 		// Construct masterList and nodeList	
 		def master = ""				
 		masterList = ""
-		for(int i=0;i<3;i++){
+
+		for(int i=1;i<=3;i++){
+			//Get the IP of master VMs from ESX/master
+			uri = "/rest/v1.0/properties/ESX/master${i}/vms"
+			queryArgs = [
+                jobId: jobId
+        	]
+			result = efClient.doHttpGet(uri,true, queryArgs)
+			vms=result.data.property.value	
+			object = jsonSlurper.parseText(vms)
+			openShiftMasterIP = object.ip_address[0]
 			master= "${hostname_prefix}master${i}.${domain_name}"
 			masterList += "$master openshift_ip=\"$openShiftMasterIP\" openshift_public_ip=\"$openShiftMasterIP\" openshift_node_labels=\"{'region':'infra','zone':'default'}\" openshift_hostname=\"${master_hostname}\" openshift_public_hostname=\"${master_hostname}\" containerized=\"true\" deployment_type=origin\n".toString()
 			nodeList += "${master} deployment_type=origin\n".toString()
@@ -81,8 +91,8 @@ switch('$[topology]') {
 
         additional_children = "etcd"
         etcdList = ""
-	    for(int i=0;i<3;i++){
-		    etcdList += "${hostname_prefix}etcd${i}.${domain_name}\n".toString()
+	    for(int i=1;i<=3;i++){
+		    etcdList += "${hostname_prefix}etcd${i}.${domain_name} deployment_type=origin\n".toString()
 	    }
 	    nodeList += "${master_hostname} deployment_type=origin\n".toString()
 	    break

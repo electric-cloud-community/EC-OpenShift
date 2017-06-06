@@ -1,5 +1,10 @@
 $[/myProject/scripts/preamble]
 
+// This script checks if Openshift is already deployed
+// by hitting Console https://<openshift_master>:8443/console
+// and sets "/myJob/openshiftNotPresent" property accordingly
+// This property is then used by further steps to skip actions if
+// openshift is already deployed.
 
 import groovyx.net.http.HTTPBuilder
 import static groovyx.net.http.Method.GET
@@ -7,7 +12,14 @@ import static groovyx.net.http.ContentType.HTML
 
 EFClient efClient = new EFClient()
 def openshiftNotPresent;
-def request = 'https://' + '$[openshift_public_hostname]' + '.'+'$[domain_name]' + ':8443/console'
+def request
+
+if ('$[topology]' == 'haproxy') {
+	request = 'https://' + '$[openshift_hostname_prefix]' + "lb." + '$[domain_name]' + ':8443/console'
+} else {
+	request = 'https://' + '$[openshift_hostname_prefix]' + "master." + '$[domain_name]' + ':8443/console'
+}
+
 def http = new HTTPBuilder(request)
 http.ignoreSSLIssues()
 try{
@@ -28,23 +40,7 @@ try{
 }
 
 def jobId = "$[/myJob]"
-def nodeList = '$[openshift_nodes]'
-String[] nodes = nodeList.split(',')
 def payload = [:]
-def i = 1
-
-for (String node: nodes) {
-    println "node-${i}=${node}";
-    payload << [
-        propertyName: "node-${i}".toString(),
-        value: node,
-        jobId: jobId
-	]
-	efClient.doHttpPost("/rest/v1.0/properties", /* request body */ payload)
-	i++
-}
-
-payload = [:]
 payload << [
         propertyName: "OpenshiftNotPresent",
         value: openshiftNotPresent,

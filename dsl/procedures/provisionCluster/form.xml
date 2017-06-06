@@ -18,32 +18,39 @@
 <editor>
     <formElement>
         <type>entry</type>
-        <label>EC-ESX plugin config:</label>
+        <label>EC-ESX plugin configaration:</label>
         <property>esx_config</property>
         <required>1</required>
-        <documentation>The name of the OpenShift project to which the services and deployments should be deployed. If the project does not exist, it will be created during service deployment.</documentation>
+        <documentation>EC-ESX plugin configuration name. EC-ESX plugin is used create underlying VM hosts for openshift cluster setup by importing OVF templates.</documentation>
     </formElement>  
     <formElement>
         <type>entry</type>
         <label>ESX Datastore:</label>
         <property>esx_datastore</property>
         <required>1</required>
-        <documentation>The name of the OpenShift project to which the services and deployments should be deployed. If the project does not exist, it will be created during service deployment.</documentation>
+        <documentation>Name of the datastore to be used.</documentation>
     </formElement>  
     <formElement>
         <type>entry</type>
         <label>ESX Host:</label>
         <property>esx_host</property>
         <required>1</required>
-        <documentation>The name of the OpenShift project to which the services and deployments should be deployed. If the project does not exist, it will be created during service deployment.</documentation>
+        <documentation>Name of the host where virtual machines will be imported.</documentation>
     </formElement>        
     <formElement>
         <type>entry</type>
-        <label>ovftool_path:</label>
+        <label>Path to Ovftool binary:</label>
         <property>ovftool_path</property>
         <required>1</required>
-        <documentation>The name of the OpenShift project to which the services and deployments should be deployed. If the project does not exist, it will be created during service deployment.</documentation>
-    </formElement>  
+        <documentation>Install location to ovftool binary.</documentation>
+    </formElement> 
+    <formElement>
+        <type>entry</type>
+        <label>Path to OVF package:</label>
+        <property>ovf_package_path</property>
+        <required>1</required>
+        <documentation>Absoulte path to the directory where OVF packages are stored.</documentation>
+    </formElement>   
     <formElement>
         <type>entry</type>
         <label>OpenShift Project:</label>
@@ -56,42 +63,42 @@
         <label>OpenShift VM name prefix:</label>
         <property>openshift_hostname_prefix</property>
         <required>1</required>
-        <documentation>The name of the OpenShift project to which the services and deployments should be deployed. If the project does not exist, it will be created during service deployment.</documentation>
+        <documentation>Prefix to be prepended to VM names and their hostnames to uniquely distiguish from other openshift setups. </documentation>
     </formElement>  
     <formElement>
         <type>entry</type>
         <label>OpenShift Plugin Configuration Name:</label>
         <property>plugin_config_name</property>
         <required>1</required>
-        <documentation>The name of the OpenShift project to which the services and deployments should be deployed. If the project does not exist, it will be created during service deployment.</documentation>
+        <documentation>Name EC-OpenShift plugin configaration to create after openshift cluster is setup.</documentation>
     </formElement>   
     <formElement>
         <type>entry</type>
         <label>OpenShift Master Node Memory (in MBs):</label>
         <property>master_memory</property>
         <required>0</required>
-        <documentation>The name of the OpenShift project to which the services and deployments should be deployed. If the project does not exist, it will be created during service deployment.</documentation>
+        <documentation> Memory in MB for master VM(s).</documentation>
     </formElement>  
     <formElement>
         <type>entry</type>
         <label>OpenShift Master Node CPUs:</label>
         <property>master_cpu</property>
         <required>0</required>
-        <documentation>The name of the OpenShift project to which the services and deployments should be deployed. If the project does not exist, it will be created during service deployment.</documentation>
+        <documentation>Number of CPUs for master VM(s).</documentation>
     </formElement> 
     <formElement>
         <type>entry</type>
         <label>OpenShift Worker Node Memory (in MBs):</label>
         <property>node_memory</property>
         <required>0</required>
-        <documentation>The name of the OpenShift project to which the services and deployments should be deployed. If the project does not exist, it will be created during service deployment.</documentation>
+        <documentation>Memory in MB for node VMs.</documentation>
     </formElement> 
      <formElement>
         <type>entry</type>
         <label>OpenShift Worker Node CPUs:</label>
         <property>node_cpu</property>
         <required>0</required>
-        <documentation>The name of the OpenShift project to which the services and deployments should be deployed. If the project does not exist, it will be created during service deployment.</documentation>
+        <documentation>Number of CPUs for node VMs.</documentation>
     </formElement>
     <formElement>
       <type>radio</type>
@@ -100,11 +107,11 @@
       <required>1</required>
       <documentation>Indicates which openshift topology to deploy</documentation>
       <option>
-         <name>Minimal (1 Master, 1 Etcd both on same machine)</name>
+         <name>Minimal (1 Master, 1 Etcd, both on same machine)</name>
          <value>minimal</value>
       </option>
       <option>
-         <name>Multiple Etcd (1 Master, 3 Etcd, master and Etcd on saperate machines)</name>
+         <name>Multiple Etcd (1 Master, 3 Etcd, Master and Etcd on saperate machines)</name>
          <value>multipleEtcd</value>
       </option>
       <option>
@@ -118,20 +125,20 @@
         <property>no_openshift_nodes</property>
         <required>1</required>
         <expand>0</expand>
-        <documentation>Comma seperated list of VMs to add to cluster.</documentation>
+        <documentation>Number of nodes to add to openshift cluster.</documentation>
     </formElement>
     <formElement>
         <type>entry</type>
         <label>Domain Name:</label>
         <property>domain_name</property>
         <required>1</required>
-        <documentation>Comma seperated list of VMs to add to cluster.</documentation>
+        <documentation>Domain name to use for imported openshift VMs.(e.g. xyz.yourcompany.com)</documentation>
     </formElement>
     <formElement>
         <type>entry</type>
         <label>User login to use:</label>
         <property>user_login</property>
         <required>1</required>
-        <documentation>The user to log in with.</documentation>
+        <documentation>The user ansible will use to login to VMs.This user should have passwordless SSH access preconfigured to imported VMs.</documentation>
     </formElement>     
 </editor>
