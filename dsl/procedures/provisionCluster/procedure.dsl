@@ -17,7 +17,7 @@ procedure 'Provision Cluster',
     }
 
    step 'Prepare Setup', 
-	  command: new File(pluginDir, 'dsl/procedures/provisionCluster/steps/prepare.groovy').text,
+      command: new File(pluginDir, 'dsl/procedures/provisionCluster/steps/prepare.groovy').text,
 	  errorHandling: 'failProcedure',
 	  exclusiveMode: 'none',
 	  postProcessor: 'postp',
@@ -26,12 +26,11 @@ procedure 'Provision Cluster',
 	  timeLimitUnits: 'minutes'
    
    step 'Generate Certs',
-		command: "htpasswd -b -c passwordfile test test",
-		releaseMode: 'none',
-	    projectName: 'EC-OpenShift-1.2.0',
-	    errorHandling: 'failProcedure',
-	    condition: '$[openshiftNotPresent]',
-	    timeLimitUnits: 'minutes'
+	  command: "htpasswd -b -c passwordfile test test",
+	  releaseMode: 'none',
+	  errorHandling: 'failProcedure',
+	  condition: '$[openshiftNotPresent]',
+	  timeLimitUnits: 'minutes'
 	    
    step 'Import VMs', 
 	  command: new File(pluginDir, 'dsl/procedures/provisionCluster/steps/generateSteps.pl').text,
@@ -63,8 +62,9 @@ procedure 'Provision Cluster',
 	  timeLimitUnits: 'minutes'
 
 	def project_name = '$[project]'
+	def service_account = '$[service_account]'
 	step 'configureCluster', 
-	  command: "ansible-playbook $pluginDir/ansible-scripts/get_service_token.yml -i /tmp/hosts --extra-vars \"project_name=$project_name\"",
+	  command: "ansible-playbook $pluginDir/ansible-scripts/get_service_token.yml -i /tmp/hosts --extra-vars \"project_name=$project_name service_account_name=$service_account\"",
 	  errorHandling: 'failProcedure',
 	  exclusiveMode: 'none',
 	  postProcessor: "postp --load $pluginDir/dsl/procedures/provisionCluster/steps/postp_matchers.pl",
@@ -85,7 +85,6 @@ procedure 'Provision Cluster',
 	step 'Wait for PluginConfig to populate',
         command: "sleep 30s",
         releaseMode: 'none',
-        projectName: 'EC-OpenShift-1.2.0',
         errorHandling: 'failProcedure',
         condition: '$[openshiftNotPresent]',
         timeLimitUnits: 'minutes'

@@ -124,8 +124,8 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td class="required">EC-ESX plugin configaration</td>
-                            <td>EC-ESX plugin configuration name. EC-ESX plugin is used create underlying VM hosts for openshift cluster setup by importing OVF templates.</td>
+                            <td class="required">EC-ESX plugin configuration</td>
+                            <td>EC-ESX plugin configuration name. EC-ESX plugin is used create underlying VM hosts for OpenShift cluster setup by importing OVF templates.</td>
                         </tr>
                         <tr>
                             <td class="required">ESX Datastore</td>
@@ -136,7 +136,7 @@
                             <td>Name of the host where virtual machines will be imported.</td>
                         </tr>
                         <tr>
-                            <td class="required">Path to Ovftool binary</td>
+                            <td class="required">Path to OVF Tool</td>
                             <td>Install location to ovftool binary.</td>
                         </tr>
                         <tr>
@@ -148,12 +148,16 @@
                             <td>The name of the OpenShift project to which the services and deployments should be deployed. If the project does not exist, it will be created during service deployment.</td>
                         </tr>
                         <tr>
-                            <td class="required">OpenShift VM name prefix</td>
-                            <td>Prefix to be prepended to VM names and their hostnames to uniquely distiguish from other openshift setups.</td>
+                            <td class="required">OpenShift Service Account</td>
+                            <td>The name of service account to create after OpenShift cluster is setup.</td>
                         </tr>
                         <tr>
-                            <td class="required">OpenShift Plugin Configuration Name</td>
-                            <td>Name EC-OpenShift plugin configaration to create after openshift cluster is setup.</td>
+                            <td class="required">OpenShift VM name prefix</td>
+                            <td>Prefix to be prepended to VM names and their hostnames to uniquely distiguish from other OpenShift setups.</td>
+                        </tr>
+                        <tr>
+                            <td class="required">EC-OpenShift Plugin Configuration Name</td>
+                            <td>Name EC-OpenShift plugin configaration to create after OpenShift cluster is setup.</td>
                         </tr>
                         <tr>
                             <td>OpenShift Master Node Memory (in MBs)</td>
@@ -173,7 +177,7 @@
                         </tr>
                         <tr>
                             <td class="required">Topology</td>
-                            <td>Indicates which openshift topology to deploy.Following topologies are supported:
+                            <td>Indicates which OpenShift topology to deploy.Following topologies are supported:
                                 <br/>1.Minimal (1 Master, 1 Etcd, both on same machine)
                                 <br/>2.Multiple Etcd (1 Master, 3 Etcd, Master and Etcd on saperate machines)
                                 <br/>3.Multiple Etcd + HAProxy (3 Masters, 3 Etcd, 1 HAProxy)
@@ -181,11 +185,11 @@
                         </tr>
                         <tr>
                             <td class="required">Number of worker nodes</td>
-                            <td>Number of nodes to add to openshift cluster.</td>
+                            <td>Number of nodes to add to OpenShift cluster.</td>
                         </tr>
                         <tr>
                             <td class="required">Domain Name</td>
-                            <td>Domain name to use for imported openshift VMs.(e.g. xyz.yourcompany.com)</td>
+                            <td>Domain name to use for imported OpenShift VMs.(e.g. xyz.yourcompany.com)</td>
                         </tr>
                         <tr>
                             <td class="required">User login to use</td>

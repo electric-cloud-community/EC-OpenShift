@@ -2,7 +2,7 @@ def configName = '$[plugin_config_name]'
 def pluginName = 'EC-OpenShift'
 def logLevel = '2'
 def desc = 'EC-OpenShift Config'
-def userName = 'service-acct'
+def userName = 'service_acc'
 def password = '$[service_token]'
 def clusterEndpoint
 

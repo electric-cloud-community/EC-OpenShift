@@ -18,10 +18,10 @@
 <editor>
     <formElement>
         <type>entry</type>
-        <label>EC-ESX plugin configaration:</label>
+        <label>EC-ESX plugin configuration:</label>
         <property>esx_config</property>
         <required>1</required>
-        <documentation>EC-ESX plugin configuration name. EC-ESX plugin is used create underlying VM hosts for openshift cluster setup by importing OVF templates.</documentation>
+        <documentation>EC-ESX plugin configuration name. EC-ESX plugin is used create underlying VM hosts for OpenShift cluster setup by importing OVF templates.</documentation>
     </formElement>  
     <formElement>
         <type>entry</type>
@@ -39,7 +39,7 @@
     </formElement>        
     <formElement>
         <type>entry</type>
-        <label>Path to Ovftool binary:</label>
+        <label>Path to OVF Tool:</label>
         <property>ovftool_path</property>
         <required>1</required>
         <documentation>Install location to ovftool binary.</documentation>
@@ -60,17 +60,24 @@
     </formElement>
     <formElement>
         <type>entry</type>
+        <label>OpenShift Service Account:</label>
+        <property>service_account</property>
+        <required>1</required>
+        <documentation>The name of service account to create after OpenShift cluster is setup.</documentation>
+    </formElement>
+    <formElement>
+        <type>entry</type>
         <label>OpenShift VM name prefix:</label>
         <property>openshift_hostname_prefix</property>
         <required>1</required>
-        <documentation>Prefix to be prepended to VM names and their hostnames to uniquely distiguish from other openshift setups. </documentation>
+        <documentation>Prefix to be prepended to VM names and their hostnames to uniquely distiguish from other OpenShift setups. </documentation>
     </formElement>  
     <formElement>
         <type>entry</type>
-        <label>OpenShift Plugin Configuration Name:</label>
+        <label>EC-OpenShift Plugin configuration Name:</label>
         <property>plugin_config_name</property>
         <required>1</required>
-        <documentation>Name EC-OpenShift plugin configaration to create after openshift cluster is setup.</documentation>
+        <documentation>Name EC-OpenShift plugin configaration to create after OpenShift cluster is setup.</documentation>
     </formElement>   
     <formElement>
         <type>entry</type>
@@ -105,7 +112,7 @@
       <label>Topology:</label>
       <property>topology</property>
       <required>1</required>
-      <documentation>Indicates which openshift topology to deploy</documentation>
+      <documentation>Indicates which OpenShift topology to deploy</documentation>
       <option>
          <name>Minimal (1 Master, 1 Etcd, both on same machine)</name>
          <value>minimal</value>
@@ -125,14 +132,14 @@
         <property>no_openshift_nodes</property>
         <required>1</required>
         <expand>0</expand>
-        <documentation>Number of nodes to add to openshift cluster.</documentation>
+        <documentation>Number of nodes to add to OpenShift cluster.</documentation>
     </formElement>
     <formElement>
         <type>entry</type>
         <label>Domain Name:</label>
         <property>domain_name</property>
         <required>1</required>
-        <documentation>Domain name to use for imported openshift VMs.(e.g. xyz.yourcompany.com)</documentation>
+        <documentation>Domain name to use for imported OpenShift VMs.(e.g. xyz.yourcompany.com)</documentation>
     </formElement>
     <formElement>
         <type>entry</type>
