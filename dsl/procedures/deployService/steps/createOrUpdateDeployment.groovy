@@ -1,6 +1,5 @@
 $[/myProject/scripts/preamble]
 
-sleep(10000)
 //// Input parameters
 String serviceName = '$[serviceName]'
 String serviceProjectName = '$[serviceProjectName]'
