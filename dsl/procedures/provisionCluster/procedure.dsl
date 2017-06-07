@@ -24,6 +24,16 @@ procedure 'Provision Cluster',
 	  releaseMode: 'none',
 	  shell: 'ec-groovy',
 	  timeLimitUnits: 'minutes'
+
+	step 'Install Ansible Playbooks', 
+	  command: new File(pluginDir, 'dsl/procedures/provisionCluster/steps/installPlaybooks.pl').text,
+	  errorHandling: 'failProcedure',
+	  exclusiveMode: 'none',
+	  postProcessor: 'postp',
+	  releaseMode: 'none',
+	  shell: 'ec-perl',
+	  condition: '$[openshiftNotPresent]',
+	  timeLimitUnits: 'minutes'
    
    step 'Generate Certs',
 	  command: "htpasswd -b -c passwordfile test test",
@@ -53,7 +63,7 @@ procedure 'Provision Cluster',
 	  timeLimitUnits: 'minutes'
 
 	step 'provisionCluster', 
-	  command: "cd $pluginDir/openshift-ansible; export ANSIBLE_ROLES_PATH=$pluginDir/openshift-ansible/roles;export ANSIBLE_CONFIG=$pluginDir/openshift-ansible/ansible.cfg;ansible-playbook -vvvv $pluginDir/openshift-ansible/playbooks/byo/config.yml -i /tmp/hosts -M $pluginDir/openshift-ansible/library",
+	  command: "cd \$COMMANDER_DATA/ansible/openshift-ansible; export ANSIBLE_ROLES_PATH=\$COMMANDER_DATA/ansible/openshift-ansible/roles;export ANSIBLE_CONFIG=\$COMMANDER_DATA/ansible/openshift-ansible/ansible.cfg;ansible-playbook -vvvv \$COMMANDER_DATA/ansible/openshift-ansible/playbooks/byo/config.yml -i /tmp/hosts -M \$COMMANDER_DATA/ansible/openshift-ansible/library",
 	  errorHandling: 'failProcedure',
 	  exclusiveMode: 'none',
 	  postProcessor: 'postp',
@@ -64,10 +74,10 @@ procedure 'Provision Cluster',
 	def project_name = '$[project]'
 	def service_account = '$[service_account]'
 	step 'configureCluster', 
-	  command: "ansible-playbook $pluginDir/ansible-scripts/get_service_token.yml -i /tmp/hosts --extra-vars \"project_name=$project_name service_account_name=$service_account\"",
+	  command: "ansible-playbook \$COMMANDER_DATA/ansible/ansible-scripts/get_service_token.yml -i /tmp/hosts --extra-vars \"project_name=$project_name service_account_name=$service_account\"",
 	  errorHandling: 'failProcedure',
 	  exclusiveMode: 'none',
-	  postProcessor: "postp --load $pluginDir/dsl/procedures/provisionCluster/steps/postp_matchers.pl",
+	  postProcessor: "postp --load \$COMMANDER_DATA/ansible/postp_matchers.pl",
 	  releaseMode: 'none',
 	  condition: '$[openshiftNotPresent]',
 	  timeLimitUnits: 'minutes'

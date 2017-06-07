@@ -62,6 +62,7 @@ if ( !$errorMessage ) {
 
     # delete artifact if it exists first
     $commander->deleteArtifactVersion("com.electriccloud:EC-OpenShift-Grapes:1.0.0");
+    $commander->deleteArtifactVersion("com.electriccloud:EC-OpenShift-Ansible:1.0.0");
 
     if ( $promoteAction eq "promote" ) {
 
@@ -77,6 +78,23 @@ if ( !$errorMessage ) {
             }
         );
 
+        # Print out the xml of the published artifactVersion.
+        $logfile .= $artifactVersion->xml() . "\n";
+
+        if ( $artifactVersion->diagnostics() ) {
+            $logfile .= "\nDetails:\n" . $artifactVersion->diagnostics();
+        }
+        
+        $artifactVersion = $am->publish(
+            {   groupId         => "com.electriccloud",
+                artifactKey     => "EC-OpenShift-Ansible",
+                version         => "1.0.0",
+                includePatterns => "**",
+                fromDirectory   => "$pluginDir/lib/ansible",
+                description => "Ansible scripts that EC-OpenShift plugin procedures depend on"
+            }
+        );
+        
         # Print out the xml of the published artifactVersion.
         $logfile .= $artifactVersion->xml() . "\n";
 
