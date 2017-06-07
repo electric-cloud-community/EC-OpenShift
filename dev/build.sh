@@ -12,8 +12,8 @@ fi
 rm ./out/EC-OpenShift.jar
 rm ./EC-OpenShift.zip
 
-jar cvf ./out/EC-OpenShift.jar dsl/ META-INF/ pages/ lib/ htdocs/  openshift-ansible/ ansible-scripts/
-zip -r ./EC-OpenShift.zip dsl/ META-INF/ pages/ lib/ htdocs/ openshift-ansible/ ansible-scripts/
+jar cvf ./out/EC-OpenShift.jar dsl/ META-INF/ pages/ lib/ htdocs/
+zip -r ./EC-OpenShift.zip dsl/ META-INF/ pages/ lib/ htdocs/
 
 if [ $DEPLOY -eq 1 ]; then
   echo "Installing plugin ..."
