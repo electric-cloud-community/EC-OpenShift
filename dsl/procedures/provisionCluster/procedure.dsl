@@ -73,20 +73,13 @@ procedure 'Provision Cluster',
 	  timeLimitUnits: 'minutes'
 	
 	step 'createPluginConfiguration', 
-	  command: new File(pluginDir, 'dsl/procedures/provisionCluster/steps/createPluginConfig.dsl').text,	 
+	  command: new File(pluginDir, 'dsl/procedures/provisionCluster/steps/createPluginConfig.pl').text,	 
 	  errorHandling: 'failProcedure',
 	  exclusiveMode: 'none',
-	  shell: 'ectool evalDsl --dslFile {0}',
+	  shell: 'ec-perl',
 	  postProcessor: "postp",
 	  releaseMode: 'none',
 	  condition: '$[openshiftNotPresent]',
 	  timeLimitUnits: 'minutes'
-
-	step 'Wait for PluginConfig to populate',
-        command: "sleep 30s",
-        releaseMode: 'none',
-        errorHandling: 'failProcedure',
-        condition: '$[openshiftNotPresent]',
-        timeLimitUnits: 'minutes'
 
 }
