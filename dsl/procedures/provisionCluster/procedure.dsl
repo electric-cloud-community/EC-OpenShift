@@ -69,6 +69,7 @@ procedure 'Provision Cluster',
 	  exclusiveMode: 'none',
 	  postProcessor: "postp --load $pluginDir/dsl/procedures/provisionCluster/steps/postp_matchers.pl",
 	  releaseMode: 'none',
+	  condition: '$[openshiftNotPresent]',
 	  timeLimitUnits: 'minutes'
 	
 	step 'createPluginConfiguration', 
@@ -78,6 +79,7 @@ procedure 'Provision Cluster',
 	  shell: 'ec-perl',
 	  postProcessor: "postp",
 	  releaseMode: 'none',
+	  condition: '$[openshiftNotPresent]',
 	  timeLimitUnits: 'minutes'
 
 }
