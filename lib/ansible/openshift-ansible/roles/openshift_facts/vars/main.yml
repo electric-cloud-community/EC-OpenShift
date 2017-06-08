@@ -1,0 +1,11 @@
+---
+required_packages:
+  - iproute
+  - python-dbus
+  - PyYAML
+  - yum-utils
+
+required_system_containers_packages:
+  - atomic
+  - ostree
+  - runc
