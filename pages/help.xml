@@ -62,7 +62,7 @@
                     OpenShift Configurations page.</li>
                     <li>Click <b>Create Configuration</b>.</li>
                     <li>Enter the following configuration parameters for communicating with the OpenShift cluster:</li></ul>
-					<p><img src="../../plugins/@PLUGIN_NAME@/images/ConfigurationParameters.png" alt="screenshot" /></p>
+					<p><img src="../../plugins/@PLUGIN_NAME@/htdocs/images/ConfigurationParameters.png" alt="screenshot" /></p>
 					<h3>Configuration Parameters</h3>
 					<table class="grid">
                 <thead>
@@ -111,7 +111,18 @@
             </p>
             <div id="ProvisionCluster">
                 <h2>Provision Cluster</h2>
-                <p>The procedure checks if the OpenShift cluster exists and is reachable with provided details.</p>
+                <p>The procedure checks if the OpenShift cluster exists and is reachable with provided details. If not, then provisions a new one.<br/>
+                    The procedure uses ESX plugin's import procedure to setup underlying VMs.For system requirements, see <a href="https://docs.openshift.com/enterprise/3.0/install_config/install/prerequisites.html#install-config-install-prerequisites">here</a>.For networking requirements, see <a href="https://docs.openshift.org/latest/install_config/install/prerequisites.html#prereq-network-access">here</a>. <br/>
+                    Once VMs are available, procedure uses <a href="https://github.com/openshift/openshift-ansible">ansible scripts</a> provided by OpenShift to setup openshift cluster. <br/>Bellow are the prerequisite to use this procedure:
+                    <ol>
+                        <li> Ansible (v2.2.0.0) must be installed on ElectricFlow agent machines and <b>'ansible-playbook'</b> command should be included in PATH. </li>
+                        <li> ElectricFlow agent machine should have passwordless SSH access to imported VMs.<br/>
+                        <li> Plugin passes the hostname to OVF template using OVF property "--prop:hostname=some_hostname" while importing using OVF tool.</li>
+                        The OVF template must have mechanism (<a href="https://github.com/vmware/open-vm-tools">'open-vm-tools'</a> is one such example) to read this OVF property and set its hostname accordingly. </li>
+                        <li> It should also add "127.0.0.1 some_hostname some_hostname.domain_name" entry to /etc/hosts file.</li>
+                        <li> <a href="https://buildlogs.centos.org/centos/7/paas/x86_64/openshift-origin/origin-docker-excluder-1.4.0-2.el7.noarch.rpm">'origin-docker-excluder'</a> and <a href="https://buildlogs.centos.org/centos/7/paas/x86_64/openshift-origin/origin-excluder-1.4.0-2.el7.noarch.rpm">'origin-excluder'</a> RPMs must be already installed on OVF template. </li>
+                    </ol>
+                </p>
                 <h3>Provision Cluster Parameters</h3>
                 <table class="grid">
                     <thead>
@@ -122,14 +133,79 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td class="required">Configuration</td>
-                            <td>The name of an existing plugin configuration which holds all the connection information for OpenShift cluster.</td>
+                            <td class="required">ESX plugin configuration</td>
+                            <td>ESX plugin configuration name. ESX plugin is used create underlying VM hosts for OpenShift cluster setup by importing OVF templates.</td>
+                        </tr>
+                        <tr>
+                            <td class="required">ESX Datastore</td>
+                            <td>Name of the datastore to be used.</td>
+                        </tr>
+                        <tr>
+                            <td class="required">ESX Host</td>
+                            <td>Name of the host where virtual machines will be imported.</td>
+                        </tr>
+                        <tr>
+                            <td class="required">Path to OVF Tool</td>
+                            <td>Install location to ovftool binary.</td>
+                        </tr>
+                        <tr>
+                            <td class="required">Path to OVF package</td>
+                            <td>Absoulte path to the directory where OVF packages are stored.</td>
                         </tr>
                         <tr>
                             <td class="required">OpenShift Project</td>
-                            <td>The name of an existing configuration which holds all the connection information for OpenShift cluster.</td>
+                            <td>The name of the OpenShift project to which the services and deployments should be deployed. If the project does not exist, it will be created during service deployment.</td>
                         </tr>
-
+                        <tr>
+                            <td class="required">OpenShift Service Account</td>
+                            <td>The name of service account to create after OpenShift cluster is setup.</td>
+                        </tr>
+                        <tr>
+                            <td class="required">OpenShift VM name prefix</td>
+                            <td>Prefix to be prepended to VM names and their hostnames to uniquely distiguish from other OpenShift setups.</td>
+                        </tr>
+                        <tr>
+                            <td class="required">OpenShift Plugin Configuration Name</td>
+                            <td>Name OpenShift plugin configaration to create after OpenShift cluster is setup.</td>
+                        </tr>
+                        <tr>
+                            <td>OpenShift Master Node Memory (in MBs)</td>
+                            <td>Memory in MB for master VM(s).</td>
+                        </tr>
+                        <tr>
+                            <td>OpenShift Master Node CPUs</td>
+                            <td>Number of CPUs for master VM(s).</td>
+                        </tr>
+                        <tr>
+                            <td>OpenShift Worker Node Memory (in MBs)</td>
+                            <td>Memory in MB for node VMs.</td>
+                        </tr>
+                        <tr>
+                            <td>OpenShift Worker Node CPUs</td>
+                            <td>Number of CPUs for node VMs.</td>
+                        </tr>
+                        <tr>
+                            <td class="required">Topology</td>
+                            <td>Indicates which OpenShift topology to deploy.Following topologies are supported:
+                                <ol>
+                                    <li>Minimal (1 Master, 1 Etcd, both on same machine)</li>
+                                    <li>Multiple Etcd (1 Master, 3 Etcd, Master and Etcd on saperate machines)</li>
+                                    <li>Multiple Etcd + HAProxy (3 Masters, 3 Etcd, 1 HAProxy)</li>
+                                </ol>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="required">Number of worker nodes</td>
+                            <td>Number of nodes to add to OpenShift cluster.</td>
+                        </tr>
+                        <tr>
+                            <td class="required">Domain Name</td>
+                            <td>Domain name to use for imported OpenShift VMs.(e.g. xyz.yourcompany.com)</td>
+                        </tr>
+                        <tr>
+                            <td class="required">User login to use</td>
+                            <td>The user ansible will use to login to VMs.This user should have passwordless SSH access preconfigured to imported VMs.</td>
+                        </tr>
                     </tbody>
                 </table>
 				<p><img src="../../plugins/@PLUGIN_NAME@/images/ProvisionCluster.png" alt="screenshot" /></p>
@@ -176,7 +252,7 @@
                         </tr>
                     </tbody>
                 </table>
-				<p><img src="../../plugins/@PLUGIN_NAME@/images/DeployService.png" alt="screenshot" /></p>
+				<p><img src="../../plugins/@PLUGIN_NAME@/htdocs/images/DeployService.png" alt="screenshot" /></p>
             </div>
         </div>
 	</body>
