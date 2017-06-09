@@ -14,10 +14,10 @@ my $xpath = $ec->retrieveArtifactVersions({
         artifactVersionName => 'com.electriccloud:EC-OpenShift-Ansible:1.0.0'
     });
 
-my $dataDir = $ENV{COMMANDER_DATA};
+my $dataDir = $ENV{COMMANDER_WORKSPACE};
 die "ERROR: Data directory not defined!" unless ($dataDir);
 
-my $ansibleDir = $ENV{COMMANDER_DATA} . '/ansible';
+my $ansibleDir = $ENV{COMMANDER_WORKSPACE} . '/ansible';
 my $dir = $xpath->findvalue("//artifactVersion/cacheDirectory");
 
 mkpath($ansibleDir);
