@@ -1,0 +1,26 @@
+---
+- hosts: masters
+  remote_user: root
+  tasks:
+  - name: add
+    shell: |
+        oc login --username=test --password=test;
+        oadm --config='/etc/origin/master/admin.kubeconfig' policy add-cluster-role-to-user admin test;
+        oadm --config='/etc/origin/master/admin.kubeconfig' policy add-cluster-role-to-user cluster-admin test;
+        oc new-project {{ project_name }};
+        oc create sa {{ service_account_name }};
+        oadm --config='/etc/origin/master/admin.kubeconfig' policy add-cluster-role-to-user cluster-admin system:serviceaccount:{{ project_name }}:{{ service_account_name }};
+        oadm --config='/etc/origin/master/admin.kubeconfig' policy add-cluster-role-to-user cluster-reader system:serviceaccount:{{ project_name }}:{{ service_account_name }};
+        oadm --config='/etc/origin/master/admin.kubeconfig' policy add-cluster-role-to-user admin system:serviceaccount:{{ project_name }}:{{ service_account_name }};
+        oadm --config='/etc/origin/master/admin.kubeconfig' policy add-cluster-role-to-user admin system:serviceaccount:{{ project_name }}:{{ service_account_name }};
+        > /root/service_token;
+        oc describe secret `oc describe sa {{ service_account_name }} | grep Tokens | awk '{ print $2}'` | grep token: | awk '{print $2}' > /root/service_token;
+        oadm --config='/etc/origin/master/admin.kubeconfig' policy add-scc-to-user privileged system:serviceaccount:{{ project_name }}:{{ service_account_name }};
+        oadm router {{ project_name }} --service-account={{ service_account_name }}
+  # Display the service token on consol output which postp matcher can capture and store it in property sheet.
+  # The captured service tocken will be used while creating plugin configuration   
+  - name: display_token
+    shell: cat /root/service_token
+    register: service_token
+
+  - debug: msg="{{ service_token.stdout }}"
