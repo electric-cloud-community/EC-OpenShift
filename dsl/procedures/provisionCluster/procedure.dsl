@@ -53,7 +53,7 @@ procedure 'Provision Cluster',
 	  timeLimitUnits: 'minutes'
 
 	step "generateHostsFile", 
-	  command: new File(pluginDir, 'dsl/procedures/provisionCluster/steps/provisionCluster.groovy').text,
+	  command: new File(pluginDir, 'dsl/procedures/provisionCluster/steps/generateHostsFile.groovy').text,
 	  errorHandling: 'failProcedure',
 	  exclusiveMode: 'none',
 	  postProcessor: 'postp',
@@ -63,7 +63,7 @@ procedure 'Provision Cluster',
 	  timeLimitUnits: 'minutes'
 
 	step 'provisionCluster', 
-	  command: "cd \$COMMANDER_DATA/ansible/openshift-ansible; export ANSIBLE_ROLES_PATH=\$COMMANDER_DATA/ansible/openshift-ansible/roles;export ANSIBLE_CONFIG=\$COMMANDER_DATA/ansible/openshift-ansible/ansible.cfg;export ANSIBLE_FILTER_PLUGINS=\$COMMANDER_DATA/ansible/openshift-ansible/filter_plugins;ansible-playbook -vvvv \$COMMANDER_DATA/ansible/openshift-ansible/playbooks/byo/config.yml -i /tmp/hosts -M \$COMMANDER_DATA/ansible/openshift-ansible/library",
+	  command: new File(pluginDir, 'dsl/procedures/provisionCluster/steps/provisionCluster.sh').text,
 	  errorHandling: 'failProcedure',
 	  exclusiveMode: 'none',
 	  postProcessor: 'postp',
@@ -74,10 +74,10 @@ procedure 'Provision Cluster',
 	def project_name = '$[project]'
 	def service_account = '$[service_account]'
 	step 'configureCluster', 
-	  command: "ansible-playbook \$COMMANDER_DATA/ansible/ansible-scripts/get_service_token.yml -i /tmp/hosts --extra-vars \"project_name=$project_name service_account_name=$service_account\"",
+	  command: "ansible-playbook \$COMMANDER_WORKSPACE/ansible/ansible-scripts/get_service_token.yml -i /tmp/hosts --extra-vars \"project_name=$project_name service_account_name=$service_account\"",
 	  errorHandling: 'failProcedure',
 	  exclusiveMode: 'none',
-	  postProcessor: "postp --load \$COMMANDER_DATA/ansible/postp_matchers.pl",
+	  postProcessor: "postp --load \$COMMANDER_WORKSPACE/ansible/postp_matchers.pl",
 	  releaseMode: 'none',
 	  condition: '$[openshiftNotPresent]',
 	  timeLimitUnits: 'minutes'
