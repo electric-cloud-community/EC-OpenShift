@@ -122,5 +122,5 @@ def template = engine.createTemplate(templateText).make(binding)
 
 println template
 
-File hostsFile = new File('/tmp/hosts')
+File hostsFile = new File(System.getenv("COMMANDER_WORKSPACE") + '/hosts')
 hostsFile.text = template

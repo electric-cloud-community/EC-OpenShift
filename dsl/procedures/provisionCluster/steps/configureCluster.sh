@@ -1,0 +1,1 @@
+ansible-playbook $COMMANDER_WORKSPACE/ansible/ansible-scripts/get_service_token.yml -i $COMMANDER_WORKSPACE/hosts --extra-vars "project_name=$project_name service_account_name=$service_account"
