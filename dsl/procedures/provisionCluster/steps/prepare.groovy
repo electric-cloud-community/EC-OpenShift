@@ -48,7 +48,13 @@ payload << [
 	]
 efClient.doHttpPost("/rest/v1.0/properties", /* request body */ payload)
 
+payload << [
+        propertyName: "/myJob/config",
+        value: "$[plugin_config_name]",
+        jobId: jobId
+	]
 
+efClient.doHttpPost("/rest/v1.0/properties", /* request body */ payload)
 
 
 
