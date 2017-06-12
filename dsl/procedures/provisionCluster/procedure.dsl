@@ -74,7 +74,7 @@ procedure 'Provision Cluster',
 	def project_name = '$[project]'
 	def service_account = '$[service_account]'
 	step 'configureCluster', 
-	  command: "ansible-playbook \$COMMANDER_WORKSPACE/ansible/ansible-scripts/get_service_token.yml -i /tmp/hosts --extra-vars \"project_name=$project_name service_account_name=$service_account\"",
+	  command: new File(pluginDir, 'dsl/procedures/provisionCluster/steps/configureCluster.sh').text,
 	  errorHandling: 'failProcedure',
 	  exclusiveMode: 'none',
 	  postProcessor: "postp --load \$COMMANDER_WORKSPACE/ansible/postp_matchers.pl",
