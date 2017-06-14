@@ -140,6 +140,72 @@
                         <li> It should also add "127.0.0.1 some_hostname some_hostname.domain_name" entry to /etc/hosts file.</li>
                         <li> <a href="https://buildlogs.centos.org/centos/7/paas/x86_64/openshift-origin/origin-docker-excluder-1.4.0-2.el7.noarch.rpm">'origin-docker-excluder'</a> and <a href="https://buildlogs.centos.org/centos/7/paas/x86_64/openshift-origin/origin-excluder-1.4.0-2.el7.noarch.rpm">'origin-excluder'</a> RPMs must be already installed on OVF template. </li>
                     </ol>
+                    Steps to prepare OVF template:
+                    <ul> 
+                        <li>Create a CentOS 7 VM.</li>
+                        <li>Create or use an existing SSH Keypair</li>
+                            <ol>
+                                <li>Insert the public key's content in ~/.ssh/authorized_keys</li>
+                                <li>On commander agent machine,place the private as well as public key in ~/.ssh with names id_rsa and id_rsa.public (So that they are default once)</li>
+                                <li>As a quick test, you should be able to SSH to CentoOS7 machine from agent machine without the password.</li>
+                            </ol>
+                        <li>Install open-vm-tools</li>
+                            <ol>
+                                <li>yum update</li>
+                                <li>yum install gcc perl</li>
+                                <li>yum install open-vm-tools</li>
+                                <li>To share OVF properties between hypervisor and guest vm, Open VM in ESXi web, navigate to manage, click edit, find vApp options, select Properties section, add a property with key as "hostname" and type as "string"</li>
+                                <li>Reboot the machine.</li>
+                                <li>Run bellow command once machine is up <br/>vmware-rpctool 'info-get guestinfo.ovfEnv'</li>
+                                <li>Write customization script in /opt/alter_hostname.<br/>
+                                    <textarea>
+                                        #!/usr/bin/perl
+                                        use strict;
+                                        use warnings;
+                                        open (my $log, '>>', '/tmp/guestcustomization.log');
+                                        my $command = "/usr/bin/vmware-rpctool 'info-get guestinfo.ovfEnv'";
+                                        my $result = `$command`;
+                                        print $log "OVF env is: $result\n";
+                                        my $hostname;
+                                        if ($result =~ m|key="hostname"\s+oe:value="(.*?)"|ims) {
+                                            $hostname = $1;
+                                        }
+                                        unless ($hostname) {
+                                            print $log "No hostname...\n";
+                                        }
+                                        print $log "Setting hostname '$hostname'\n";
+                                        my @commands = (
+                                            "sudo hostnamectl set-hostname $hostname",
+                                            "sudo hostnamectl set-hostname $hostname --transient",
+                                            'systemctl restart systemd-hostnamed',
+                                            "echo \"127.0.0.1  $hostname  $hostname.od.electric-cloud.com\" >> /etc/hosts"
+                                        );
+                                        for my $cmd (@commands) {
+                                            system($cmd);
+                                            print $log $cmd . "\n";
+                                        }
+                                        print $log "Done.\n";
+                                        close $log;
+                                    </textarea>
+                                </li>
+                                <li>chmod +x /opt/alter_hostname</li>
+                                <li>Create /sbin/ifup-local file with bellow contents:<br/>
+                                    <textarea>
+                                        #!/bin/sh
+                                        /usr/bin/perl /opt/alter_hostname
+                                    </textarea>
+                                </li>
+                            </ol>
+                        <li>Install Docker Excluder RPMs<br/>
+                            <textarea>                             
+                                sudo yum -y install wget
+                                wget https://buildlogs.centos.org/centos/7/paas/x86_64/openshift-origin/origin-docker-excluder-1.4.0-2.el7.noarch.rpm
+                                sudo rpm -Uvh origin-docker-excluder-1.4.0-2.el7.noarch.rpm
+                                wget https://buildlogs.centos.org/centos/7/paas/x86_64/openshift-origin/origin-excluder-1.4.0-2.el7.noarch.rpm
+                                sudo rpm -Uvh origin-excluder-1.4.0-2.el7.noarch.rpm
+                            </textarea>
+                        </li>
+                    </ul>
                 </p>
                 <h3>Provision Cluster Parameters</h3>
                 <table class="grid">
