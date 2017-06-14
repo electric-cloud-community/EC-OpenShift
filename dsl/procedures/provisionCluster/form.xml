@@ -118,7 +118,7 @@
          <value>minimal</value>
       </option>
       <option>
-         <name>Multiple Etcd (1 Master, 3 Etcd, Master and Etcd on saperate machines)</name>
+         <name>Multiple Etcd (1 Master, 3 Etcd, Master and Etcd on separate machines)</name>
          <value>multipleEtcd</value>
       </option>
       <option>
