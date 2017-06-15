@@ -176,7 +176,7 @@
                         </tr>
                         <tr>
                             <td class="required">OpenShift Service Account</td>
-                            <td>The name of service account to create after OpenShift cluster is setup.</td>
+                            <td>The name of service account to create after OpenShift cluster is setup.Service account name must match the regex [a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)* (e.g. 'example.com')</td>
                         </tr>
                         <tr>
                             <td class="required">OpenShift VM name prefix</td>

@@ -63,7 +63,7 @@
         <label>OpenShift Service Account:</label>
         <property>service_account</property>
         <required>1</required>
-        <documentation>The name of service account to create after OpenShift cluster is setup.</documentation>
+        <documentation>The name of service account to create after OpenShift cluster is setup.Service account name must match the regex [a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)* (e.g. 'example.com')</documentation>
     </formElement>
     <formElement>
         <type>entry</type>
@@ -75,7 +75,7 @@
     <formElement>
         <type>entry</type>
         <label>OpenShift Plugin configuration Name:</label>
-        <property>plugin_config_name</property>
+        <property>config</property>
         <required>1</required>
         <documentation>Name OpenShift plugin configaration to create after OpenShift cluster is setup.</documentation>
     </formElement>   

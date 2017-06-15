@@ -20,7 +20,7 @@ $ec->createJobStep(
                 actualParameter => [
                     {
                         actualParameterName => 'config',
-                        value => '$[plugin_config_name]'
+                        value => '$[config]'
                     },
                     {
                         actualParameterName => 'desc',
@@ -36,12 +36,12 @@ $ec->createJobStep(
                     },
                     {
                         actualParameterName => 'credential',
-                        value =>  '$[plugin_config_name]'
+                        value =>  '$[config]'
                     }
                 ],
                 credential => [
                     {
-                        credentialName => '$[plugin_config_name]',
+                        credentialName => '$[config]',
                         userName => '$[service_account]',
                         password => '$[service_token]'
                     }
