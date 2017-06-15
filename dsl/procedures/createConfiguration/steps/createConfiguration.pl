@@ -34,11 +34,18 @@ $ec->abortOnError(0);
 
 ## load option list from procedure parameters
 my $x       = $ec->getJobDetails($ENV{COMMANDER_JOBID});
-my $nodeset = $x->find('//actualParameter');
-foreach my $node ($nodeset->get_nodelist) {
-    my $parm = $node->findvalue('actualParameterName');
-    my $val  = $node->findvalue('value');
-    $opts->{$parm} = "$val";
+my @params = ("clusterEndpoint", "config", "credential", "desc", "logLevel");
+my $val;
+my $nodeset;
+my $nodelist;
+
+foreach my $param (@params) {
+    $nodeset = $x->find("//actualParameter[actualParameterName/text()='$param']/value");
+    $nodelist = $nodeset->get_nodelist;
+
+    foreach my $node ($nodeset->get_nodelist) {
+        $opts->{$param} = $node->string_value;
+    }
 }
 
 if (!defined $opts->{config} || "$opts->{config}" eq "") {
