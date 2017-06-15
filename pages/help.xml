@@ -172,11 +172,11 @@
                         </tr>
                         <tr>
                             <td class="required">OpenShift Project</td>
-                            <td>The name of the OpenShift project to which the services and deployments should be deployed. If the project does not exist, it will be created during service deployment.</td>
+                            <td>The name of the OpenShift project to which the services and deployments should be deployed. If the project does not exist, it will be created during service deployment.The project name must match the regex [a-z0-9]([-a-z0-9]*[a-z0-9])? (e.g. 'my-name' or '123-abc')</td>
                         </tr>
                         <tr>
                             <td class="required">OpenShift Service Account</td>
-                            <td>The name of service account to create after OpenShift cluster is setup.</td>
+                            <td>The name of service account to create after OpenShift cluster is setup.Service account name must match the regex [a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)* (e.g. 'example.com')</td>
                         </tr>
                         <tr>
                             <td class="required">OpenShift VM name prefix</td>
