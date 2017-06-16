@@ -71,8 +71,6 @@ procedure 'Provision Cluster',
 	  condition: '$[openshiftNotPresent]',
 	  timeLimitUnits: 'minutes'
 
-	def project_name = '$[project]'
-	def service_account = '$[service_account]'
 	step 'configureCluster', 
 	  command: new File(pluginDir, 'dsl/procedures/provisionCluster/steps/configureCluster.sh').text,
 	  errorHandling: 'failProcedure',

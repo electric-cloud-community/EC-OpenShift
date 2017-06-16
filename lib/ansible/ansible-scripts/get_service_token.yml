@@ -17,6 +17,7 @@
         oc describe secret `oc describe sa {{ service_account_name }} | grep Tokens | awk '{ print $2}'` | grep token: | awk '{print $2}' > /root/service_token;
         oadm --config='/etc/origin/master/admin.kubeconfig' policy add-scc-to-user privileged system:serviceaccount:{{ project_name }}:{{ service_account_name }};
         oadm router {{ service_account_name }} --service-account={{ service_account_name }}
+
   # Display the service token on consol output which postp matcher can capture and store it in property sheet.
   # The captured service tocken will be used while creating plugin configuration   
   - name: display_token
