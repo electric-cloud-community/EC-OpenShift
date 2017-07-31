@@ -104,7 +104,7 @@ switch('$[topology]') {
 
 
 // Read ansible hosts template
-File hostTemplate = new File(System.getenv("COMMANDER_DATA") + "/ansible/ansible_hosts_template")
+File hostTemplate = new File(System.getenv("COMMANDER_WORKSPACE") + "/ansible/ansible_hosts_template")
 templateText = hostTemplate.text
 
 def binding = ["additional_children":additional_children, 	   
