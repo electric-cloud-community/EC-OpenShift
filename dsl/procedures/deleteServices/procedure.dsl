@@ -14,10 +14,7 @@ procedure 'Cleanup Cluster - Experimental',
           exclusiveMode: 'none',
           postProcessor: 'postp',
           releaseMode: 'none',
-          timeLimitUnits: 'minutes', {
-
-        	  actualParameter 'additionalArtifactVersion', 'com.electriccloud:EC-OpenShift-Grapes:1.0.0'
-        }
+          timeLimitUnits: 'minutes'
 
 	step 'cleanup',
 	  command: new File(pluginDir, 'dsl/procedures/deleteServices/steps/deleteServices.groovy').text,

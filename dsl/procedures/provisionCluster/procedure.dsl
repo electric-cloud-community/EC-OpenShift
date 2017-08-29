@@ -1,6 +1,6 @@
 import java.io.File
 
-procedure 'Provision Cluster', 
+procedure 'Provision Cluster on ESX',
 	description: 'Provisions a OpenShift cluster. Pods, services, and replication controllers all run on top of a cluster.', {
 
 	step 'setup',

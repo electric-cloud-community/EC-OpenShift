@@ -60,7 +60,12 @@ $errors .= $ec->checkAllErrors($xpath);
 
 # Attach credential to steps that will need it
 $xpath = $ec->attachCredential($projName, $credName,
-    {procedureName => "Provision Cluster",
+    {procedureName => "Check Cluster",
+     stepName => "checkCluster"});
+$errors .= $ec->checkAllErrors($xpath);
+
+$xpath = $ec->attachCredential($projName, $credName,
+    {procedureName => "Provision Cluster on ESX",
      stepName => "provisionCluster"});
 $errors .= $ec->checkAllErrors($xpath);
 

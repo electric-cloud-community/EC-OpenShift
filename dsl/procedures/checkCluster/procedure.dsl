@@ -1,7 +1,7 @@
 import java.io.File
 
-procedure 'Deploy Service',
-	description: 'Creates or updates a Deployment to bring up a Replica Set and Pods.', {
+procedure 'Check Cluster',
+	description: 'Checks that the configured OpenShift cluster is accessible using the given service account bearer token.', {
 
 	step 'setup',
       subproject: '/plugins/EC-Kubernetes/project',
@@ -13,14 +13,12 @@ procedure 'Deploy Service',
       releaseMode: 'none',
       timeLimitUnits: 'minutes'
 
-	step 'createOrUpdateDeployment',
-	  command: new File(pluginDir, 'dsl/procedures/deployService/steps/createOrUpdateDeployment.groovy').text,
+   step 'checkCluster',
+      command: new File(pluginDir, 'dsl/procedures/checkCluster/steps/checkCluster.groovy').text,
 	  errorHandling: 'failProcedure',
 	  exclusiveMode: 'none',
 	  postProcessor: 'postp',
 	  releaseMode: 'none',
 	  shell: 'ec-groovy',
 	  timeLimitUnits: 'minutes'
-	  
 }
-  
