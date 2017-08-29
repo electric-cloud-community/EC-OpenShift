@@ -134,6 +134,7 @@
                     Once VMs are available, procedure uses <a href="https://github.com/openshift/openshift-ansible">ansible scripts</a> provided by OpenShift to setup openshift cluster. <br/>Bellow are the prerequisite to use this procedure:
                     <ol>
                         <li> Ansible (v2.2.0.0) must be installed on ElectricFlow agent machines and <b>'ansible-playbook'</b> command should be included in PATH. </li>
+                        <li> <b>'htpasswd'</b> must be installed and included in PATH on ElectricFlow agent machine.</li>
                         <li> ElectricFlow agent machine should have passwordless SSH access to imported VMs.<br/>
                         <li> Plugin passes the hostname to OVF template using OVF property "--prop:hostname=some_hostname" while importing using OVF tool.</li>
                         The OVF template must have mechanism (<a href="https://github.com/vmware/open-vm-tools">'open-vm-tools'</a> is one such example) to read this OVF property and set its hostname accordingly. </li>
@@ -172,11 +173,11 @@
                         </tr>
                         <tr>
                             <td class="required">OpenShift Project</td>
-                            <td>The name of the OpenShift project to which the services and deployments should be deployed. If the project does not exist, it will be created during service deployment.</td>
+                            <td>The name of the OpenShift project to which the services and deployments should be deployed. If the project does not exist, it will be created during service deployment.The project name must match the regex [a-z0-9]([-a-z0-9]*[a-z0-9])? (e.g. 'my-name' or '123-abc')</td>
                         </tr>
                         <tr>
                             <td class="required">OpenShift Service Account</td>
-                            <td>The name of service account to create after OpenShift cluster is setup.</td>
+                            <td>The name of service account to create after OpenShift cluster is setup.Service account name must match the regex [a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)* (e.g. 'example.com')</td>
                         </tr>
                         <tr>
                             <td class="required">OpenShift VM name prefix</td>
