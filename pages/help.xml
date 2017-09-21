@@ -14,7 +14,7 @@
                 EC-OpenShift plugin integrates with the <a href="https://www.openshift.com/">OpenShift container platform</a> allowing you to coordinate and manage microservices-based applications deployments and releases on both on-premise and hosted OpenShift offerings. 
                 <ul>
                     <li>
-                        In case of on-premise setup, plugin helps you install <a href="https://www.openshift.org/">OpenShift Origin</a> on VMWare setup right from importing underlying hosts (VMs) from OVF template, installing OpenShift Origin using <a href="https://github.com/openshift/openshift-ansible">Ansible scripts</a> and performs post installation steps like creation of project, service accout and router (with same name as project name). This makes deployment of any micro-service simple and straight forward. For the detailed requirements about OVF template, see <a href="#ProvisionCluster">Provision Cluster on ESX procedure details.</a>
+                        In case of on-premise setup, plugin helps you install <a href="https://www.openshift.org/">OpenShift Origin</a> on VMWare setup right from importing underlying hosts (VMs) from OVF template, installing OpenShift Origin using <a href="https://github.com/openshift/openshift-ansible">Ansible scripts</a> and performs post installation steps like creation of project, service accout and router (with same name as project name). This makes deployment of any micro-service simple and straight forward. For the detailed requirements about OVF template, see <a href="#ProvisionClusterOnESX">Provision Cluster on ESX procedure details.</a>
                     <br/> Plugin also supports various installation topologies based on requirements. Supported topologies are:
                     <br/> 
                         <ul>
@@ -81,10 +81,9 @@
                     <li>Click <b>Configure</b> to open the
                     OpenShift Configurations page.</li>
                     <li>Click <b>Create Configuration</b>.</li>
-                    <li>Enter the following configuration parameters for communicating with the OpenShift cluster:</li></ul>
-					<p><img src="../../plugins/@PLUGIN_NAME@/htdocs/images/ConfigurationParameters.png" alt="screenshot" /></p>
-					<h3>Configuration Parameters</h3>
-					<table class="grid">
+                    <li>Enter the following configuration parameters for communicating with the OpenShift cluster:</li>
+                </ul>
+				<table class="grid">
                 <thead>
                     <tr>
                         <th>Parameter</th>
@@ -121,8 +120,8 @@
                         <td>Log level to use for logging output. Error=4, Warning=3, Info=2, Debug=1. Info by default.</td>
                     </tr>
                 </tbody>
-            </table>
-			  
+                </table>
+                <p><img src="../../plugins/@PLUGIN_KEY/images/ConfigurationParameters.png" alt="screenshot" /></p>
             </div>
             <h1 id="procedures">Plugin Procedures</h1>
             <p>
@@ -153,7 +152,6 @@
                         </tr>
                     </tbody>
                 </table>
-                <p><img src="../../plugins/@PLUGIN_NAME@/htdocs/images/CheckCluster.png" alt="screenshot" /></p>
             </div>
             <div id="DeployService">
                 <h2>Deploy service</h2>
@@ -197,7 +195,6 @@
                         </tr>
                     </tbody>
                 </table>
-				<p><img src="../../plugins/@PLUGIN_NAME@/htdocs/images/DeployService.png" alt="screenshot" /></p>
             </div>
             <div id="ProvisionClusterOnESX">
                 <h2>Provision Cluster on ESX</h2>
