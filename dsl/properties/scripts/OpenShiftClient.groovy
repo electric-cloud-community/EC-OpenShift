@@ -19,17 +19,17 @@ public class OpenShiftClient extends KubernetesClient {
                 accessToken, /*failOnErrorCode*/ false)
         if (response.status == 200){
             logger INFO, "Route $routeName found in $namespace, updating route ..."
-            createOrUpdateRoute(/*createRoute*/ false, routeName, clusterEndPoint, namespace, serviceDetails, accessToken)
+            createOrUpdateRoute(/*existingRoute*/ response.data, routeName, clusterEndPoint, namespace, serviceDetails, accessToken)
         } else if (response.status == 404){
             logger INFO, "Route $routeName does not exist in $namespace, creating route ..."
-            createOrUpdateRoute(/*createRoute*/ true, routeName, clusterEndPoint, namespace, serviceDetails, accessToken)
+            createOrUpdateRoute(/*existingRoute*/ null, routeName, clusterEndPoint, namespace, serviceDetails, accessToken)
         } else {
             handleError("Route check failed. ${response.statusLine}")
         }
     }
 
 
-    def createOrUpdateRoute(boolean createRoute, String routeName, String clusterEndPoint, String namespace, def serviceDetails, String accessToken) {
+    def createOrUpdateRoute(def existingRoute, String routeName, String clusterEndPoint, String namespace, def serviceDetails, String accessToken) {
         String routeHostname = getServiceParameter(serviceDetails, 'routeHostname')
         String routePath = getServiceParameter(serviceDetails, 'routePath', '/')
         String routeTargetPort = getServiceParameter(serviceDetails, 'routeTargetPort')
@@ -38,7 +38,9 @@ public class OpenShiftClient extends KubernetesClient {
             handleError("Hostname for the route not specified.")
         }
 
-        def payload = buildRoutePayload(routeName, routeHostname, routePath, routeTargetPort, serviceDetails)
+        def payload = buildRoutePayload(routeName, routeHostname, routePath, routeTargetPort, serviceDetails, existingRoute)
+
+        def createRoute = existingRoute == null
         doHttpRequest(createRoute ? POST : PUT,
                 clusterEndPoint,
                 createRoute?
@@ -49,7 +51,7 @@ public class OpenShiftClient extends KubernetesClient {
                 payload)
     }
 
-    String buildRoutePayload(String routeName, String routeHostname, String routePath, String routeTargetPort, def serviceDetails) {
+    String buildRoutePayload(String routeName, String routeHostname, String routePath, String routeTargetPort, def serviceDetails, def existingRoute) {
         String serviceName = formatName(serviceDetails.serviceName)
         def json = new JsonBuilder()
         def result = json{
@@ -72,6 +74,15 @@ public class OpenShiftClient extends KubernetesClient {
                 }
             }
         }
-        return (new JsonBuilder(result)).toPrettyString()
+        // build the final payload by merging with the existing
+        // route definition
+        def payload = existingRoute
+        if (payload) {
+            payload = mergeObjs(payload, result)
+        } else {
+            payload = result
+        }
+
+        return (new JsonBuilder(payload)).toPrettyString()
     }
 }
