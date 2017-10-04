@@ -38,6 +38,7 @@
                     <li><a href="#CheckCluster">Check Cluster</a></li>
                     <li><a href="#DeployService">Deploy Service</a></li>
                     <li><a href="#ProvisionClusterOnESX">Provision Cluster on ESX</a></li>
+                    <li><a href="#UndeployService">Undeploy Service</a></li>
                 </ul>
                 <li><p><a href="#rns">Release Notes</a></p></li>
             </ul>
@@ -51,28 +52,28 @@
             Run the following commands to create a service account, grant the required access for deploying services in the OpenShift cluster, and retrieve the bearer token that will be used when creating the plugin configuration.
             The service account bearer token will be used to authenticate against the Kubernetes and OpenShift APIs for managing projects (namespaces) and deploying services.
             <pre>
-            # Login using cluster admin credentials
-            oc login cluster_IP_here:8443 --username=cluster_admin_user_here --password=admin_user_password_here
+    # Login using cluster admin credentials
+    oc login cluster_IP_here:8443 --username=cluster_admin_user_here --password=admin_user_password_here
 
-            # Create a service account in the current project say 'us-project-test'. Full name of the serviceaccount will be system:serviceaccount:us-project-test:erobot
-            oc create serviceaccount erobot
+    # Create a service account in the current project say 'us-project-test'. Full name of the serviceaccount will be system:serviceaccount:us-project-test:erobot
+    oc create serviceaccount erobot
 
 
-            # Grant the roles to allow the service account create resources in the cluster such as projects.
+    # Grant the roles to allow the service account create resources in the cluster such as projects.
 
-            sudo ./oadm --config='openshift.local.config/master/openshift-master.kubeconfig' policy add-cluster-role-to-user cluster-admin system:serviceaccount:us-project-test:erobot
-            sudo ./oadm --config='openshift.local.config/master/openshift-master.kubeconfig' policy add-cluster-role-to-user cluster-reader system:serviceaccount:us-project-test:erobot
-            sudo ./oadm --config='openshift.local.config/master/openshift-master.kubeconfig' policy add-cluster-role-to-user admin system:serviceaccount:us-project-test:erobot
+    sudo ./oadm --config='openshift.local.config/master/openshift-master.kubeconfig' policy add-cluster-role-to-user cluster-admin system:serviceaccount:us-project-test:erobot
+    sudo ./oadm --config='openshift.local.config/master/openshift-master.kubeconfig' policy add-cluster-role-to-user cluster-reader system:serviceaccount:us-project-test:erobot
+    sudo ./oadm --config='openshift.local.config/master/openshift-master.kubeconfig' policy add-cluster-role-to-user admin system:serviceaccount:us-project-test:erobot
 
-            # Describe the service account to discover the secret token name
-            oc describe serviceaccount erobot
+    # Describe the service account to discover the secret token name
+    oc describe serviceaccount erobot
 
-            # Describe the secret token to get the token value, say 'erobot-token-8zlsh'
-            oc describe secret erobot-token-8zlsh
-            or
-            oc describe secret erobot-token-8zlsh > oc-secret-with-token.txt
+    # Describe the secret token to get the token value, say 'erobot-token-8zlsh'
+    oc describe secret erobot-token-8zlsh
+    or
+    oc describe secret erobot-token-8zlsh > oc-secret-with-token.txt
 
-            # You will need to provide this token value in the plugin configuration for the Service Account Key value.
+    # You will need to provide this token value in the plugin configuration for the Service Account Key value.
             </pre>
 
             </p>
@@ -186,7 +187,7 @@
             <div id="DeployService">
                 <h2>Deploy service</h2>
                 <p>This procedure deploys a service, creating or updating pod definitions, service and deployment in the OpenShift project on the cluster. The OpenShift project(namespace) is created if it does not exist.</p>
-                <h3>Depoy Service Parameters</h3>
+                <h3>Deploy Service Parameters</h3>
                 <table class="grid">
                     <thead>
                         <tr>
@@ -327,6 +328,49 @@
                     </tbody>
                 </table>
             </div>
+            <div id="UndeployService">
+                <h2>Undeploy service</h2>
+                <p>This procedure undeploys a previously deployed service on the OpenShift cluster. The OpenShift project(namespace) is not removed.</p>
+                <h3>Undeploy Service Parameters</h3>
+                <table class="grid">
+                    <thead>
+                        <tr>
+                            <th>Parameter</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="required">Service Name</td>
+                            <td>The name of the service in Deploy that encapsulates the service that was previously deployed on the OpenShift cluster.</td>
+                        </tr>
+                        <tr>
+                            <td class="required">Service Project Name</td>
+                            <td>The name of the project that the service belongs to. In case of an application-level service it also owns the application.</td>
+                        </tr>
+                        <tr>
+                            <td>Application Name</td>
+                            <td>The name of the application that the service belongs to. Not applicable for a top-level service.</td>
+                        </tr>
+                        <tr>
+                            <td>Application Revision ID</td>
+                            <td>Revision Id of the application version that the service belongs to.</td>
+                        </tr>
+                        <tr>
+                            <td class="required">Environment Name</td>
+                            <td>The name of the environment that the cluster belongs to. Not applicable for a top-level project cluster.</td>
+                        </tr>
+                        <tr>
+                            <td>Environment Project Name</td>
+                            <td>The name of the project that the environment belongs to. If not specified, the environment is assumed to be in the same project as the service.</td>
+                        </tr>
+                        <tr>
+                            <td>Cluster Name</td>
+                            <td>The name of the cluster in the environment on which the service was previously deployed. If not specified, the application tier mapping will be used to find the cluster name.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
 
             <h1 id="rns">Release Notes</h1>
 
@@ -338,8 +382,9 @@
             -->
             <h2>EC-OpenShift-1.3.0</h2>
             <ul>
-                <li>Renamed 'Provision Cluster' procedure to a more specific 'Provision Cluster on ESX'. The parameters in the renamed procedure remain the same.</li>
+                <li>Renamed <i>Provision Cluster</i> procedure to a more specific <i>Provision Cluster on ESX</i>. The parameters in the renamed procedure remain the same.</li>
                 <li>Updated the 'provisionCluster' operation used during service deployment to use the 'Check Cluster' procedure that checks that the OpenShift cluster exists and is available for service deployments.</li>
+                <li>Added procedure <i>Undeploy Service</i> to undeploy a previously deployed service.</li>
             </ul>
         </div>
 	</body>
