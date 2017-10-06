@@ -13,6 +13,7 @@ String clusterEndpoint = pluginConfig.clusterEndpoint
 String openshiftHealthUrl = "$clusterEndpoint"
 
 OpenShiftClient client = new OpenShiftClient()
+client.setVersion(pluginConfig)
 def resp = client.checkClusterHealth(openshiftHealthUrl, accessToken)
 if (resp.status == 200){ 
 	efClient.logger INFO, "OpenShift cluster is reachable at ${clusterEndpoint}"
