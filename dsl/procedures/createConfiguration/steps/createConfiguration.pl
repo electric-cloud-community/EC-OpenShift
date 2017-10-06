@@ -34,7 +34,7 @@ $ec->abortOnError(0);
 
 ## load option list from procedure parameters
 my $x       = $ec->getJobDetails($ENV{COMMANDER_JOBID});
-my @params = ("clusterEndpoint", "config", "credential", "desc", "logLevel");
+my @params = ("clusterEndpoint", "config", "credential", "desc", "logLevel", "kubernetesVersion");
 my $val;
 my $nodeset;
 my $nodelist;
