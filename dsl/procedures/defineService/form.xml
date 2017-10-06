@@ -46,6 +46,27 @@
     </formElement>
 
     <formElement>
+        <type>select</type>
+        <label>Service Type:</label>
+        <property>serviceType</property>
+        <value>LoadBalancer</value>
+        <required>0</required>
+        <option>
+            <name>ClusterIP</name>
+            <value>ClusterIP</value>
+        </option>
+        <option>
+            <name>LoadBalancer</name>
+            <value>LoadBalancer</value>
+        </option>
+        <option>
+            <name>NodePort</name>
+            <value>NodePort</value>
+        </option>
+        <documentation>Kind of Kubernetes service to create.</documentation>
+    </formElement>
+
+    <formElement>
         <type>entry</type>
         <label>LoadBalancer IP:</label>
         <property>loadBalancerIP</property>

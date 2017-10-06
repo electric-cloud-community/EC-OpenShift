@@ -47,7 +47,16 @@
         <credentialType>key</credentialType>
         <documentation>The bearer token for the service account that has access to create resources in the Openshift cluster</documentation>
         <attachedAsParameterToStep>createAndAttachCredential</attachedAsParameterToStep>
-    </formElement>    
+    </formElement>
+    <formElement>
+        <type>entry</type>
+        <label>Kubernetes Version:</label>
+        <property>kubernetesVersion</property>
+        <propertyReference>/plugins/EC-Kubernetes/project/ec_options/k8sVersions</propertyReference>
+        <documentation>Kubernetes version running on the Openshift cluster master</documentation>
+        <value>1.6</value>
+        <required>0</required>
+    </formElement>
     <formElement>
         <type>select</type>
         <label>Log Level:</label>
