@@ -198,7 +198,7 @@
                     <tbody>
                         <tr>
                             <td class="required">Service Name</td>
-                            <td>The name of the service in Deploy that encapsulates the service to be deployed on the OpenShift cluster.</td>
+                            <td>The name of the service in ElectricFlow that encapsulates the service to be deployed on the OpenShift cluster.</td>
                         </tr>
                         <tr>
                             <td class="required">Service Project Name</td>
@@ -214,7 +214,7 @@
                         </tr>  
                         <tr>
                             <td class="required">Cluster name</td>
-                            <td>The name of the cluster in Deploy that encapsulates the OpenShift cluster on which the service is to be deployed.</td>
+                            <td>The name of the cluster in ElectricFlow that encapsulates the OpenShift cluster on which the service is to be deployed.</td>
                         </tr>                        
                         <tr>
                             <td>Cluster or environment project name</td>
@@ -281,7 +281,7 @@
                         </tr>
                         <tr>
                             <td class="required">OpenShift VM name prefix</td>
-                            <td>Prefix to be prepended to VM names and their hostnames to uniquely distiguish from other OpenShift setups.</td>
+                            <td>Prefix to be prepended to VM names and their hostnames to uniquely distinguish from other OpenShift setups.</td>
                         </tr>
                         <tr>
                             <td class="required">OpenShift Plugin Configuration Name</td>
@@ -342,7 +342,7 @@
                     <tbody>
                         <tr>
                             <td class="required">Service Name</td>
-                            <td>The name of the service in Deploy that encapsulates the service that was previously deployed on the OpenShift cluster.</td>
+                            <td>The name of the service in ElectricFlow that encapsulates the service that was previously deployed on the OpenShift cluster.</td>
                         </tr>
                         <tr>
                             <td class="required">Service Project Name</td>
