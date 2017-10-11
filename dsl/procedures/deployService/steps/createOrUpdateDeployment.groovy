@@ -12,6 +12,7 @@ if (!clusterOrEnvProjectName) {
 }
 String environmentName = '$[environmentName]'
 String applicationRevisionId = '$[applicationRevisionId]'
+String serviceEntityRevisionId = '$[serviceEntityRevisionId]'
 
 String resultsPropertySheet = '$[resultsPropertySheet]'
 if (!resultsPropertySheet) {
@@ -45,4 +46,5 @@ client.deployService(
         clusterName,
         clusterOrEnvProjectName,
         environmentName,
-        resultsPropertySheet)
+        resultsPropertySheet,
+        serviceEntityRevisionId)

@@ -12,11 +12,15 @@ if (!envProjectName) {
 }
 String environmentName = '$[environmentName]'
 String applicationRevisionId = '$[applicationRevisionId]'
+String serviceEntityRevisionId = '$[serviceEntityRevisionId]'
 
 //// -- Driver script logic to undeploy service -- //
 EFClient efClient = new EFClient()
 // if cluster is not specified, find the cluster based on the environment that the application is mapped to.
 if (!clusterName) {
+    if (!applicationName) {
+        efClient.handleError("'applicationName' must be specified if 'clusterName' is not specified in order to determine the cluster")
+    }
     clusterName = efClient.getServiceCluster(serviceName,
             serviceProjectName,
             applicationName,
@@ -48,4 +52,5 @@ client.undeployService(
         applicationRevisionId,
         clusterName,
         envProjectName,
-        environmentName)
+        environmentName,
+        serviceEntityRevisionId)

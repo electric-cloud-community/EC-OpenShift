@@ -97,7 +97,8 @@ public class OpenShiftClient extends KubernetesClient {
             String applicationRevisionId,
             String clusterName,
             String envProjectName,
-            String environmentName) {
+            String environmentName,
+            String serviceEntityRevisionId = null) {
 
         super.undeployService(
                 efClient,
@@ -110,7 +111,8 @@ public class OpenShiftClient extends KubernetesClient {
                 applicationRevisionId,
                 clusterName,
                 envProjectName,
-                environmentName)
+                environmentName,
+                serviceEntityRevisionId)
 
         def serviceDetails = efClient.getServiceDeploymentDetails(
                 serviceName,
@@ -119,7 +121,8 @@ public class OpenShiftClient extends KubernetesClient {
                 applicationRevisionId,
                 clusterName,
                 envProjectName,
-                environmentName)
+                environmentName,
+                serviceEntityRevisionId)
 
         removeRoute(clusterEndpoint, namespace, serviceDetails, accessToken)
     }
