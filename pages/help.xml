@@ -388,6 +388,10 @@
             and so on.
             - Descriptions of new features or functionality supported by the plugin.
             -->
+            <h2>EC-OpenShift-1.3.1</h2>
+            <ul>
+                <li>Removed unused parameter <i>additionalAttributes</i> from container mapping configuration.</li>
+            </ul>
             <h2>EC-OpenShift-1.3.0</h2>
             <ul>
                 <li>Renamed <i>Provision Cluster</i> procedure to a more specific <i>Provision Cluster on ESX</i>. The parameters in the renamed procedure remain the same.</li>
