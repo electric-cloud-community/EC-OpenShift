@@ -147,6 +147,11 @@
                          <i>Private Key</i>: Provide the bearer token for the service account that has access to create resources in the OpenShift cluster. This bearer token will be used to deploying services on the OpenShift cluster.</td>
                     </tr>
                     <tr>
+                        <td>Kubernetes Version</td>
+
+                        <td>Kubernetes version running on the Openshift cluster master. The parameter will default to '1.6' if no value is specified.</td>
+                    </tr>
+                    <tr>
                         <td>Debug level</td>
                         <td>Log level to use for logging output. Error=4, Warning=3, Info=2, Debug=1. Info by default.</td>
                     </tr>
@@ -397,6 +402,7 @@
                 <li>Renamed <i>Provision Cluster</i> procedure to a more specific <i>Provision Cluster on ESX</i>. The parameters in the renamed procedure remain the same.</li>
                 <li>Updated the 'provisionCluster' operation used during service deployment to use the 'Check Cluster' procedure that checks that the OpenShift cluster exists and is available for service deployments.</li>
                 <li>Added procedure <i>Undeploy Service</i> to undeploy a previously deployed service.</li>
+                <li>Added 'kubernetesVersion' parameter in the plugin configuration to allow the user to identify the Kubernetes version running on the Openshift cluster master. The parameter will default to '1.6' if no value is specified.</li>
             </ul>
         </div>
 	</body>
