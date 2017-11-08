@@ -148,8 +148,11 @@
                     </tr>
                     <tr>
                         <td>Kubernetes Version</td>
-
                         <td>Kubernetes version running on the Openshift cluster master. The parameter will default to '1.6' if no value is specified.</td>
+                    </tr>
+                    <tr>
+                        <td>Test Connection</td>
+                        <td>Check this checkbox to verify connectivity to the Openshift cluster master.</td>
                     </tr>
                     <tr>
                         <td>Debug level</td>
