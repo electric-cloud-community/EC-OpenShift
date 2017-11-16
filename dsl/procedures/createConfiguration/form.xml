@@ -46,7 +46,7 @@
         <passwordLabel>Bearer token:</passwordLabel>
         <credentialType>key</credentialType>
         <documentation>The bearer token for the service account that has access to create resources in the Openshift cluster</documentation>
-        <attachedAsParameterToStep>createAndAttachCredential</attachedAsParameterToStep>
+        <attachedAsParameterToStep>createAndAttachCredential,testConnection</attachedAsParameterToStep>
     </formElement>
     <formElement>
         <type>entry</type>
@@ -57,6 +57,17 @@
         <value>1.6</value>
         <required>0</required>
     </formElement>
+    <formElement> 
+        <label>Test Connection:</label>    
+        <property>testConnection</property> 
+        <documentation>Check this checkbox to verify connectivity to the Openshift cluster master.</documentation>
+        <type>checkbox</type>   
+        <checkedValue>true</checkedValue> 
+        <uncheckedValue>false</uncheckedValue> 
+        <initiallyChecked>1</initiallyChecked> 
+        <value>true</value> 
+        <required>0</required>
+    </formElement> 
     <formElement>
         <type>select</type>
         <label>Log Level:</label>
