@@ -35,7 +35,7 @@
         <label>Openshift API Endpoint:</label>
         <property>clusterEndpoint</property>
         <required>1</required>
-        <documentation>The endpoint at which Openshift API will be reachable. Must be a IP address or a resolvable DNS name.</documentation>
+        <documentation>The endpoint at which Openshift API will be reachable. Example, https://192.168.20.20:8443.</documentation>
     </formElement>
     <formElement>
         <type>credential</type>
