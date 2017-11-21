@@ -43,7 +43,7 @@
         <property>credential</property>
         <required>1</required>
         <userNameLabel>Name:</userNameLabel>
-        <passwordLabel>Bearer token:</passwordLabel>
+        <keyLabel>Bearer token:</keyLabel>
         <credentialType>key</credentialType>
         <documentation>The bearer token for the service account that has access to create resources in the Openshift cluster</documentation>
         <attachedAsParameterToStep>createAndAttachCredential,testConnection</attachedAsParameterToStep>
