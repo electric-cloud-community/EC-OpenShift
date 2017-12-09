@@ -44,7 +44,7 @@
             </ul>
 			<h2 id="prerequisites">Prerequisites</h2>
 			<ol>
-			<li>EC-Kubernetes plugin version 1.0.*</li>
+			<li>EC-Kubernetes plugin version 1.0.5 or higher</li>
             <li>EC-ESX plugin version 2.3.* (Only for running the <i>Provision Cluster on ESX</i> procedure)</li>
 			<li>RedHat OpenShift 3 cluster - RedHat OpenShift Online, RedHat OpenShift Dedicated, or RedHat OpenShift On-premise.</li>
 			<li>A service account with cluster access on RedHat OpenShift
@@ -397,8 +397,14 @@
             - Descriptions of new features or functionality supported by the plugin.
             -->
             <h2>EC-OpenShift-1.3.1</h2>
+            <i>Requires EC-Kubernetes plugin version 1.0.5 or higher to be installed.</i>
             <ul>
                 <li>Removed unused parameter <i>additionalAttributes</i> from container mapping configuration.</li>
+                <li>When deploying a microservice through ElectricFlow on an OpenShift cluster, the plugin will now monitor the deployment progress in the cluster and cause the step to fail
+                    in case the deployment does not complete within the deployment timeout configured as part of the service mapping. The default timeout value is 120 seconds.</li>
+                <li>When deploying a microservice through ElectricFlow on an OpenShift cluster, the service name to use in OpenShift can now be overridden through the service mapping.</li>
+                <li>When deploying a microservice through ElectricFlow on an OpenShift cluster, the deployment name to use in the cluster can now be overridden through the service mapping. See section <b>Blue/Green Deployments</b> in the EC-Kubernetes plugin help for details on how this ability can be used to implement a blue/green deployment strategy.</li>
+                <li>Added support for canary deployments. See section <b>Canary Deployments</b> in the EC-Kubernetes plugin help for details.</li>
             </ul>
             <h2>EC-OpenShift-1.3.0</h2>
             <ul>

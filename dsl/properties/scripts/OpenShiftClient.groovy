@@ -52,7 +52,7 @@ public class OpenShiftClient extends KubernetesClient {
     }
 
     String buildRoutePayload(String routeName, String routeHostname, String routePath, String routeTargetPort, def serviceDetails, def existingRoute) {
-        String serviceName = formatName(serviceDetails.serviceName)
+        def serviceName = getServiceNameToUseForDeployment(serviceDetails)
         def json = new JsonBuilder()
         def result = json{
             kind "Route"
@@ -143,7 +143,7 @@ public class OpenShiftClient extends KubernetesClient {
             logger DEBUG, "Route $routeName found in $namespace"
 
             def existingRoute = response.data
-            String serviceName = formatName(serviceDetails.serviceName)
+            def serviceName = getServiceNameToUseForDeployment(serviceDetails)
             if (existingRoute?.spec?.to?.kind == 'Service' && existingRoute?.spec?.to?.name == serviceName) {
                 logger DEBUG, "Deleting route $routeName in $namespace"
 
