@@ -47,7 +47,6 @@
         <value>1</value>
         <documentation>The number of replicas to create if performing a canary deployment. Defaults to 1 replica for the canary deployment.</documentation>
     </formElement>
-    <formElement>
 
     <formElement>
         <type>select</type>
