@@ -48,7 +48,7 @@
             <li>EC-ESX plugin version 2.3.* (Only for running the <i>Provision Cluster on ESX</i> procedure)</li>
 			<li>RedHat OpenShift 3 cluster - RedHat OpenShift Online, RedHat OpenShift Dedicated, or RedHat OpenShift On-premise.</li>
 			<li>A service account with cluster access on RedHat OpenShift
-            <p>Service accounts provide a flexible way to control API access without sharing a regular user’s credentials. Every service account has an associated username that can be granted roles, just like a regular user.<br/>
+            <p>Service accounts provide a flexible way to control API access without sharing a regular user's credentials. Every service account has an associated username that can be granted roles, just like a regular user.<br/>
             Run the following commands to create a service account, grant the required access for deploying services in the OpenShift cluster, and retrieve the bearer token that will be used when creating the plugin configuration.
             The service account bearer token will be used to authenticate against the Kubernetes and OpenShift APIs for managing projects (namespaces) and deploying services.
             <pre>
@@ -396,6 +396,10 @@
             and so on.
             - Descriptions of new features or functionality supported by the plugin.
             -->
+            <h2>EC-OpenShift-1.3.2</h2>
+            <ul>
+                <li>Fixed non-ascii characters in help file.</li>
+            </ul>
             <h2>EC-OpenShift-1.3.1</h2>
             <i>Requires EC-Kubernetes plugin version 1.0.5 or higher to be installed.</i>
             <ul>
