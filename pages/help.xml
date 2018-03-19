@@ -399,6 +399,7 @@
             <h2>EC-OpenShift-1.3.2</h2>
             <ul>
                 <li>Fixed non-ascii characters in help file.</li>
+                <li>Internal improvements for 8.3 release.</li>
             </ul>
             <h2>EC-OpenShift-1.3.1</h2>
             <i>Requires EC-Kubernetes plugin version 1.0.5 or higher to be installed.</i>
