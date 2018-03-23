@@ -399,8 +399,8 @@
             <h2>EC-OpenShift-1.3.2</h2>
             <ul>
                 <li>Fixed non-ascii characters in help file.</li>
-                <li>Configured the plugin to allow the ElectricFlow UI to render the plugin procedure parameters entirely using the configured form XMLs.</li>
-                <li>Enabled the plugin for managing the plugin configurations in-line when defining an application process step or a pipeline stage task.</li>
+                <li>Internal improvements for 8.3 release.</li>
+                <li>Configured the 'setup' procedure step that retrieves groovy dependency jars to run all subsequent procedure steps on the same resource.</li>
             </ul>
             <h2>EC-OpenShift-1.3.1</h2>
             <i>Requires EC-Kubernetes plugin version 1.0.5 or higher to be installed.</i>
