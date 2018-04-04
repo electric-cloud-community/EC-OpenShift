@@ -22,6 +22,7 @@ procedure 'Provision Cluster on ESX',
 	  exclusiveMode: 'none',
 	  postProcessor: 'postp',
 	  releaseMode: 'none',
+	  resourceName: '$[grabbedResource]',
 	  shell: 'ec-groovy',
 	  timeLimitUnits: 'minutes'
 
@@ -31,6 +32,7 @@ procedure 'Provision Cluster on ESX',
 	  exclusiveMode: 'none',
 	  postProcessor: 'postp',
 	  releaseMode: 'none',
+	  resourceName: '$[grabbedResource]',
 	  shell: 'ec-perl',
 	  condition: '$[openshiftNotPresent]',
 	  timeLimitUnits: 'minutes'
@@ -38,6 +40,7 @@ procedure 'Provision Cluster on ESX',
    step 'Generate Certs',
 	  command: "htpasswd -b -c passwordfile test test",
 	  releaseMode: 'none',
+	  resourceName: '$[grabbedResource]',
 	  errorHandling: 'failProcedure',
 	  condition: '$[openshiftNotPresent]',
 	  timeLimitUnits: 'minutes'
@@ -48,6 +51,7 @@ procedure 'Provision Cluster on ESX',
 	  exclusiveMode: 'none',
 	  postProcessor: 'postp',
 	  releaseMode: 'none',
+	  resourceName: '$[grabbedResource]',
 	  shell: 'ec-perl',
 	  condition: '$[openshiftNotPresent]',
 	  timeLimitUnits: 'minutes'
@@ -58,6 +62,7 @@ procedure 'Provision Cluster on ESX',
 	  exclusiveMode: 'none',
 	  postProcessor: 'postp',
 	  releaseMode: 'none',
+	  resourceName: '$[grabbedResource]',
 	  shell: 'ec-groovy',
 	  condition: '$[openshiftNotPresent]',
 	  timeLimitUnits: 'minutes'
@@ -68,17 +73,20 @@ procedure 'Provision Cluster on ESX',
 	  exclusiveMode: 'none',
 	  postProcessor: 'postp',
 	  releaseMode: 'none',
+	  resourceName: '$[grabbedResource]',
 	  condition: '$[openshiftNotPresent]',
 	  timeLimitUnits: 'minutes'
 
 	def project_name = '$[project]'
 	def service_account = '$[service_account]'
+
 	step 'configureCluster', 
 	  command: new File(pluginDir, 'dsl/procedures/provisionCluster/steps/configureCluster.sh').text,
 	  errorHandling: 'failProcedure',
 	  exclusiveMode: 'none',
 	  postProcessor: "postp --load \$COMMANDER_WORKSPACE/ansible/postp_matchers.pl",
 	  releaseMode: 'none',
+	  resourceName: '$[grabbedResource]',
 	  condition: '$[openshiftNotPresent]',
 	  timeLimitUnits: 'minutes'
 	
