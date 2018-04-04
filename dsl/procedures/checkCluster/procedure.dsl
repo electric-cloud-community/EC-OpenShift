@@ -19,6 +19,7 @@ procedure 'Check Cluster',
 	  exclusiveMode: 'none',
 	  postProcessor: 'postp',
 	  releaseMode: 'none',
+	  resourceName: '$[grabbedResource]',
 	  shell: 'ec-groovy',
 	  timeLimitUnits: 'minutes'
 }
