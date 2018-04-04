@@ -10,7 +10,7 @@ procedure 'CreateConfiguration',
           command: null,
           errorHandling: 'failProcedure',
           condition: '$[testConnection]',
-          exclusiveMode: 'call',
+          exclusiveMode: 'none',
           postProcessor: 'postp',
           releaseMode: 'none',
           timeLimitUnits: 'minutes'
