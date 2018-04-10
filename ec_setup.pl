@@ -131,7 +131,7 @@ if ( !$errorMessage ) {
                 artifactKey     => "EC-OpenShift-Grapes",
                 version         => "1.0.0",
                 includePatterns => "**",
-                fromDirectory   => "$tempDir/lib",
+                fromDirectory   => "$tempDir/lib/grapes",
                 description => "JARs that EC-OpenShift plugin procedures depend on"
             }
         );
