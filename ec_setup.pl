@@ -15,9 +15,6 @@ if ( defined $ENV{QUERY_STRING} ) {    # Promotion through UI
 }
 else {
     my $commanderPluginDir = $commander->getProperty('/server/settings/pluginsDirectory')->findvalue('//value');
-    unless ( $commanderPluginDir && -d $commanderPluginDir ) {
-        die "Cannot find commander plugin dir, please ensure that the option server/settings/pluginsDirectory is set up correctly";
-    }
     $pluginDir = File::Spec->catfile($commanderPluginDir, $pluginName);
 }
 
@@ -142,17 +139,17 @@ if ( !$errorMessage ) {
         if ( $artifactVersion->diagnostics() ) {
             $logfile .= "\nDetails:\n" . $artifactVersion->diagnostics();
         }
-        
+
         $artifactVersion = $am->publish(
             {   groupId         => "com.electriccloud",
                 artifactKey     => "EC-OpenShift-Ansible",
                 version         => "1.0.0",
                 includePatterns => "**",
-                fromDirectory   => "$pluginDir/lib/ansible",
+                fromDirectory   => "$tempDir/lib/ansible",
                 description => "Ansible scripts that EC-OpenShift plugin procedures depend on"
             }
         );
-        
+
         # Print out the xml of the published artifactVersion.
         $logfile .= $artifactVersion->xml() . "\n";
 
