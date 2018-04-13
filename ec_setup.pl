@@ -1,74 +1,62 @@
-use Cwd;
+# Plugin-specific setup code
+my $setup = ECSetup->new(
+    commander => $commander,
+    pluginName => $pluginName,
+    otherPluginName => $otherPluginName,
+    upgradeAction => $upgradeAction,
+    promoteAction => $promoteAction,
+);
+$setup->promotePlugin([
+    {artifactName => '@PLUGIN_KEY@-Grapes', artifactVersion => '1.0.0', fromDirectory => 'lib/grapes'},
+    {artifactName => '@PLUGIN_KEY@-Ansible', artifactVersion => '1.0.0', fromDirectory => 'lib/ansible'},
+]);
+
+# ec_setup.pl shared code
+#####################################
+package ECSetup;
+
+use strict;
+use warnings;
+
 use File::Spec;
-use POSIX;
 use Archive::Zip;
 use MIME::Base64;
 use Digest::MD5 qw(md5_hex);
 use File::Temp qw(tempfile tempdir);
-my $dir = getcwd;
-my $logfile ="";
-my $pluginDir;
+use Cwd;
+use POSIX;
 
 
-if ( defined $ENV{QUERY_STRING} ) {    # Promotion through UI
-    $pluginDir = $ENV{COMMANDER_PLUGINS} . "/$pluginName";
-}
-else {
-    my $commanderPluginDir = $commander->getProperty('/server/settings/pluginsDirectory')->findvalue('//value');
-    $pluginDir = File::Spec->catfile($commanderPluginDir, $pluginName);
-}
+sub new {
+    my ($class, %param) = @_;
 
-$logfile .= "Plugin directory is $pluginDir\n";
+    my $self = { %param };
+    $self->{commander} or die '$commander object should be provided!';
+    $self->{promoteAction} or die '$promoteAction should be provided!';
+    defined $self->{upgradeAction} or die '$upgradeAction should be provided!';
+    $self->{pluginName} or die '$pluginName should be provided!';
+    defined $self->{otherPluginName} or die '$otherPluginName should be provided!';
 
-$commander->setProperty("/plugins/$pluginName/project/pluginDir", {value=>$pluginDir});
-$logfile .= "Plugin Name: $pluginName\n";
-$logfile .= "Current directory: $dir\n";
-
-# Evaluate promote.groovy or demote.groovy based on whether plugin is being promoted or demoted ($promoteAction)
-local $/ = undef;
-
-my $demoteDsl = q{
-# demote.groovy placeholder
-};
-
-my $promoteDsl = q{
-# promote.groovy placeholder
-};
-
-
-my $dsl;
-if ($promoteAction eq 'promote') {
-  $dsl = $promoteDsl;
-}
-else {
-  $dsl = $demoteDsl;
+    return bless $self, $class;
 }
 
-my $dslReponse = $commander->evalDsl(
-    $dsl, {
-        parameters => qq(
-                     {
-                       "pluginName":"$pluginName",
-                       "upgradeAction":"$upgradeAction",
-                       "otherPluginName":"$otherPluginName"
-                     }
-              ),
-        debug             => 'false',
-        serverLibraryPath => File::Spec->catdir( $pluginDir, 'dsl' ),
-    },
-);
+sub commander { shift->{commander} }
+sub promoteAction { shift->{promoteAction} }
+sub upgradeAction { shift->{upgradeAction} }
+sub pluginName { shift->{pluginName} }
+sub otherPluginName { shift->{otherPluginName} }
 
+sub publishArtifact {
+    my ($self, $artifactName, $artifactVersion, $fromDirectory) = @_;
 
-$logfile .= $dslReponse->findnodes_as_string("/");
-
-my $errorMessage = $commander->getError();
-if ( !$errorMessage ) {
+    $artifactName or die 'Artifact name should be provided!';
+    $artifactVersion or die 'Artifact version should be provided!';
+    $fromDirectory or die 'fromDirectory should be provided!';
 
     # This is here because we cannot do publishArtifactVersion in dsl today
-
     # delete artifact if it exists first
-    $commander->deleteArtifactVersion("com.electriccloud:EC-OpenShift-Grapes:1.0.0");
-    $commander->deleteArtifactVersion("com.electriccloud:EC-OpenShift-Ansible:1.0.0");
+    my $commander = $self->commander;
+    $commander->deleteArtifactVersion("com.electriccloud:$artifactName:$artifactVersion");
 
     my $dependenciesProperty = '/projects/@PLUGIN_NAME@/ec_groovyDependencies';
     my $base64 = '';
@@ -97,12 +85,14 @@ if ( !$errorMessage ) {
 
       my $resultChecksum = md5_hex($base64);
       unless($checksum) {
-        die "No checksum found in dependencies property, please reinstall the plugin";
+        die "No checksum found in dependendencies property, please reinstall the plugin";
       }
       if ($resultChecksum ne $checksum) {
         die "Wrong dependency checksum: original checksum is $checksum";
       }
     }
+
+    return unless $base64;
 
     my $binary = decode_base64($base64);
     my ($tempFh, $tempFilename) = tempfile(CLEANUP => 1);
@@ -115,38 +105,19 @@ if ( !$errorMessage ) {
     unless($zip->read($tempFilename) == Archive::Zip::AZ_OK()) {
       die "Cannot read .zip dependencies: $!";
     }
-    $zip->extractTree("", File::Spec->catfile($tempDir, ''));
+    $zip->extractTree("", $tempDir . '/');
 
-
-
-    if ( $promoteAction eq "promote" ) {
-
+    my $logfile = '';
+    if ( $self->promoteAction eq "promote" ) {
         #publish jars to the repo server if the plugin project was created successfully
         my $am = new ElectricCommander::ArtifactManagement($commander);
         my $artifactVersion = $am->publish(
             {   groupId         => "com.electriccloud",
-                artifactKey     => "EC-OpenShift-Grapes",
-                version         => "1.0.0",
+                artifactKey     => "$artifactName",
+                version         => $artifactVersion,
                 includePatterns => "**",
-                fromDirectory   => "$tempDir/lib/grapes",
-                description => "JARs that EC-OpenShift plugin procedures depend on"
-            }
-        );
-
-        # Print out the xml of the published artifactVersion.
-        $logfile .= $artifactVersion->xml() . "\n";
-
-        if ( $artifactVersion->diagnostics() ) {
-            $logfile .= "\nDetails:\n" . $artifactVersion->diagnostics();
-        }
-
-        $artifactVersion = $am->publish(
-            {   groupId         => "com.electriccloud",
-                artifactKey     => "EC-OpenShift-Ansible",
-                version         => "1.0.0",
-                includePatterns => "**",
-                fromDirectory   => "$tempDir/lib/ansible",
-                description => "Ansible scripts that EC-OpenShift plugin procedures depend on"
+                fromDirectory   => File::Spec->catfile($tempDir, $fromDirectory),
+                description => 'JARs that @PLUGIN_NAME@ plugin procedures depend on'
             }
         );
 
@@ -157,10 +128,81 @@ if ( !$errorMessage ) {
             $logfile .= "\nDetails:\n" . $artifactVersion->diagnostics();
         }
     }
+
+    return $logfile;
 }
 
-# Create output property for plugin setup debug logs
-my $nowString = localtime;
-$commander->setProperty( "/plugins/$pluginName/project/logs/$nowString", { value => $logfile } );
+sub promotePlugin {
+    my ($self, $dependencies) = @_;
 
-die $errorMessage unless !$errorMessage
+    my $dir = getcwd;
+    my $logfile = "";
+    my $pluginDir;
+
+    my $commander = $self->commander;
+    my $pluginName = $self->pluginName;
+    if ( defined $ENV{QUERY_STRING} ) {    # Promotion through UI
+        $pluginDir = $ENV{COMMANDER_PLUGINS} . "/$pluginName";
+    }
+    else {
+        my $commanderPluginDir = $commander->getProperty('/server/settings/pluginsDirectory')->findvalue('//value');
+        $pluginDir = File::Spec->catfile($commanderPluginDir, $pluginName);
+    }
+
+    $logfile .= "Plugin directory is $pluginDir\n";
+
+    $commander->setProperty("/plugins/$pluginName/project/pluginDir", {value=>$pluginDir});
+    $logfile .= "Plugin Name: $pluginName\n";
+    $logfile .= "Current directory: $dir\n";
+
+
+    my $demoteDsl = q{
+    # demote.groovy placeholder
+    };
+
+    my $promoteDsl = q{
+    # promote.groovy placeholder
+    };
+
+    my $dsl;
+    if ($self->promoteAction eq 'promote') {
+      $dsl = $promoteDsl;
+    }
+    else {
+      $dsl = $demoteDsl;
+    }
+
+    my $otherPluginName = $self->otherPluginName;
+    my $upgradeAction = $self->upgradeAction;
+    my $dslReponse = $commander->evalDsl(
+        $dsl, {
+            parameters => qq(
+                         {
+                           "pluginName":"$pluginName",
+                           "upgradeAction":"$upgradeAction",
+                           "otherPluginName":"$otherPluginName"
+                         }
+                  ),
+            debug             => 'false',
+            serverLibraryPath => File::Spec->catdir( $pluginDir, 'dsl' ),
+        },
+    );
+
+
+    $logfile .= $dslReponse->findnodes_as_string("/");
+
+    my $errorMessage = $commander->getError();
+    if ( !$errorMessage ) {
+        if ($dependencies) {
+            for my $dependency (@$dependencies) {
+                $logfile .= $self->publishArtifact($dependency->{artifactName}, $dependency->{artifactVersion}, $dependency->{fromDirectory});
+            }
+        }
+    }
+
+    # Create output property for plugin setup debug logs
+    my $nowString = localtime;
+    $commander->setProperty( "/plugins/$pluginName/project/logs/$nowString", { value => $logfile } );
+
+    die $errorMessage unless !$errorMessage;
+}
