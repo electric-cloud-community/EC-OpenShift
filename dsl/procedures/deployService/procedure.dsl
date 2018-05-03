@@ -1,7 +1,7 @@
 import java.io.File
 
 procedure 'Deploy Service',
-	description: 'Creates or updates a Deployment to bring up a Replica Set and Pods.', {
+	description: 'Deploys a service, creating or updating pod definitions, service and deployment in the OpenShift project on the cluster. The OpenShift project(namespace) is created if it does not exist.', {
 
 	step 'setup',
       subproject: '/plugins/EC-Kubernetes/project',
