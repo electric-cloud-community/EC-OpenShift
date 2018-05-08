@@ -56,7 +56,7 @@
         <label>Service Name Override:</label>
         <property>serviceNameOverride</property>
         <required>0</required>
-        <documentation>Name for the service in the Google container engine cluster. If no override value is specified here, the service name in ElectricFlow will be used to name the service in OpenShift.</documentation>
+        <documentation>Name for the service in the OpenShift cluster. If no override value is specified here, the service name in ElectricFlow will be used to name the service in OpenShift.</documentation>
     </formElement>
 
     <formElement>
@@ -64,7 +64,7 @@
         <label>Deployment Name Override:</label>
         <property>deploymentNameOverride</property>
         <required>0</required>
-        <documentation>Name for the deployment in the Google container engine cluster. If no value is specified here, then the name of the service being created or updated in OpenShift will be used to name the deployment.</documentation>
+        <documentation>Name for the deployment in the OpenShift cluster. If no value is specified here, then the name of the service being created or updated in OpenShift will be used to name the deployment.</documentation>
     </formElement>
 
     <formElement>
