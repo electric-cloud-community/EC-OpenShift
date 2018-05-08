@@ -29,11 +29,17 @@ public class ImportFromTemplate extends EFClient {
         } */
 
         def parsedConfig = parser.load(configList)
+
+        logger INFO, "PARSED CONFIG AS: ${parsedConfig}"
+
         parsedConfig.objects.each{ obj ->
+            logger INFO, "OBJECTS LIST: ${obj}"
+            logger INFO, "OBJECTS LIST: ${obj.getClass()}"
             parsedConfigList.push(obj)
+            logger INFO, "parsedConfigList.push(obj) : ${parsedConfigList}"
         }
 
-        logger INFO, "PARSED CONFIG LIST BEGIN: ${prettyPrint(parsedConfigList)}"
+        logger INFO, "PARSED CONFIG LIST BEGIN: ${parsedConfigList}"
         logger INFO, "PARSED CONFIG LIST CLASS: ${parsedConfigList.getClass()}"
 
         def services
@@ -44,7 +50,7 @@ public class ImportFromTemplate extends EFClient {
             println "Failed to find any services in the YAML file. Cause: ${e.message}"
             System.exit(-1)
         }
-        logger INFO, "Parsed services: ${prettyPrint(services)}"
+        logger INFO, "Parsed services: ${services}"
 
         def deployments
         try {
@@ -58,7 +64,7 @@ public class ImportFromTemplate extends EFClient {
             println "Failed to find any deployment configurations in the YAML file."
             System.exit(-1)
         }
-        logger INFO, "Parsed deployments: ${prettyPrint(deployments)}"
+        logger INFO, "Parsed deployments: ${deployments}"
 
         services.each { kubeService ->
             if (!isSystemService(kubeService)) {
@@ -140,29 +146,43 @@ public class ImportFromTemplate extends EFClient {
 
     def getParsedServices(parsedConfigList){
         def services = []
+        //def services2 = [:]
+        logger DEBUG, "def services = []  CLASS ${services.getClass()}"
+        //logger DEBUG, "def services2 = [:]  CLASS ${services2.getClass()}"
         parsedConfigList.each { config ->
             logger DEBUG, "getParsedServices parsedConfigList.each CLASS ${config.getClass()}"
             logger DEBUG, "getParsedServices parsedConfigList.each VALUE ${config}"
             if (config.kind == "Service"){
                 logger DEBUG, "getParsedServices parsedConfigList.each config.kind == Service"
                 services.push(config)
+                //services2.push(config)
+                logger DEBUG, "AFTER PUSH def services = []  CLASS ${services.getClass()}"
+                //logger DEBUG, "AFTER PUSH def services2 = [:]  CLASS ${services2.getClass()}"
             }
         }
-        services
         logger DEBUG, "parsedConfigList ${services.getClass()}"
-        logger DEBUG, "parsedConfigList VALUE ${prettyPrint(services)}"
+        logger DEBUG, "parsedConfigList VALUE ${services}"
+        services
     }
 
     def getParsedDeployments(parsedConfigList){
         def deployments = []
+        //def deployments2 = [:]
+        logger DEBUG, "def deployments = []  CLASS ${deployments.getClass()}"
+        //logger DEBUG, "def deployments2 = [:]  CLASS ${deployments2.getClass()}"
         parsedConfigList.each { config ->
             logger DEBUG, "getParsedDeployments parsedConfigList.each CLASS ${config.getClass()}"
             logger DEBUG, "getParsedDeployments parsedConfigList.each VALUE ${config}"
             if (config.kind == "Deployment"){
                 logger DEBUG, "getParsedDeployments parsedConfigList.each config.kind == Deployment"
                 deployments.push(config)
+                //deployments2.push(config)
+                logger DEBUG, "AFTER PUSH def deployments = []  CLASS ${deployments.getClass()}"
+                //logger DEBUG, "AFTER PUSH def deployments2 = [:]  CLASS ${deployments2.getClass()}"
             }
         }
+        logger DEBUG, "parsedConfigList ${deployments.getClass()}"
+        logger DEBUG, "parsedConfigList VALUE ${deployments}"
         deployments
     }
 

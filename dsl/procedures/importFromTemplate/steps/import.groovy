@@ -3,6 +3,7 @@ $[/myProject/scripts/ImportFromTemplate]
 
 // Input parameters
 def osTemplateYaml = '''$[osTemplateYaml]'''.trim()
+def osTemplateValues = '''$[templateParamValues]'''.trim()
 def projectName = '$[projName]'
 def envProjectName = '$[envProjectName]'
 def environmentName = '$[envName]'
@@ -14,7 +15,6 @@ def NAMESPACE = "default"
 
 EFClient efClient = new EFClient()
 
-
 if(efClient.toBoolean(applicationScoped)) {
     if (!applicationName) {
         println "Application name is required for creating application-scoped microservices"
@@ -23,6 +23,23 @@ if(efClient.toBoolean(applicationScoped)) {
 } else {
     //reset application name since its not relevant if application_scoped is not set
     applicationName = null
+}
+
+def param2value = [:]
+if (osTemplateValues != null && !osTemplateValues.equals("")) {
+    def values = []
+    values = osTemplateValues.split(',')
+    values.each { parameterAndValue ->
+        if (parameterAndValue.contains('=')) {
+            String [] parameterAndValueSplitted = parameterAndValue.split('=')
+            param2value.put(parameterAndValueSplitted[0], parameterAndValueSplitted[1])
+        }
+    }
+}
+
+param2value.each { p,v ->
+    osTemplateYaml = osTemplateYaml.replace('{{' + p + '}}', v)
+    osTemplateYaml = osTemplateYaml.replace('{' + p + '}', v)
 }
 
 if (envProjectName && environmentName && clusterName) {
