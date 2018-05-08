@@ -41,7 +41,7 @@ try {
 } catch (SocketTimeoutException | ConnectException e) {
     throw EcException
             .code(ErrorCodes.RealtimeClusterLookupFailed)
-            .message("Kubernetes API Endpoint ${endpoint} could not be reached - ${e.message}")
+            .message("OpenShifttes API Endpoint ${endpoint} could not be reached - ${e.message}")
             .cause(e)
             .location(this.class.getCanonicalName())
             .build()
