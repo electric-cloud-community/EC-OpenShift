@@ -116,7 +116,7 @@ project pluginName, {
             property 'service', credentialProtected: true, {
 
             }
-        
+        }
     }
     property 'ec_dsl_libraries_path', value: 'libs'
 
