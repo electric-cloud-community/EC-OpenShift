@@ -28,7 +28,7 @@
         <label>Template Parameter Values:</label>
         <property>templateParamValues</property>
         <required>0</required>
-        <documentation>Template parameter values to use. Format "-p paramName1=value1 -p paramName2=value2" or "paramName1=value1 paramName2=value2"</documentation>
+        <documentation>Template parameter values to use. Format "paramName1=value1, paramName2=value2"</documentation>
     </formElement>
     <formElement>
         <type>project</type>

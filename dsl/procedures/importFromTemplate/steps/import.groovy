@@ -27,12 +27,11 @@ if(efClient.toBoolean(applicationScoped)) {
 
 def param2value = [:]
 if (osTemplateValues != null && !osTemplateValues.equals("")) {
-    def values = []
-    values = osTemplateValues.split(',')
+    def values = osTemplateValues.split(',')
     values.each { parameterAndValue ->
         if (parameterAndValue.contains('=')) {
             String [] parameterAndValueSplitted = parameterAndValue.split('=')
-            param2value.put(parameterAndValueSplitted[0], parameterAndValueSplitted[1])
+            param2value.put(parameterAndValueSplitted[0].trim(), parameterAndValueSplitted[1].trim())
         }
     }
 }
@@ -63,13 +62,6 @@ if (envProjectName && environmentName && clusterName) {
 }
 
 def importFromTemplate = new ImportFromTemplate()
-
-//println ("Applications:")
-//importFromTemplate.prettyPrint(efClient.getApplications(projectName))
-//println ("tier map:")
-//importFromTemplate.prettyPrint(efClient.getTierMaps(projectName, applicationName))
-//println ("AppEnvMap:")
-//importFromTemplate.prettyPrint(efClient.getAppEnvMaps(projectName, applicationName, "2f9da54a-2769-11e8-9347-0050569666fe"))
 
 def services = importFromTemplate.importFromTemplate(NAMESPACE, osTemplateYaml)
 importFromTemplate.saveToEF(services, projectName, envProjectName, environmentName, clusterName, applicationName)
