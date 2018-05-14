@@ -26,7 +26,7 @@ class ClusterView {
     private static final String TERMINATING = 'Terminating'
 
     private static final String TYPE_CLUSTER = 'ecp-cluster'
-    private static final String TYPE_NAMESPACE = 'ecp-namespace'
+    private static final String TYPE_NAMESPACE = 'ecp-project'
     private static final String TYPE_SERVICE = 'ecp-service'
     private static final String TYPE_POD = 'ecp-pod'
     private static final String TYPE_CONTAINER = 'ecp-container'
@@ -286,7 +286,7 @@ class ClusterView {
             pod = kubeClient.getPod(namespace, podId)
         } catch (Throwable e) {
             if (e.message =~ /404/) {
-                node.addAttribute(ATTRIBUTE_ERROR, "Kubernetes pod '${podId}' does not exist in namespace '${namespace}'".toString(), TYPE_STRING)
+                node.addAttribute(ATTRIBUTE_ERROR, "Kubernetes pod '${podId}' does not exist in project '${namespace}'".toString(), TYPE_STRING)
                 return node
             }
             else {
@@ -336,7 +336,7 @@ class ClusterView {
             pod = kubeClient.getPod(namespace, podId)
         } catch (Throwable e) {
             if (e.message =~ /404/) {
-                node.addAttribute(ATTRIBUTE_ERROR, "OpenShift pod '${podId}' that the container '${containerId}' belonged to does not exist in namespace '${namespace}'", TYPE_STRING)
+                node.addAttribute(ATTRIBUTE_ERROR, "OpenShift pod '${podId}' that the container '${containerId}' belonged to does not exist in project '${namespace}'", TYPE_STRING)
                 return node
             }
             else {
@@ -614,7 +614,7 @@ class ClusterView {
             namespace = kubeClient.getNamespace(namespaceName)
         } catch (Throwable e) {
             if (e.message =~ /404/) {
-                node.addAttribute(ATTRIBUTE_ERROR, "OpenShift namespace '${namespaceName}' does not exist", TYPE_STRING)
+                node.addAttribute(ATTRIBUTE_ERROR, "OpenShift project '${namespaceName}' does not exist", TYPE_STRING)
                 return node
             }
             else {
@@ -674,7 +674,7 @@ class ClusterView {
             service = kubeClient.getService(namespace, serviceId)
         } catch (Throwable e) {
             if (e.message =~ /404/) {
-                node.addAttribute(ATTRIBUTE_ERROR, "OpenShift service '${serviceId}' does not exist in namespace '${namespace}'", TYPE_STRING)
+                node.addAttribute(ATTRIBUTE_ERROR, "OpenShift service '${serviceId}' does not exist in project '${namespace}'", TYPE_STRING)
                 return node
             }
             else {

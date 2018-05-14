@@ -18,7 +18,6 @@ assert version
 
 def cluster = getCluster(projectName: projectName, environmentName: environmentName, clusterName: clusterName)
 def clusterId = cluster.clusterId.toString()
-// clusterName::namespaceName::
 
 import com.electriccloud.errors.EcException
 import com.electriccloud.errors.ErrorCodes
@@ -47,7 +46,7 @@ try {
 } catch (Throwable e) {
     throw EcException
         .code(ErrorCodes.ScriptError)
-        .message("Exception occured while retrieving namespace details: ${e.message}")
+        .message("Exception occured while retrieving project details: ${e.message}")
         .cause(e)
         .location(this.class.getCanonicalName())
         .build()
