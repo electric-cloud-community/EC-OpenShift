@@ -27,8 +27,7 @@ abstract class BasePlugin extends DslDelegatingScript {
 				description: propDescription
 	}
 
-	def setupPluginMetadata(String pluginDir, String pluginKey, String pluginName, List stepsWithAttachedCredentials) {
-		String pluginCategory = determinePluginCategory(pluginDir)
+	def setupPluginMetadata(String pluginDir, String pluginKey, String pluginName, String pluginCategory) {
 		getProcedures(pluginName).each { proc ->
 
 			def addStepPicker = shouldAddStepPicker(pluginName, proc.procedureName)
@@ -38,13 +37,9 @@ abstract class BasePlugin extends DslDelegatingScript {
 				def description = descriptionForStepPicker(pluginName, proc.procedureName) ?: proc.description
 				stepPicker (label, pluginKey, proc.procedureName, pluginCategory, description)
 			}
-			if (proc.procedureName == 'CreateConfiguration' && stepsWithAttachedCredentials) {
-				//Store the list of steps that require credentials to be attached as a procedure property
-				procedure proc.procedureName, {
-					property 'ec_stepsWithAttachedCredentials', value: JsonOutput.toJson(stepsWithAttachedCredentials)
-				}
-			}
+
 		}
+
 		// configure the plugin icon if is exists
 		setPluginIconIfIconExists(pluginDir, pluginName)
 	}
@@ -138,7 +133,7 @@ abstract class BasePlugin extends DslDelegatingScript {
 		}
 	}
 
-	def loadProcedures(String pluginDir, String pluginKey, String pluginName, List stepsWithAttachedCredentials) {
+	def loadProcedures(String pluginDir, String pluginKey, String pluginName, String pluginCategory) {
 
 		// Loop over the sub-directories in the procedures directory
 		// and evaluate procedures if a procedure.dsl file exists
@@ -146,7 +141,7 @@ abstract class BasePlugin extends DslDelegatingScript {
 		File procsDir = new File(pluginDir, 'dsl/procedures')
 		procsDir.eachDir {
 
-			File procDslFile = getProcedureDSLFile(it)
+            File procDslFile = getProcedureDSLFile(it)
 			if (procDslFile?.exists()) {
 				println "Processing procedure DSL file ${procDslFile.absolutePath}"
 				def proc = loadProcedure(pluginDir, pluginKey, pluginName, procDslFile.absolutePath)
@@ -154,7 +149,7 @@ abstract class BasePlugin extends DslDelegatingScript {
 				//create formal parameters using form.xml
 				File formXml = new File(it, 'form.xml')
 				if (formXml.exists()) {
-					println "Processing form XML $formXml.absolutePath"
+				    println "Processing form XML $formXml.absolutePath"
 					buildFormalParametersFromFormXml(proc, formXml)
 				}
 
@@ -163,7 +158,7 @@ abstract class BasePlugin extends DslDelegatingScript {
 		}
 
 		// plugin boiler-plate
-		setupPluginMetadata(pluginDir, pluginKey, pluginName, stepsWithAttachedCredentials)
+		setupPluginMetadata(pluginDir, pluginKey, pluginName, pluginCategory)
 	}
 
 	def getProcedureDSLFile(File procedureDir) {
