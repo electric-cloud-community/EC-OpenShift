@@ -26,7 +26,7 @@ class ClusterView {
     private static final String TERMINATING = 'Terminating'
 
     private static final String TYPE_CLUSTER = 'ecp-cluster'
-    private static final String TYPE_NAMESPACE = 'ecp-project'
+    private static final String TYPE_NAMESPACE = 'ecp-namespace'
     private static final String TYPE_SERVICE = 'ecp-service'
     private static final String TYPE_POD = 'ecp-pod'
     private static final String TYPE_CONTAINER = 'ecp-container'
@@ -37,6 +37,13 @@ class ClusterView {
     private static final String TYPE_LINK = 'link'
     private static final String TYPE_TEXTAREA = 'textarea'
     private static final String TYPE_DATE = 'date'
+
+    private static final String DISPLAY_CLUSTER = 'OpenShift Cluster'
+    private static final String DISPLAY_NAMESPACE = 'OpenShift Project'
+    private static final String DISPLAY_POD = 'OpenShift Pod'
+    private static final String DISPLAY_CONTAINER = 'OpenShift Container'
+    private static final String DISPLAY_SERVICE = 'OpenShift Service'
+
 
     private static final String ATTRIBUTE_MASTER_VERSION = 'Master Version'
     private static final String ATTRIBUTE_STATUS = 'Status'
@@ -49,6 +56,7 @@ class ClusterView {
     private static final String ATTRIBUTE_IMAGE = 'Image'
     private static final String ATTRIBUTE_NODE_NAME = 'Node'
     private static final String ATTRIBUTE_ERROR = 'Error'
+    private static final String ATTRIBUTE_DISPLAY_TYPE = 'displayType'
 
     @Lazy
     private kubeNamespaces = { kubeClient.getNamespaces() }()
@@ -298,7 +306,7 @@ class ClusterView {
         def startTime = pod?.metadata?.creationTimestamp
         def nodeName = pod?.spec?.nodeName
 
-
+        node.addAttribute(ATTRIBUTE_DISPLAY_TYPE, DISPLAY_POD, TYPE_STRING)
         if (status){
             node.addAttribute(ATTRIBUTE_STATUS, status, TYPE_STRING)
         }
@@ -386,6 +394,7 @@ class ClusterView {
 
         node.addAction('View Logs', 'viewLogs', TYPE_TEXTAREA)
         node.addAttribute(ATTRIBUTE_STATUS, status, TYPE_STRING)
+        node.addAttribute(ATTRIBUTE_DISPLAY_TYPE, DISPLAY_CONTAINER, TYPE_STRING)
         if (image) {
             node.addAttribute(ATTRIBUTE_IMAGE, image, TYPE_STRING)
         }
@@ -596,7 +605,7 @@ class ClusterView {
         def labels = getClusterLabels()
         def endpoint = getClusterId()
         node.addAttribute(ATTRIBUTE_ENDPOINT, endpoint, TYPE_LINK)
-
+        node.addAttribute(ATTRIBUTE_DISPLAY_TYPE, DISPLAY_CLUSTER, TYPE_STRING)
         if (version) {
             node.addAttribute(ATTRIBUTE_MASTER_VERSION, version.toString(), TYPE_STRING)
         }
@@ -621,6 +630,8 @@ class ClusterView {
                 throw e
             }
         }
+
+        node.addAttribute(ATTRIBUTE_DISPLAY_TYPE, DISPLAY_NAMESPACE, TYPE_STRING)
         def status = namespace.status?.phase
         if (status) {
             node.addAttribute("Status", status, TYPE_STRING)
@@ -710,7 +721,7 @@ class ClusterView {
                 throw e
             }
         }
-
+        node.addAttribute(ATTRIBUTE_DISPLAY_TYPE, DISPLAY_SERVICE, TYPE_STRING)
         if (status) {
             node.addAttribute(ATTRIBUTE_STATUS, status, TYPE_STRING)
         }
