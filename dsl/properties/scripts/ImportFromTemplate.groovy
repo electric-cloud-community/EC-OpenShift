@@ -971,12 +971,12 @@ public class ImportFromTemplate extends EFClient {
         def random = new Random()
         def randomSuffix = random.nextInt(10 ** 5)
 
-        def reportFilename = "kubernetesIgnoreList_${randomSuffix}.html"
+        def reportFilename = "OpenShift_IgnoreList_${randomSuffix}.html"
         def report = new File("artifacts/${reportFilename}")
         report.write(text)
         String jobStepId = System.getenv('COMMANDER_JOBSTEPID')
 
-        def reportName = "Kubernetes Ignored Fields Report-(${reportFilename})"
+        def reportName = "OpenShift Ignored Fields Report"
         publishLink(reportName, "/commander/jobSteps/${jobStepId}/${reportFilename}")
     }
 
@@ -992,8 +992,7 @@ public class ImportFromTemplate extends EFClient {
     def publishLink(String name, String link) {
         setEFProperty("${REPORT_URL_PROPERTY}${name}", link)
         try {
-            setEFProperty("/myJob/report-urls/${name}",
-                    "<html><a href=\"${link}\" target=\"_blank\">${name}</a></html>")
+            setEFProperty("/myJob/report-urls/${name}", link)
         }
         catch (Throwable e) {
             logger ERROR, "Issues while setting property cause ${e} !"
