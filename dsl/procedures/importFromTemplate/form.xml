@@ -1,0 +1,78 @@
+<!--
+
+     Copyright 2016 Electric Cloud, Inc.
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+
+-->
+<editor>
+    <formElement>
+        <type>textarea</type>
+        <label>OpenShift template Content (YAML File)</label>
+        <property>osTemplateYaml</property>
+        <required>1</required>
+        <documentation>Content of a OpenShift template (YAML file) containing related services and deployments definitions.</documentation>
+    </formElement>
+    <formElement>
+        <type>textarea</type>
+        <label>Template Parameter Values:</label>
+        <property>templateParamValues</property>
+        <required>0</required>
+        <documentation>Template parameter values to use. Format "paramName1=value1, paramName2=value2"</documentation>
+    </formElement>
+    <formElement>
+        <type>project</type>
+        <label>Project Name:</label>
+        <property>projName</property>
+        <required>1</required>
+        <documentation>The name of project in which the application or microservices will be created.</documentation>
+    </formElement>
+    <formElement>
+        <type>checkbox</type>
+        <label>Create Microservices within an Application:</label>
+        <property>application_scoped</property>
+        <required>0</required>
+        <checkedValue>1</checkedValue>
+        <uncheckedValue>0</uncheckedValue>
+        <initiallyChecked>0</initiallyChecked>
+        <documentation>(Optional) Select to create all services defined in the template file within one application in ElectricFlow. If selected, then the application name must be provided. If unselected, microservices will be created at the top-level in the project.</documentation>
+    </formElement>
+    <formElement>
+        <type>entry</type>
+        <label>Application Name:</label>
+        <property>application_name</property>
+        <required>0</required>
+        <documentation>(Optional) The name of the new application that will contain the microservices. Required only if 'Create Microservices within an Application' is selected.</documentation>
+    </formElement>
+    <formElement>
+        <type>project</type>
+        <label>Environment Project Name:</label>
+        <property>envProjectName</property>
+        <required>0</required>
+        <documentation>(Optional) The project containing the Environment where the services will be deployed.</documentation>
+    </formElement>
+    <formElement>
+        <type>entry</type>
+        <label>Environment Name:</label>
+        <property>envName</property>
+        <required>0</required>
+        <documentation>(Optional) The name of an existing environment that contains a cluster where the newly created microservice(s) will be deployed.</documentation>
+    </formElement>
+    <formElement>
+        <type>entry</type>
+        <label>Cluster Name:</label>
+        <property>clusterName</property>
+        <required>0</required>
+        <documentation>(Optional) The name of the existing ElectricFlow cluster representing a OpenShift cluster in the environment above where the newly created microservice(s) will be deployed.</documentation>
+    </formElement>
+</editor>
