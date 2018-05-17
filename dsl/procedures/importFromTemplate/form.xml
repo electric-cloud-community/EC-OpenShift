@@ -18,10 +18,10 @@
 <editor>
     <formElement>
         <type>textarea</type>
-        <label>OpenShift template Content (YAML File)</label>
+        <label>OpenShift Template Content (YAML File)</label>
         <property>osTemplateYaml</property>
         <required>1</required>
-        <documentation>Content of a OpenShift template (YAML file) containing related services and deployments definitions.</documentation>
+        <documentation>Content of an OpenShift template (YAML file) containing related services and deployments definitions.</documentation>
     </formElement>
     <formElement>
         <type>textarea</type>
@@ -35,7 +35,7 @@
         <label>Project Name:</label>
         <property>projName</property>
         <required>1</required>
-        <documentation>The name of project in which the application or microservices will be created.</documentation>
+        <documentation>The name of the ElectricFlow project in which the application or microservices will be created.</documentation>
     </formElement>
     <formElement>
         <type>checkbox</type>
