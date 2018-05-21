@@ -44,7 +44,6 @@ class ClusterView {
     private static final String DISPLAY_CONTAINER = 'OpenShift Container'
     private static final String DISPLAY_SERVICE = 'OpenShift Service'
 
-
     private static final String ATTRIBUTE_MASTER_VERSION = 'Master Version'
     private static final String ATTRIBUTE_STATUS = 'Status'
     private static final String ATTRIBUTE_LABELS = 'Labels'
@@ -56,7 +55,6 @@ class ClusterView {
     private static final String ATTRIBUTE_IMAGE = 'Image'
     private static final String ATTRIBUTE_NODE_NAME = 'Node'
     private static final String ATTRIBUTE_ERROR = 'Error'
-    private static final String ATTRIBUTE_DISPLAY_TYPE = 'displayType'
 
     @Lazy
     private kubeNamespaces = { kubeClient.getNamespaces() }()
@@ -306,7 +304,9 @@ class ClusterView {
         def startTime = pod?.metadata?.creationTimestamp
         def nodeName = pod?.spec?.nodeName
 
-        node.addAttribute(ATTRIBUTE_DISPLAY_TYPE, DISPLAY_POD, TYPE_STRING)
+        if (node.metaClass.respondsTo(node, "setDisplayType", String)) {
+            node.setDisplayType(DISPLAY_POD)
+        }
         if (status){
             node.addAttribute(ATTRIBUTE_STATUS, status, TYPE_STRING)
         }
@@ -393,8 +393,10 @@ class ClusterView {
         def nodeName = pod?.spec?.nodeName
 
         node.addAction('View Logs', 'viewLogs', TYPE_TEXTAREA)
+        if (node.metaClass.respondsTo(node, "setDisplayType", String)) {
+            node.setDisplayType(DISPLAY_CONTAINER)
+        }
         node.addAttribute(ATTRIBUTE_STATUS, status, TYPE_STRING)
-        node.addAttribute(ATTRIBUTE_DISPLAY_TYPE, DISPLAY_CONTAINER, TYPE_STRING)
         if (image) {
             node.addAttribute(ATTRIBUTE_IMAGE, image, TYPE_STRING)
         }
@@ -604,8 +606,11 @@ class ClusterView {
         def version = kubeClient.getClusterVersion()
         def labels = getClusterLabels()
         def endpoint = getClusterId()
+
+        if (node.metaClass.respondsTo(node, "setDisplayType", String)) {
+            node.setDisplayType(DISPLAY_CLUSTER)
+        }
         node.addAttribute(ATTRIBUTE_ENDPOINT, endpoint, TYPE_LINK)
-        node.addAttribute(ATTRIBUTE_DISPLAY_TYPE, DISPLAY_CLUSTER, TYPE_STRING)
         if (version) {
             node.addAttribute(ATTRIBUTE_MASTER_VERSION, version.toString(), TYPE_STRING)
         }
@@ -631,7 +636,9 @@ class ClusterView {
             }
         }
 
-        node.addAttribute(ATTRIBUTE_DISPLAY_TYPE, DISPLAY_NAMESPACE, TYPE_STRING)
+        if (node.metaClass.respondsTo(node, "setDisplayType", String)) {
+            node.setDisplayType(DISPLAY_NAMESPACE)
+        }
         def status = namespace.status?.phase
         if (status) {
             node.addAttribute("Status", status, TYPE_STRING)
@@ -721,7 +728,9 @@ class ClusterView {
                 throw e
             }
         }
-        node.addAttribute(ATTRIBUTE_DISPLAY_TYPE, DISPLAY_SERVICE, TYPE_STRING)
+        if (node.metaClass.respondsTo(node, "setDisplayType", String)) {
+            node.setDisplayType(DISPLAY_SERVICE)
+        }
         if (status) {
             node.addAttribute(ATTRIBUTE_STATUS, status, TYPE_STRING)
         }
