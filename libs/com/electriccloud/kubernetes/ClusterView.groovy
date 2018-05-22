@@ -38,6 +38,12 @@ class ClusterView {
     private static final String TYPE_TEXTAREA = 'textarea'
     private static final String TYPE_DATE = 'date'
 
+    private static final String DISPLAY_CLUSTER = 'OpenShift Cluster'
+    private static final String DISPLAY_NAMESPACE = 'OpenShift Project'
+    private static final String DISPLAY_POD = 'OpenShift Pod'
+    private static final String DISPLAY_CONTAINER = 'OpenShift Container'
+    private static final String DISPLAY_SERVICE = 'OpenShift Service'
+
     private static final String ATTRIBUTE_MASTER_VERSION = 'Master Version'
     private static final String ATTRIBUTE_STATUS = 'Status'
     private static final String ATTRIBUTE_LABELS = 'Labels'
@@ -286,7 +292,7 @@ class ClusterView {
             pod = kubeClient.getPod(namespace, podId)
         } catch (Throwable e) {
             if (e.message =~ /404/) {
-                node.addAttribute(ATTRIBUTE_ERROR, "Kubernetes pod '${podId}' does not exist in namespace '${namespace}'".toString(), TYPE_STRING)
+                node.addAttribute(ATTRIBUTE_ERROR, "Kubernetes pod '${podId}' does not exist in project '${namespace}'".toString(), TYPE_STRING)
                 return node
             }
             else {
@@ -298,7 +304,9 @@ class ClusterView {
         def startTime = pod?.metadata?.creationTimestamp
         def nodeName = pod?.spec?.nodeName
 
-
+        if (node.metaClass.respondsTo(node, "setDisplayType", String)) {
+            node.setDisplayType(DISPLAY_POD)
+        }
         if (status){
             node.addAttribute(ATTRIBUTE_STATUS, status, TYPE_STRING)
         }
@@ -336,7 +344,7 @@ class ClusterView {
             pod = kubeClient.getPod(namespace, podId)
         } catch (Throwable e) {
             if (e.message =~ /404/) {
-                node.addAttribute(ATTRIBUTE_ERROR, "OpenShift pod '${podId}' that the container '${containerId}' belonged to does not exist in namespace '${namespace}'", TYPE_STRING)
+                node.addAttribute(ATTRIBUTE_ERROR, "OpenShift pod '${podId}' that the container '${containerId}' belonged to does not exist in project '${namespace}'", TYPE_STRING)
                 return node
             }
             else {
@@ -385,6 +393,9 @@ class ClusterView {
         def nodeName = pod?.spec?.nodeName
 
         node.addAction('View Logs', 'viewLogs', TYPE_TEXTAREA)
+        if (node.metaClass.respondsTo(node, "setDisplayType", String)) {
+            node.setDisplayType(DISPLAY_CONTAINER)
+        }
         node.addAttribute(ATTRIBUTE_STATUS, status, TYPE_STRING)
         if (image) {
             node.addAttribute(ATTRIBUTE_IMAGE, image, TYPE_STRING)
@@ -532,6 +543,9 @@ class ClusterView {
 
     def buildClusterNode() {
         ClusterNode node = createClusterNode(getClusterId(), TYPE_CLUSTER, getClusterName())
+        if (node.metaClass.respondsTo(node, "setDisplayType", String)) {
+            node.setDisplayType(DISPLAY_CLUSTER)
+        }
         node
     }
 
@@ -540,6 +554,9 @@ class ClusterView {
         def status = pod.status.phase
         ClusterNode node = createClusterNode(getPodId(service, pod), TYPE_POD, name)
         node.setStatus(status)
+        if (node.metaClass.respondsTo(node, "setDisplayType", String)) {
+            node.setDisplayType(DISPLAY_POD)
+        }
         node
     }
 
@@ -552,12 +569,18 @@ class ClusterView {
         if (efId) {
             node.setElectricFlowIdentifier(efId)
         }
+        if (node.metaClass.respondsTo(node, "setDisplayType", String)) {
+            node.setDisplayType(DISPLAY_SERVICE)
+        }
         node
     }
 
     def buildContainerNode(service, pod, container) {
         def node = createClusterNode(getContainerId(service, pod, container), TYPE_CONTAINER, container.name)
         node.setStatus(getContainerStatus(pod, container))
+        if (node.metaClass.respondsTo(node, "setDisplayType", String)) {
+            node.setDisplayType(DISPLAY_CONTAINER)
+        }
         return node
     }
 
@@ -586,7 +609,10 @@ class ClusterView {
 
     def buildNamespaceNode(namespace) {
         def name = getNamespaceName(namespace)
-        createClusterNode(getNamespaceId(namespace), TYPE_NAMESPACE, name)
+        def node = createClusterNode(getNamespaceId(namespace), TYPE_NAMESPACE, name)
+        if (node.metaClass.respondsTo(node, "setDisplayType", String)) {
+            node.setDisplayType(DISPLAY_NAMESPACE)
+        }
     }
 
     def getClusterDetails() {
@@ -595,8 +621,11 @@ class ClusterView {
         def version = kubeClient.getClusterVersion()
         def labels = getClusterLabels()
         def endpoint = getClusterId()
-        node.addAttribute(ATTRIBUTE_ENDPOINT, endpoint, TYPE_LINK)
 
+        if (node.metaClass.respondsTo(node, "setDisplayType", String)) {
+            node.setDisplayType(DISPLAY_CLUSTER)
+        }
+        node.addAttribute(ATTRIBUTE_ENDPOINT, endpoint, TYPE_LINK)
         if (version) {
             node.addAttribute(ATTRIBUTE_MASTER_VERSION, version.toString(), TYPE_STRING)
         }
@@ -614,12 +643,16 @@ class ClusterView {
             namespace = kubeClient.getNamespace(namespaceName)
         } catch (Throwable e) {
             if (e.message =~ /404/) {
-                node.addAttribute(ATTRIBUTE_ERROR, "OpenShift namespace '${namespaceName}' does not exist", TYPE_STRING)
+                node.addAttribute(ATTRIBUTE_ERROR, "OpenShift project '${namespaceName}' does not exist", TYPE_STRING)
                 return node
             }
             else {
                 throw e
             }
+        }
+
+        if (node.metaClass.respondsTo(node, "setDisplayType", String)) {
+            node.setDisplayType(DISPLAY_NAMESPACE)
         }
         def status = namespace.status?.phase
         if (status) {
@@ -674,7 +707,7 @@ class ClusterView {
             service = kubeClient.getService(namespace, serviceId)
         } catch (Throwable e) {
             if (e.message =~ /404/) {
-                node.addAttribute(ATTRIBUTE_ERROR, "OpenShift service '${serviceId}' does not exist in namespace '${namespace}'", TYPE_STRING)
+                node.addAttribute(ATTRIBUTE_ERROR, "OpenShift service '${serviceId}' does not exist in project '${namespace}'", TYPE_STRING)
                 return node
             }
             else {
@@ -710,7 +743,9 @@ class ClusterView {
                 throw e
             }
         }
-
+        if (node.metaClass.respondsTo(node, "setDisplayType", String)) {
+            node.setDisplayType(DISPLAY_SERVICE)
+        }
         if (status) {
             node.addAttribute(ATTRIBUTE_STATUS, status, TYPE_STRING)
         }
