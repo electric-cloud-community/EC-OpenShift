@@ -23,4 +23,11 @@
         <required>1</required>
         <documentation>The name of an existing configuration which holds all the connection information for OpenShift cluster.</documentation>
     </formElement>
+    <formElement>
+        <type>entry</type>
+        <label>OpenShift Project:</label>
+        <property>project</property>
+        <required>0</required>
+        <documentation>The name of the OpenShift project to which the services and deployments should be deployed. If the project does not exist, it will be created during service deployment.</documentation>
+    </formElement>
 </editor>
