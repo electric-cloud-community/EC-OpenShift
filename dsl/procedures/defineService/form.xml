@@ -53,14 +53,6 @@
     </formElement>
     <formElement>
         <type>entry</type>
-        <label>Project Name:</label>
-        <property>namespace</property>
-        <required>0</required>
-        <value>default</value>
-        <documentation>The name of project to which the services and deployments should be deployed.</documentation>
-    </formElement>
-    <formElement>
-        <type>entry</type>
         <label>Service Name Override:</label>
         <property>serviceNameOverride</property>
         <required>0</required>

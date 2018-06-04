@@ -33,7 +33,7 @@ class DiscoveryClusterHandler {
         environment
     }
 
-    def ensureCluster(projectName, environmentName, clusterName, configName) {
+    def ensureCluster(projectName, environmentName, clusterName, configName, namespace) {
         def cluster
         try {
             cluster = ef.getCluster(
@@ -49,7 +49,8 @@ class DiscoveryClusterHandler {
                 clusterName: clusterName,
                 pluginKey: PLUGIN_KEY,
                 provisionParameters: [
-                    [provisionParameterName: 'config', value: configName]
+                    [provisionParameterName: 'config', value: configName],
+                    [provisionParameterName: 'project', value: namespace]
                 ],
                 provisionProcedure: 'Check Cluster'
             )?.cluster

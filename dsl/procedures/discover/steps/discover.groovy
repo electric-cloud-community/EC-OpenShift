@@ -20,7 +20,7 @@ println "Using plugin @PLUGIN_NAME@"
 println "Environment Project Name: $envProjectName"
 println "Environment Name: $environmentName"
 println "Cluster Name: $clusterName"
-println "Namespace: $namespace"
+println "OpenShift Project: $namespace"
 println "Project Name: $projectName"
 println "Endpoint: $endpoint"
 
@@ -61,7 +61,7 @@ try {
         def configName = discoveryClusterHandler.ensureConfiguration(endpoint, token)
         def project = discoveryClusterHandler.ensureProject(envProjectName)
         def environment = discoveryClusterHandler.ensureEnvironment(envProjectName, environmentName)
-        cluster = discoveryClusterHandler.ensureCluster(envProjectName, environmentName, clusterName, configName)
+        cluster = discoveryClusterHandler.ensureCluster(envProjectName, environmentName, clusterName, configName, namespace)
         pluginConfig.clusterEndpoint = endpoint
         pluginConfig.credential.password = token
     }

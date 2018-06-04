@@ -519,9 +519,9 @@ public class Discovery extends EFClient {
         efService.serviceMapping.sessionAffinity = kubeService.spec?.sessionAffinity
         def sourceRanges = kubeService.spec?.loadBalancerSourceRanges?.join(',')
         efService.serviceMapping.loadBalancerSourceRanges = sourceRanges
-        if (namespace != 'default') {
-            efService.serviceMapping.namespace = namespace
-        }
+//        if (namespace != 'default') {
+//            efService.serviceMapping.namespace = namespace
+//        }
         // Ports
         efService.ports = kubeService.spec?.ports?.collect { port ->
             def name
