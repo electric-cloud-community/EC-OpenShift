@@ -161,4 +161,19 @@ public class OpenShiftClient extends KubernetesClient {
         }
     }
 
+    def convertVolumes(data){
+        def jsonData = parseJsonToList(data)
+        def result = []
+        for (item in jsonData){
+            def name = formatName(item.name)
+            if(item.hostPath){
+                result << [name: name, hostPath: [path : item.hostPath]]
+            } else {
+                result << [name: name, emptyDir: {}]
+            }
+        }
+        return (new JsonBuilder(result))
+
+    }
+
 }
