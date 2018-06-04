@@ -39,7 +39,7 @@
     </formElement>
     <formElement>
         <type>entry</type>
-        <property>ecp_kubernetes_apiEndpoint</property>
+        <property>ecp_openshift_apiEndpoint</property>
         <label>OpenShift API Endpoint:</label>
         <required>0</required>
         <documentation>The endpoint at which the OpenShift API will be reachable. Must be an IP address or a resolvable DNS name. This field is required and used only if you are not providing an existing environment above for discovery.</documentation>
@@ -48,7 +48,7 @@
         <type>textarea</type>
         <label>Service Account API Token:</label>
         <required>0</required>
-        <property>ecp_kubernetes_apiToken</property>
+        <property>ecp_openshift_apiToken</property>
         <documentation>Service account bearer token for a service account which has permissions to create resources in the OpenShift cluster. This field is required and used only if you are not providing an existing environment above for discovery.</documentation>
     </formElement>
     <formElement>
@@ -72,14 +72,14 @@
         <checkedValue>true</checkedValue>
         <uncheckedValue>false</uncheckedValue>
         <required>0</required>
-        <property>ecp_kubernetes_applicationScoped</property>
+        <property>ecp_openshift_applicationScoped</property>
         <documentation>(Optional) Select to create all discovered services in the OpenShift project within one application in ElectricFlow. If selected, then the application name must be provided. If unselected, microservices will be created at the top-level in the project.</documentation>
     </formElement>
     <formElement>
         <type>entry</type>
         <label>Application Name:</label>
         <required>0</required>
-        <property>ecp_kubernetes_applicationName</property>
+        <property>ecp_openshift_applicationName</property>
         <documentation>The name of the new application that will contain the microservices. Required only if 'Create Microservices within an Application' is selected.</documentation>
     </formElement>
 </editor>

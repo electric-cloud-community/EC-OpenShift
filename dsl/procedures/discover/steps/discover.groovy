@@ -10,10 +10,10 @@ def environmentName = '$[envName]'
 def clusterName = '$[clusterName]'
 def namespace = '$[namespace]'
 def projectName = '$[projName]'
-def endpoint = '$[ecp_kubernetes_apiEndpoint]'
-def token = '$[ecp_kubernetes_apiToken]'
-def applicationScoped = '$[ecp_kubernetes_applicationScoped]'
-def applicationName = '$[ecp_kubernetes_applicationName]'
+def endpoint = '$[ecp_openshift_apiEndpoint]'
+def token = '$[ecp_openshift_apiToken]'
+def applicationScoped = '$[ecp_openshift_applicationScoped]'
+def applicationName = '$[ecp_openshift_applicationName]'
 
 
 println "Using plugin @PLUGIN_NAME@"

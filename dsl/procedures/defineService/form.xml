@@ -53,11 +53,11 @@
     </formElement>
     <formElement>
         <type>entry</type>
-        <label>Namespace Name:</label>
+        <label>Project Name:</label>
         <property>namespace</property>
         <required>0</required>
         <value>default</value>
-        <documentation>The name of namespace to which the services and deployments should be deployed.</documentation>
+        <documentation>The name of project to which the services and deployments should be deployed.</documentation>
     </formElement>
     <formElement>
         <type>entry</type>
