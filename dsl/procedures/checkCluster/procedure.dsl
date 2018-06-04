@@ -11,7 +11,9 @@ procedure 'Check Cluster',
       exclusiveMode: 'none',
       postProcessor: 'postp',
       releaseMode: 'none',
-      timeLimitUnits: 'minutes'
+      timeLimitUnits: 'minutes', {
+          actualParameter 'additionalArtifactVersion', ''
+    }
 
    step 'checkCluster',
       command: new File(pluginDir, 'dsl/procedures/checkCluster/steps/checkCluster.groovy').text,
