@@ -58,7 +58,7 @@ try {
         }
 
         def discoveryClusterHandler = new DiscoveryClusterHandler()
-        def configName = discoveryClusterHandler.ensureConfiguration(endpoint, token)
+        def configName = discoveryClusterHandler.ensureConfiguration(endpoint, token, namespace)
         def project = discoveryClusterHandler.ensureProject(envProjectName)
         def environment = discoveryClusterHandler.ensureEnvironment(envProjectName, environmentName)
         cluster = discoveryClusterHandler.ensureCluster(envProjectName, environmentName, clusterName, configName, namespace)

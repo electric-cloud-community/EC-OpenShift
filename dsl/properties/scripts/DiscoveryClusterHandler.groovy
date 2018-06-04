@@ -59,9 +59,9 @@ class DiscoveryClusterHandler {
         cluster
     }
 
-    def ensureConfiguration(endpoint, token) {
+    def ensureConfiguration(endpoint, token, namespace) {
         def version = retrieveKubernetesVersion(endpoint, token)
-        def configName = createConfigurationName(endpoint, version)
+        def configName = createConfigurationName(endpoint, version, namespace)
 
         def exists = false
         try {
@@ -113,8 +113,8 @@ class DiscoveryClusterHandler {
         return configName
     }
 
-    def createConfigurationName(endpoint, version) {
-        "${new URL(endpoint).host} - ${version}".toString()
+    def createConfigurationName(endpoint, version, namespace) {
+        "${new URL(endpoint).host}- ${namespace} - ${version}".toString()
     }
 
     def retrieveKubernetesVersion(endpoint, token) {
