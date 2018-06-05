@@ -111,7 +111,11 @@ project pluginName, {
 
             }
             property 'pod', credentialProtected: true, {
+                property 'actions', {
+                    property 'viewLogs', credentialProtected: true, {
 
+                    }
+                }
             }
             property 'service', credentialProtected: true, {
 
