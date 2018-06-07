@@ -304,6 +304,7 @@ class ClusterView {
         def startTime = pod?.metadata?.creationTimestamp
         def nodeName = pod?.spec?.nodeName
 
+        node.addAction('View Logs', 'viewLogs', TYPE_TEXTAREA)
         if (node.metaClass.respondsTo(node, "setDisplayType", String)) {
             node.setDisplayType(DISPLAY_POD)
         }
@@ -606,6 +607,25 @@ class ClusterView {
         logs
     }
 
+    def getPodLogs(String podName) {
+        def objectIdentifier = podName
+        podName = podName.replaceAll("${getClusterId()}::", '')
+        def namespace, podId
+        try{
+            (namespace, podId) = podName.split('::')
+        }
+        catch (Throwable e){
+            throw EcException
+                    .code(ErrorCodes.InvalidArgument)
+                    .message("Invalid object identifier for pod: ${objectIdentifier}")
+                    .location(this.class.getCanonicalName())
+                    .build()
+        }
+        assert namespace != null
+        assert podId != null
+        def logs = kubeClient.getPodLogs(namespace, podId)
+        logs
+    }
 
     def buildNamespaceNode(namespace) {
         def name = getNamespaceName(namespace)
