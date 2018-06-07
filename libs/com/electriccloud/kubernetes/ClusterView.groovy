@@ -613,6 +613,7 @@ class ClusterView {
         if (node.metaClass.respondsTo(node, "setDisplayType", String)) {
             node.setDisplayType(DISPLAY_NAMESPACE)
         }
+        node
     }
 
     def getClusterDetails() {
