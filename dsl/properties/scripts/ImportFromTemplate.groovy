@@ -143,6 +143,8 @@ public class ImportFromTemplate extends EFClient {
         parsedConfigList.each { config ->
             if (config.kind == "Deployment"){
                 deployments.push(config)
+            } else if (config.kind == "DeploymentConfig") {
+                deployments.push(config)
             }
         }
         deployments
