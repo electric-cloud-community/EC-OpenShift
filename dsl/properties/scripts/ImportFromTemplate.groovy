@@ -141,9 +141,7 @@ public class ImportFromTemplate extends EFClient {
     def getParsedDeployments(parsedConfigList){
         def deployments = []
         parsedConfigList.each { config ->
-            if (config.kind == "Deployment"){
-                deployments.push(config)
-            } else if (config.kind == "DeploymentConfig") {
+            if (config.kind in ['Deployment','DeploymentConfig']){
                 deployments.push(config)
             }
         }
