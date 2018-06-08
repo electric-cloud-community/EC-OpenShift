@@ -101,7 +101,7 @@ class ClusterView {
                 }
             }
         }
-        topology
+        return topology
     }
 
     def isSystemNamespace(namespace) {
@@ -143,7 +143,7 @@ class ClusterView {
         if (!finalStatus) {
             finalStatus = RUNNING
         }
-        finalStatus
+        return finalStatus
     }
 
     def getPodsRunning(pods) {
@@ -157,7 +157,7 @@ class ClusterView {
                 running += 1
             }
         }
-        "${running} of ${all}"
+        return "${running} of ${all}"
     }
 
     def getContainerStatus(pod, container) {
@@ -219,7 +219,7 @@ class ClusterView {
             pods.addAll(deploymentPods.findAll { isValidPod(it)} )
         }
 
-        pods
+        return pods
     }
 
 
@@ -253,7 +253,7 @@ class ClusterView {
             })
         }
 
-        pods
+        return pods
     }
 
     def errorChain(Closure... closures) {
@@ -269,7 +269,7 @@ class ClusterView {
                 throw e
             }
         }
-        result
+        return result
     }
 
     def getPodDetails(String podName) {
@@ -321,7 +321,7 @@ class ClusterView {
             node.addAttribute(ATTRIBUTE_NODE_NAME, nodeName, TYPE_STRING)
         }
 
-        node
+        return node
     }
 
     def getContainerDetails(String containerName) {
@@ -455,7 +455,7 @@ class ClusterView {
             node.addAttribute('Memory', memory, TYPE_STRING, 'Resource Usage')
         }
 
-        node
+        return node
     }
 
     String getNamespaceId(namespace) {
@@ -547,7 +547,7 @@ class ClusterView {
         if (node.metaClass.respondsTo(node, "setDisplayType", String)) {
             node.setDisplayType(DISPLAY_CLUSTER)
         }
-        node
+        return node
     }
 
     def buildPodNode(service, pod) {
@@ -558,7 +558,7 @@ class ClusterView {
         if (node.metaClass.respondsTo(node, "setDisplayType", String)) {
             node.setDisplayType(DISPLAY_POD)
         }
-        node
+        return node
     }
 
     def buildServiceNode(Map service, pods) {
@@ -573,7 +573,7 @@ class ClusterView {
         if (node.metaClass.respondsTo(node, "setDisplayType", String)) {
             node.setDisplayType(DISPLAY_SERVICE)
         }
-        node
+        return node
     }
 
     def buildContainerNode(service, pod, container) {
@@ -604,7 +604,7 @@ class ClusterView {
         assert podId != null
         assert containerId != null
         def logs = kubeClient.getContainerLogs(namespace, podId, containerId)
-        logs
+        return logs
     }
 
     def getPodLogs(String podName) {
@@ -633,6 +633,7 @@ class ClusterView {
         if (node.metaClass.respondsTo(node, "setDisplayType", String)) {
             node.setDisplayType(DISPLAY_NAMESPACE)
         }
+        return node
     }
 
     def getClusterDetails() {
@@ -652,7 +653,7 @@ class ClusterView {
         if (labels) {
             node.addAttribute(ATTRIBUTE_LABELS, labels, TYPE_MAP)
         }
-        node
+        return node
     }
 
     def getNamespaceDetails(String namespaceId) {
@@ -690,7 +691,7 @@ class ClusterView {
             node.addAttribute("Age", age, TYPE_STRING)
         }
 
-        node
+        return node
     }
 
     String getNamespaceAge(namespace) {
@@ -785,7 +786,7 @@ class ClusterView {
             node.addAttribute(ATTRIBUTE_VOLUMES, new JsonBuilder(volumes).toPrettyString(), TYPE_TEXTAREA)
         }
 
-        node
+        return node
     }
 
     def getNamespaceName(namespace) {
@@ -799,7 +800,7 @@ class ClusterView {
         node.setElectricFlowClusterName(clusterName)
         node.setElectricFlowEnvironmentName(environmentName)
         node.setElectricFlowProjectName(projectName)
-        node
+        return node
     }
 
 }
