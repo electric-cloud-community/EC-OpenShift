@@ -37,6 +37,8 @@ if (osTemplateValues != null && !osTemplateValues.equals("")) {
 }
 
 param2value.each { p,v ->
+    osTemplateYaml = osTemplateYaml.replace('${{' + p + '}}', v)
+    osTemplateYaml = osTemplateYaml.replace('${' + p + '}', v)
     osTemplateYaml = osTemplateYaml.replace('{{' + p + '}}', v)
     osTemplateYaml = osTemplateYaml.replace('{' + p + '}', v)
 }
