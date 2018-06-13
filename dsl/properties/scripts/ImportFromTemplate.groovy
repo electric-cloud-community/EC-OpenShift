@@ -36,6 +36,10 @@ public class ImportFromTemplate extends EFClient {
         }
         logger INFO, "Parsed services: ${services}"
 
+        def routes
+        routes = getParsedRoutes(parsedConfigList)
+        logger INFO, "Parsed routes: ${routes}"
+
         def deployments
         try {
             deployments = getParsedDeployments(parsedConfigList)
@@ -51,38 +55,54 @@ public class ImportFromTemplate extends EFClient {
         logger INFO, "Parsed deployments: ${deployments}"
 
         services.each { kubeService ->
-            if (!isSystemService(kubeService)) {
-                def allQueryDeployments = []
-                def i = 0
-                kubeService.spec.selector.each{ k, v ->
-                    i = i + 1
-                    def queryDeployments = getDeploymentsBySelector(deployments, k, v)
-                    if (queryDeployments != null) {
-                        queryDeployments.eachWithIndex { deployment, index ->
-                            if (index == 0) {
-                                allQueryDeployments.push(deployment)
-                            } else {
-                                logger INFO, "More than one deployment (${deployment.metadata.name}) with the matching label was found for service ${kubeService.metadata.name} with selector ( ${k} : ${v} )."
+                    if (!isSystemService(kubeService)) {
+                        def allQueryDeployments = []
+                        def i = 0
+                        kubeService.spec.selector.each{ k, v ->
+                            i = i + 1
+                            def queryDeployments = getDeploymentsBySelector(deployments, k, v)
+                            if (queryDeployments != null) {
+                                queryDeployments.eachWithIndex { deployment, index ->
+                                    if (index == 0) {
+                                        allQueryDeployments.push(deployment)
+                                    } else {
+                                        logger INFO, "More than one deployment (${deployment.metadata.name}) with the matching label was found for service ${kubeService.metadata.name} with selector ( ${k} : ${v} )."
+                                    }
+                                }
                             }
                         }
-                    }
-                }
-                def dedupedQueryDeployments = []
-                allQueryDeployments.each{ deploy ->
-                    def uniq = true
-                    dedupedQueryDeployments.each { dedupedDeploy ->
-                        if (deploy.metadata.name == dedupedDeploy.metadata.name){
-                            uniq = false
+                        def dedupedQueryDeployments = []
+                        allQueryDeployments.each{ deploy ->
+                            def uniq = true
+                            dedupedQueryDeployments.each { dedupedDeploy ->
+                                if (deploy.metadata.name == dedupedDeploy.metadata.name){
+                                    uniq = false
+                                }
+                            }
+                            if (uniq){
+                                dedupedQueryDeployments.push(deploy)
+                            }
                         }
+
+                        def routeObj = [
+                                route: [:]
+                        ]
+
+                        if (routes) {
+                            routes.each { route ->
+                                if (route.spec?.to?.name == kubeService.metadata.name) {
+                                    routeObj.route.routeName = route?.metadata?.name
+                                    routeObj.route.routeHostname = route?.spec?.host
+                                    routeObj.route.routePath = route?.spec?.path
+                                    routeObj.route.routeTargetPort = route?.spec?.port?.targetPort
+                                }
+                            }
+                        }
+
+                    dedupedQueryDeployments.eachWithIndex { deploy, indexDeploy ->
+                        def efService = buildServiceDefinition(kubeService, deploy, namespace, routeObj)
+                        efServices.push(efService)
                     }
-                    if (uniq){
-                        dedupedQueryDeployments.push(deploy)
-                    }
-                }
-                dedupedQueryDeployments.eachWithIndex { deploy, indexDeploy ->
-                    def efService = buildServiceDefinition(kubeService, deploy, namespace)
-                    efServices.push(efService)
-                }
             }
         }
 
@@ -146,6 +166,16 @@ public class ImportFromTemplate extends EFClient {
             }
         }
         deployments
+    }
+
+    def getParsedRoutes(parsedConfigList){
+        def routes = []
+        parsedConfigList.each { config ->
+            if (config.kind == 'Route'){
+                routes.push(config)
+            }
+        }
+        routes
     }
 
     def getDeploymentsBySelector(deployments, key, value){
@@ -510,7 +540,7 @@ public class ImportFromTemplate extends EFClient {
         retval
     }
 
-    def buildServiceDefinition(kubeService, deployment, namespace){
+    def buildServiceDefinition(kubeService, deployment, namespace, routeObj){
 
         def logService = []
         def logDeployment = []
@@ -585,6 +615,12 @@ public class ImportFromTemplate extends EFClient {
         efService.serviceMapping.loadBalancerIP = kubeService.spec?.loadBalancerIP
         efService.serviceMapping.serviceType = kubeService.spec?.type
         efService.serviceMapping.sessionAffinity = kubeService.spec?.sessionAffinity
+
+        efService.serviceMapping.routeName = routeObj.route?.routeName
+        efService.serviceMapping.routeHostname = routeObj.route?.routeHostname
+        efService.serviceMapping.routePath = routeObj.route?.routePath
+        efService.serviceMapping.routeTargetPort = routeObj.route?.routeTargetPort
+
         def sourceRanges = kubeService.spec?.loadBalancerSourceRanges?.join(',')
 
         efService.serviceMapping.loadBalancerSourceRanges = sourceRanges
