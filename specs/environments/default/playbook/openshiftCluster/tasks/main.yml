@@ -75,6 +75,6 @@
   register: token
 
 - name: echo token
-  shell: echo ENVIRONMENT TOKEN={{ token.stdout }}
+  debug: msg="{{ token.stdout }}"
 
 # groovy getToken.groovy > token.txt

@@ -24,5 +24,5 @@ def _token
     }
 }
 
-println _token
+println "ENVIRONMENT VARIABLE TOKEN: {{ $_token }}"
 

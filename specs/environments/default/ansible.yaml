@@ -1,4 +1,3 @@
 playbook: playbook/site.yml
 # additionalOptions: -u build
-inventory:
-  path: playbook/inventory.ini
+inventory: playbook/inventory.ini
