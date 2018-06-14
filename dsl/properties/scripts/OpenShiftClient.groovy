@@ -173,7 +173,52 @@ public class OpenShiftClient extends KubernetesClient {
             }
         }
         return (new JsonBuilder(result))
-
     }
+
+
+    def getDeployments(String clusterEndPoint, String namespace, String accessToken, parameters = [:]) {
+
+        if (OFFLINE) return null
+
+        def query = [:]
+        if (parameters.labelSelector) {
+            query.labelSelector = parameters.labelSelector
+        }
+        String apiPath = versionSpecificAPIPath('deployments')
+
+        def path = ''
+        if (isVersionGreaterThan15()) {
+            path  = "/apis/${apiPath}/namespaces/${namespace}/deployments"
+        }
+        else {
+            path = "/oapi/v1/namespaces/${namespace}/deploymentconfigs"
+        }
+
+
+        println path
+        println query
+        def response = doHttpGet(clusterEndPoint,
+                path,
+                accessToken, /*failOnErrorCode*/ false, null, query)
+        println response
+
+        def str = response.data ? (new JsonBuilder(response.data)).toPrettyString(): response.data
+        logger DEBUG, "Deployments found: $str"
+        println str
+        response.status == 200 ? response.data : null
+    }
+
+
+
+    // String versionSpecificAPIPath(String resource) {
+    //     switch (resource) {
+    //         case 'deployments':
+    //             return isVersionGreaterThan15() ? ( isVersionGreaterThan17() ? 'apps/v1beta2' : 'apps/v1beta1'): 'oapi/v1'
+    //         default:
+    //             handleError("Unsupported resource '$resource' for determining version specific API path")
+    //     }
+    // }
+
+
 
 }

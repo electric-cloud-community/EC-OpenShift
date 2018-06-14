@@ -10,9 +10,15 @@ public class DiscoveryBuilder {}
 
 public class Discovery extends EFClient {
     @Lazy
-    KubernetesClient kubeClient = { new KubernetesClient() }()
+    KubernetesClient kubeClient = {
+        def version = pluginConfig.kubernetesVersion
+        def client = new OpenShiftClient()
+        client.kubernetesVersion = version
+        return client
+    }()
 
     def pluginConfig
+
     @Lazy
     def accessToken = { kubeClient.retrieveAccessToken(pluginConfig) }()
 
@@ -47,6 +53,11 @@ public class Discovery extends EFClient {
                     namespace, accessToken,
                     [labelSelector: selector]
                 )
+
+                println selector
+
+                println "Deployments"
+                println deployments
 
                 deployments.items.each { deploy ->
                     def efService = buildServiceDefinition(kubeService, deploy, namespace)
