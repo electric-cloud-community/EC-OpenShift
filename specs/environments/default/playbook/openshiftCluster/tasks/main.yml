@@ -2,7 +2,7 @@
   shell: "{{ oc_path }} cluster down"
 
 - name: Start Cluster
-  shell: "{{ oc_path }} cluster up --public-hostname=\"{{ hostname }}\""
+  shell: "{{ oc_path }} cluster up --public-hostname=\"{{ cluster_ip }}\""
 
 - name: Login
   shell: "{{ oc_path }} login -u admin -p admin"
@@ -71,7 +71,7 @@
   copy: src=getToken.groovy dest=/tmp/getToken.groovy
 
 - name: get token
-  shell: 'groovy /tmp/getToken.groovy {{ oc_path }}'
+  shell: 'groovy /tmp/getToken.groovy {{ oc_path }} {{ cluster_ip }}'
   register: token
 
 - name: echo token

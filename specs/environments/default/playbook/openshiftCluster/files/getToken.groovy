@@ -1,12 +1,18 @@
 import groovy.json.JsonSlurper
 
 def shellPath = args[0]
+def clusterIpPort = args[1]
+
 println shellPath
 if (!shellPath) {
     println "No shell path was provided"
     System.exit(1)
 }
-def clusterIpPort = '10.200.1.106:8443'
+if (!clusterIpPort) {
+    println 'No cluster ip port'
+    System.exit(1)
+}
+// def clusterIpPort = '10.200.1.106:8443'
 def username = 'admin'
 def password = 'admin'
 def projectName = 'flowqe-test-project'
@@ -24,5 +30,6 @@ def _token
     }
 }
 
-println "ENVIRONMENT VARIABLE TOKEN: {{ $_token }}"
+println "ENVIRONMENT VARIABLE OPENSHIFT_TOKEN: {{ $_token }}"
+println "ENVIRONMENT VARIABLE OPENSHIFT_CLUSTER_IP: {{ $clusterIpPort }}"
 
