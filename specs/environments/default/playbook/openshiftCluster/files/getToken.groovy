@@ -30,6 +30,8 @@ def _token
     }
 }
 
+def endpoint = "https://$clusterIpPort:8443"
+
 println "ENVIRONMENT VARIABLE OPENSHIFT_TOKEN: {{ $_token }}"
-println "ENVIRONMENT VARIABLE OPENSHIFT_CLUSTER: {{ $clusterIpPort }}"
+println "ENVIRONMENT VARIABLE OPENSHIFT_CLUSTER: {{ $endpoint }}"
 
