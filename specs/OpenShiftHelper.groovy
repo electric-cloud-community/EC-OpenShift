@@ -20,7 +20,7 @@ class OpenShiftHelper extends ContainerHelper {
         assert kubernetes : "Kubernetes plugin is not found"
         def pluginName = kubernetes.pluginName
         if (kubernetes.promoted != "1") {
-            dsl "promotePlugin $pluginName"
+            dsl "promotePlugin(pluginName: '$pluginName')"
             println "Promoted pluign $pluginName"
         }
         else {
