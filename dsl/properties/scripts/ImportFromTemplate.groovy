@@ -595,7 +595,6 @@ public class ImportFromTemplate extends EFClient {
 
 
         def mapping = buildServiceMapping(kubeService)
-        prettyPrint(mapping)
         mapping.each { k, v ->
             efService.serviceMapping[k] = v;
         }
