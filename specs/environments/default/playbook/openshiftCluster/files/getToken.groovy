@@ -31,5 +31,5 @@ def _token
 }
 
 println "ENVIRONMENT VARIABLE OPENSHIFT_TOKEN: {{ $_token }}"
-println "ENVIRONMENT VARIABLE OPENSHIFT_CLUSTER_IP: {{ $clusterIpPort }}"
+println "ENVIRONMENT VARIABLE OPENSHIFT_CLUSTER: {{ $clusterIpPort }}"
 
