@@ -98,7 +98,7 @@ class ContainerHelper extends PluginSpockTestSupport {
                         my @lines = ();
                         for my \$file (sort @files) {
                             print "\$file\n";
-                            if (\$file =~ /checkCluster|createOrUpdateDeploy|discover/) {
+                            if (\$file =~ /checkCluster|createOrUpdateDeploy|discover|import/) {
                                 push @lines, read_file("\$path/\$file");
                             }
                         }

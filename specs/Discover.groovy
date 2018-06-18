@@ -2,7 +2,8 @@ import groovy.json.JsonSlurper
 import spock.lang.*
 import com.electriccloud.spec.*
 
-class Discover extends KubeHelper {
+@Ignore("draft")
+class Discover extends OpenShiftHelper {
     static def projectName = 'EC-Kubernetes Specs Discover'
     static def clusterName = 'Kube Spec Cluster'
     static def envName = 'Kube Spec Env'

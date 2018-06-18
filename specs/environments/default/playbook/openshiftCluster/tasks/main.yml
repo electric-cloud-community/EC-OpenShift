@@ -1,3 +1,6 @@
+- name: show version
+  debug: "msg='OpenShift version is {{ version }}'"
+
 - name: Stop old cluster
   shell: "{{ oc_path }} cluster down"
 
