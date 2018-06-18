@@ -31,6 +31,7 @@ class ImportFromYAML extends OpenShiftHelper {
                 clusterName:       '',
             ]
         ]
+        promoteKubernetesPlugin()
 
     }
 
