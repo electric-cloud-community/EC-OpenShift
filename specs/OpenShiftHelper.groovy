@@ -19,8 +19,8 @@ class OpenShiftHelper extends ContainerHelper {
         def kubernetes = plugins.plugin.find { it.pluginKey == 'EC-Kubernetes' }
         assert kubernetes : "Kubernetes plugin is not found"
         def pluginName = kubernetes.pluginName
-        dsl "demotePlugin(pluginName: '$pluginName')"
-        dsl "promotePlugin(pluginName: '$pluginName')"
+        dsl "promotePlugin(pluginName: '$pluginName', promoted: '0')"
+        dsl "promotePlugin(pluginName: '$pluginName', promoted: '1')"
         println "Promoted plugin $pluginName"
     }
 
