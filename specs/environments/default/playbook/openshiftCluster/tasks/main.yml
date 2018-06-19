@@ -1,0 +1,83 @@
+- name: show version
+  debug: "msg='OpenShift version is {{ version }}'"
+
+- name: Stop old cluster
+  shell: "{{ oc_path }} cluster down"
+
+- name: Start Cluster
+  shell: "{{ oc_path }} cluster up --public-hostname=\"{{ cluster_ip }}\""
+
+- name: Login
+  shell: "{{ oc_path }} login -u admin -p admin"
+
+- name: New Project
+  shell: '{{ oc_path }} new-project {{ project_name }}'
+
+- name: add roles for admin
+  shell: '{{ oc_path }} adm policy add-cluster-role-to-user {{ item }} admin --config=/var/lib/origin/openshift.local.config/master/admin.kubeconfig'
+  with_items:
+    - admin
+    - cluster-admin
+    - cluster-reader
+
+- name: Service Account
+  shell: '{{ oc_path }} create serviceaccount {{ service_account }}'
+
+- name: add roles for service account
+  shell: "{{ oc_path }} adm --config='/var/lib/origin/openshift.local.config/master/openshift-master.kubeconfig' policy add-cluster-role-to-user {{ item }} system:serviceaccount:{{ project_name }}:{{ service_account }}"
+  with_items:
+    - admin
+    - cluster-reader
+    - cluster-admin
+
+- shell: '{{ oc_path }} adm policy add-scc-to-user anyuid system:serviceaccount:{{ project_name }}:{{ service_account }}'
+
+- name: 'add policy to {{ project_name }} {{ service_account }}'
+  shell: '{{ oc_path }} adm policy add-scc-to-user {{ item }} -z system:serviceaccount:{{ project_name }}:{{ service_account }}'
+  with_items:
+    - privileged
+    - restricted
+    - anyuid
+    - hostaccess
+    - hostmount-anyuid
+    - hostnetwork
+    - nonroot
+
+- name: 'add policy for authenticated'
+  shell: '{{ oc_path }} adm policy add-scc-to-group {{ item }} system:authenticated'
+  with_items:
+    - privileged
+    - restricted
+    - anyuid
+    - hostaccess
+    - hostmount-anyuid
+    - hostnetwork
+    - nonroot
+
+- name: patch scc
+  shell: "{{ oc_path }} patch scc {{ item }} --type=json -p '[{\"op\": \"add\", \"path\": \"/allowHostDirVolumePlugin\", \"value\": true}]'"
+  with_items:
+    - restricted
+    - anyuid
+    - hostnetwork
+    - nonroot
+- name: policy hostnetwork
+  shell: '{{ oc_path }} adm policy add-scc-to-user hostnetwork -z flowqe'
+
+- name: copy scc_admin.yaml
+  copy: src=scc_admin.yaml dest=/tmp/scc_admin.yaml
+
+- name: 'create scc admin'
+  shell: '{{ oc_path }} create -f /tmp/scc_admin.yaml'
+
+- name: copy get token script
+  copy: src=getToken.groovy dest=/tmp/getToken.groovy
+
+- name: get token
+  shell: 'groovy /tmp/getToken.groovy {{ oc_path }} {{ cluster_ip }}'
+  register: token
+
+- name: echo token
+  debug: msg="{{ token.stdout }}"
+
+# groovy getToken.groovy > token.txt

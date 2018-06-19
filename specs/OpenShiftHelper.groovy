@@ -10,7 +10,19 @@ import static groovyx.net.http.Method.POST
 import static groovyx.net.http.Method.PUT
 
 
-class KubeHelper extends ContainerHelper {
+class OpenShiftHelper extends ContainerHelper {
+
+    static def pluginName = 'EC-OpenShift'
+
+    def promoteKubernetesPlugin() {
+        def plugins = dsl "getPlugins()"
+        def kubernetes = plugins.plugin.find { it.pluginKey == 'EC-Kubernetes' }
+        assert kubernetes : "Kubernetes plugin is not found"
+        def pluginName = kubernetes.pluginName
+        dsl "promotePlugin(pluginName: '$pluginName', promoted: '0')"
+        dsl "promotePlugin(pluginName: '$pluginName', promoted: '1')"
+        println "Promoted plugin $pluginName"
+    }
 
     def createCluster(projectName, envName, clusterName, configName) {
         createConfig(configName)
@@ -18,9 +30,10 @@ class KubeHelper extends ContainerHelper {
             project '$projectName', {
                 environment '$envName', {
                     cluster '$clusterName', {
-                        pluginKey = 'EC-Kubernetes'
+                        pluginKey = '$pluginName'
                         provisionParameter = [
-                            config: '$configName'
+                            config: '$configName',
+                            project: 'flowqe-test-project'
                         ]
                         provisionProcedure = 'Check Cluster'
                     }
@@ -31,13 +44,13 @@ class KubeHelper extends ContainerHelper {
 
 
     def deleteConfig(configName) {
-        deleteConfiguration('EC-Kubernetes', configName)
+        deleteConfiguration(pluginName, configName)
     }
 
     def createConfig(configName) {
-        def token = System.getenv('KUBE_TOKEN')
+        def token = System.getenv('OPENSHIFT_TOKEN')
         assert token
-        def endpoint = System.getenv('KUBE_ENDPOINT')
+        def endpoint = System.getenv('OPENSHIFT_CLUSTER')
         assert endpoint
         def pluginConfig = [
             kubernetesVersion: '1.7',
@@ -50,7 +63,7 @@ class KubeHelper extends ContainerHelper {
             props.recreate = true
         }
         createPluginConfiguration(
-            'EC-Kubernetes',
+            pluginName,
             configName,
             pluginConfig,
             'test',
@@ -64,7 +77,7 @@ class KubeHelper extends ContainerHelper {
         def procName = 'Cleanup Cluster - Experimental'
         def result = dsl """
             runProcedure(
-                projectName: '/plugins/EC-Kubernetes/project',
+                projectName: '/plugins/$pluginName/project',
                 procedureName: "$procName",
                 actualParameter: [
                     namespace: 'default',
@@ -232,7 +245,7 @@ class KubeHelper extends ContainerHelper {
 
 
 
-        res = request(getEndpoint(), 
+        res = request(getEndpoint(),
             "/api/v1/namespaces/${namespace}/pods",
             GET,
             null, headers, null)
@@ -256,13 +269,13 @@ class KubeHelper extends ContainerHelper {
     }
 
     static def getToken() {
-        def token = System.getenv('KUBE_TOKEN')
+        def token = System.getenv('OPENSHIFT_TOKEN')
         assert token
         token
     }
 
     static def getEndpoint() {
-        def endpoint = System.getenv('KUBE_ENDPOINT')
+        def endpoint = System.getenv('OPENSHIFT_CLUSTER')
         assert endpoint
         endpoint
     }
