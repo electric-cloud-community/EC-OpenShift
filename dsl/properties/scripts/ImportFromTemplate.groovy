@@ -18,7 +18,6 @@ public class ImportFromTemplate extends EFClient {
     def discoveredSummary = [:]
     def parsedConfigList = []
 
-    def parsed = []
     Yaml parser = new Yaml()
 
     def importFromTemplate(namespace, fileYAML){
