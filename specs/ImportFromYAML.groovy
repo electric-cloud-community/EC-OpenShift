@@ -17,6 +17,7 @@ class ImportFromYAML extends OpenShiftHelper {
         dsl """
             deleteProject(projectName: '$projectName')
         """
+        promoteKubernetesPlugin()
         createCluster(projectName, envName, clusterName, configName)
         dslFile 'dsl/ImportFromYAML.dsl', [
             projectName: projectName,
@@ -31,7 +32,6 @@ class ImportFromYAML extends OpenShiftHelper {
                 clusterName:       '',
             ]
         ]
-        promoteKubernetesPlugin()
 
     }
 
