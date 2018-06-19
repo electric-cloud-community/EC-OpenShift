@@ -1,3 +1,2 @@
-playbook: playbook/site.yml
-# additionalOptions: -u build
+ansiblePlaybook: playbook/site.yml
 inventory: playbook/inventory.ini
