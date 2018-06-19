@@ -15,6 +15,7 @@ for (keys %ENV) {
 
 my $efServer = 'localhost';
 my $ec = ElectricCommander->new({server => $efServer, debug => 1});
+$ec->login('admin', 'changeme');
 my $plugins = $ec->getPlugins();
 my @dependencies = qw(EC-Kubernetes);
 my @pluginNames = ();
