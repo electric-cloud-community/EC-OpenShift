@@ -120,6 +120,7 @@ class ImportFromYAML extends OpenShiftHelper {
         deleteService(projectName, serviceName)
     }
 
+    @Ignore
     def 'with several params'() {
         given:
         def serviceName = 'myservice'
