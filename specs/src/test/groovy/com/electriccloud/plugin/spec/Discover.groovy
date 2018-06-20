@@ -1,3 +1,6 @@
+package com.electriccloud.plugin.spec
+
+
 import groovy.json.JsonSlurper
 import spock.lang.*
 import com.electriccloud.spec.*

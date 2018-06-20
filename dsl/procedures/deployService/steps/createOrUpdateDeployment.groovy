@@ -27,9 +27,10 @@ def pluginConfig = client.getPluginConfig(efClient, clusterName, clusterOrEnvPro
 String accessToken = client.retrieveAccessToken (pluginConfig)
 
 def clusterParameters = efClient.getProvisionClusterParameters(
-                clusterName,
-                clusterOrEnvProjectName,
-                environmentName)
+    clusterName,
+    clusterOrEnvProjectName,
+    environmentName
+)
 
 String clusterEndpoint = pluginConfig.clusterEndpoint
 String namespace = clusterParameters.project

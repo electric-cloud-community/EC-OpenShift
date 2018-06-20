@@ -1,3 +1,5 @@
+package com.electriccloud.plugin.spec
+
 import spock.lang.*
 import com.electriccloud.spec.*
 
@@ -175,7 +177,7 @@ class ContainerHelper extends PluginSpockTestSupport {
         def result = dsl(dslString)
         assert result.jobId
         waitUntil {
-            jobCompleted result.jobId
+            jobCompleted(result)
         }
         def logs = readJobLogs(result.jobId)
         def outcome = jobStatus(result.jobId).outcome
