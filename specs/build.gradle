@@ -30,8 +30,7 @@ dependencies {
 
 test {
     systemProperties["COMMANDER_SECURE"] = '1'
-    def server = findProperty('commanderServer')
-    server = server ?: findProperty('COMMANDER_SERVER')
+    def server = findProperty('commanderServer') ?: findProperty('COMMANDER_SERVER') ?: 'localhost'
     systemProperties['COMMANDER_SERVER'] = server
 
     testLogging {

@@ -236,20 +236,20 @@ class ImportFromYAML extends OpenShiftHelper {
         when:
 
         def result = runProcedureDsl """
-                runProcedure(
-                    projectName: '$projectName',
-                    procedureName: 'Import Microservices',
-                    actualParameter: [
-                        osTemplateYaml: '''$yamlContent''',
-                        projName: '$projectName',
-                        application_scoped: '0',
-                        application_name:   '',
-                        envProjectName: '$projectName',
-                        envName: '$envName',
-                        clusterName: '$clusterName'
-                    ]
-                )
-            """
+            runProcedure(
+                projectName: '$projectName',
+                procedureName: 'Import Microservices',
+                actualParameter: [
+                    osTemplateYaml: '''$yamlContent''',
+                    projName: '$projectName',
+                    application_scoped: '0',
+                    application_name:   '',
+                    envProjectName: '$projectName',
+                    envName: '$envName',
+                    clusterName: '$clusterName'
+                ]
+            )
+        """
         then:
         logger.debug(result.logs)
         assert result.outcome == 'warning'
