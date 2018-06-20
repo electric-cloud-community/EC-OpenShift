@@ -142,7 +142,7 @@ class ImportFromYAML extends OpenShiftHelper {
         """
         then:
         logger.debug(result.logs)
-        assert result.outcome != 'failed'
+        assert result.outcome != 'error'
         cleanup:
         deleteService(projectName, serviceName)
     }
@@ -218,6 +218,7 @@ class ImportFromYAML extends OpenShiftHelper {
             """
         then:
         logger.debug(result.logs)
+        assert result.outcome != 'error'
         def service = getService(projectName, serviceName, clusterName, envName)
         logger.debug(objectToJson(service))
         assert getMappingDetail(service, 'routeHostname') == routeHostname
