@@ -120,6 +120,33 @@ class ImportFromYAML extends OpenShiftHelper {
         deleteService(projectName, serviceName)
     }
 
+    def 'with several params'() {
+        given:
+        def serviceName = 'myservice'
+        def yaml = getTemplate('severalParams.yaml', [serviceName: serviceName])
+        def paramValues = 'PARAM=1'
+        when:
+        def result = runProcedureDsl """
+            runProcedure(
+                projectName: '$projectName',
+                procedureName: 'Import Microservices',
+                actualParameter: [
+                    osTemplateYaml: '''$yaml''',
+                    projName: '$projectName',
+                    envProjectName: '$projectName',
+                    envName: '$envName',
+                    clusterName: '$clusterName',
+                    templateParamValues: '''$paramValues'''
+                ]
+            )
+        """
+        then:
+        logger.debug(result.logs)
+        assert result.outcome != 'failed'
+        cleanup:
+        deleteService(projectName, serviceName)
+    }
+
     def "application-scoped-service"() {
         given:
         def sampleName = 'my-service-nginx-deployment'
