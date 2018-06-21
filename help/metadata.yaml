@@ -1,0 +1,14 @@
+excludeProcedures:
+  - Setup
+  - Define Container
+  - Define Service
+  - Cleanup Cluster - Experimental
+deprecatedProcedures:
+  - Create Resource
+proceduresOrder:
+  - Check Cluster
+  - Deploy Service
+  - Undeploy Service
+  - Discover
+  - Invoke Kubernetes API
+  - Wait For Kubernetes API
