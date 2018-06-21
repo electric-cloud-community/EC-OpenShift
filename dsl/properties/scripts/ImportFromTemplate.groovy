@@ -1,6 +1,6 @@
+@Grab('org.yaml:snakeyaml:1.19')
 import groovy.json.JsonBuilder
 import groovy.json.JsonSlurper
-@Grab('org.yaml:snakeyaml:1.19')
 import org.yaml.snakeyaml.Yaml
 
 public class ImportFromTemplate extends EFClient {
@@ -587,21 +587,12 @@ public class ImportFromTemplate extends EFClient {
         logService.push("/spec/type")
         logService.push("/spec/sessionAffinity")
         logService.push("/spec/loadBalancerSourceRanges")
-        efService.serviceMapping.loadBalancerIP = kubeService.spec?.loadBalancerIP
-        efService.serviceMapping.serviceType = kubeService.spec?.type
-        efService.serviceMapping.sessionAffinity = kubeService.spec?.sessionAffinity
-        def sourceRanges = kubeService.spec?.loadBalancerSourceRanges?.join(',')
-
 
         def mapping = buildServiceMapping(kubeService)
         mapping.each { k, v ->
             efService.serviceMapping[k] = v;
         }
 
-        efService.serviceMapping.loadBalancerSourceRanges = sourceRanges
-        if (namespace != 'default') {
-            efService.serviceMapping.namespace = namespace
-        }
         // Ports
         def portInd = 0
         efService.ports = kubeService.spec?.ports?.collect { port ->
@@ -703,7 +694,7 @@ public class ImportFromTemplate extends EFClient {
         bool
     }
 
-
+//    This one can be redefined for OpenShift
     def buildServiceMapping(kubeService) {
         def mapping = [:]
         mapping.loadBalancerIP = kubeService.spec?.loadBalancerIP

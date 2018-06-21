@@ -10,8 +10,6 @@ def environmentName = '$[envName]'
 def clusterName = '$[clusterName]'
 def applicationScoped = '$[application_scoped]'
 def applicationName = '$[application_name]'
-def NAMESPACE = "default"
-
 
 EFClient efClient = new EFClient()
 
@@ -26,19 +24,19 @@ if(efClient.toBoolean(applicationScoped)) {
 }
 
 def param2value = [:]
-if (osTemplateValues != null && !osTemplateValues.equals("")) {
-    def values = osTemplateValues.split(',')
+if (osTemplateValues) {
+    osTemplateValues = osTemplateValues.trim()
+    def values = osTemplateValues.split(/\s*,\s*/)
     values.each { parameterAndValue ->
         if (parameterAndValue.contains('=')) {
-            String [] parameterAndValueSplitted = parameterAndValue.split('=')
+            String[] parameterAndValueSplitted = parameterAndValue.split(/\s*=\s*/)
             param2value.put(parameterAndValueSplitted[0].trim(), parameterAndValueSplitted[1].trim())
         }
     }
 }
 
 param2value.each { p,v ->
-    osTemplateYaml = osTemplateYaml.replace('{{' + p + '}}', v)
-    osTemplateYaml = osTemplateYaml.replace('{' + p + '}', v)
+    osTemplateYaml = osTemplateYaml.replaceAll(/\$\{{1,2}\s*${p}\s*\}{1,2}/, v)
 }
 
 if (envProjectName && environmentName && clusterName) {
@@ -61,7 +59,15 @@ if (envProjectName && environmentName && clusterName) {
     System.exit(-1)
 }
 
+def clusterParameters = efClient.getProvisionClusterParameters(
+    clusterName,
+    envProjectName,
+    environmentName
+)
+
+String namespace = clusterParameters.project
+
 def importFromTemplate = new ImportFromTemplate()
 
-def services = importFromTemplate.importFromTemplate(NAMESPACE, osTemplateYaml)
+def services = importFromTemplate.importFromTemplate(namespace, osTemplateYaml)
 importFromTemplate.saveToEF(services, projectName, envProjectName, environmentName, clusterName, applicationName)

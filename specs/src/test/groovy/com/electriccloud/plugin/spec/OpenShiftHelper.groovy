@@ -1,3 +1,5 @@
+package com.electriccloud.plugin.spec
+
 import spock.lang.*
 import com.electriccloud.spec.*
 import groovyx.net.http.RESTClient
@@ -9,22 +11,11 @@ import static groovyx.net.http.Method.PATCH
 import static groovyx.net.http.Method.POST
 import static groovyx.net.http.Method.PUT
 
-
 class OpenShiftHelper extends ContainerHelper {
 
     static def pluginName = 'EC-OpenShift'
 
-    def promoteKubernetesPlugin() {
-        def plugins = dsl "getPlugins()"
-        def kubernetes = plugins.plugin.find { it.pluginKey == 'EC-Kubernetes' }
-        assert kubernetes : "Kubernetes plugin is not found"
-        def pluginName = kubernetes.pluginName
-        dsl "promotePlugin(pluginName: '$pluginName', promoted: '0')"
-        dsl "promotePlugin(pluginName: '$pluginName', promoted: '1')"
-        println "Promoted plugin $pluginName"
-    }
-
-    def createCluster(projectName, envName, clusterName, configName) {
+    def createCluster(projectName, envName, clusterName, configName, project = 'flowqe-test-project') {
         createConfig(configName)
         dsl """
             project '$projectName', {
@@ -33,7 +24,7 @@ class OpenShiftHelper extends ContainerHelper {
                         pluginKey = '$pluginName'
                         provisionParameter = [
                             config: '$configName',
-                            project: 'flowqe-test-project'
+                            project: '$project'
                         ]
                         provisionProcedure = 'Check Cluster'
                     }
