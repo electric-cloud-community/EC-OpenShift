@@ -1,0 +1,1 @@
+<p>This procedure deploys a service, creating or updating pod definitions, service and deployment in the OpenShift project on the cluster. The OpenShift project(namespace) is created if it does not exist.</p>
