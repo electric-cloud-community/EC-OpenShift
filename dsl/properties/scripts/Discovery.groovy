@@ -41,7 +41,7 @@ public class Discovery extends EFClient {
     def discover() {
         def kubeServices = openShiftClient.getServices(clusterEndpoint, namespace, accessToken)
         def efServices = []
-        kubeServices.items.each { kubeService ->
+        kubeServices?.items.each { kubeService ->
             if (!isSystemService(kubeService)) {
                 def selector = kubeService.spec.selector.collect { k, v ->
                     k + '=' + v
@@ -583,21 +583,6 @@ public class Discovery extends EFClient {
         def serviceName = getKubeServiceName(kubeService)
 
         def route
-//        def routes = fetchRoutes()
-//        // One route per service for us
-//        // OpenShift allows more than one route
-//        parsedConfigList.each { object ->
-//            if (object.kind == KIND_ROUTE && object.spec?.to?.kind == KIND_SERVICE && object.spec?.to?.name == serviceName) {
-//                if (route) {
-//                    def routeName = object.metadata?.name
-//                    logger WARNING, "Only one route per service is allowed in ElectricFlow. The route ${routeName} will not be added."
-//                }
-//                else {
-//                    route = object
-//                }
-//            }
-//        }
-
         fetchRoutes()?.each {
             if (it?.spec?.to?.kind == KIND_SERVICE && it.spec?.to?.name == serviceName) {
                 if (route) {

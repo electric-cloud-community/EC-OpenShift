@@ -9,7 +9,7 @@ project projName, {
       }
     }
     step 'Discover', {
-      subproject = '/plugins/EC-Kubernetes/project'
+      subproject = '/plugins/EC-OpenShift/project'
       subprocedure = 'Discover'
 
       params.each { k, v ->
