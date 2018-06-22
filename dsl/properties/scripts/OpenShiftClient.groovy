@@ -6,6 +6,13 @@ public class OpenShiftClient extends KubernetesClient {
         createOrUpdateRoute(clusterEndpoint, namespace, serviceDetails, accessToken)
     }
 
+    def getRoutes(String clusterEndpoint, String namespace, String accessToken) {
+        println clusterEndpoint
+        def response = doHttpGet(clusterEndpoint, "/oapi/v1/namespaces/${namespace}/routes", accessToken, true)
+        logger DEBUG, "Routes: ${response}"
+        return response?.data?.items
+    }
+
     def createOrUpdateRoute(String clusterEndpoint, String namespace, def serviceDetails, String accessToken) {
         String routeName = getServiceParameter(serviceDetails, 'routeName')
 

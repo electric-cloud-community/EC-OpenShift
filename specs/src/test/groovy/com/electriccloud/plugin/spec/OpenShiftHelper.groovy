@@ -14,6 +14,7 @@ import static groovyx.net.http.Method.PUT
 class OpenShiftHelper extends ContainerHelper {
 
     static def pluginName = 'EC-OpenShift'
+    static final def namespace = 'flowqe-test-project'
 
     def createCluster(projectName, envName, clusterName, configName, project = 'flowqe-test-project') {
         createConfig(configName)
@@ -44,7 +45,7 @@ class OpenShiftHelper extends ContainerHelper {
         def endpoint = System.getenv('OPENSHIFT_CLUSTER')
         assert endpoint
         def pluginConfig = [
-            kubernetesVersion: '1.7',
+            kubernetesVersion: getClusterVersion(),
             clusterEndpoint  : endpoint,
             testConnection   : 'false',
             logLevel         : '2'
@@ -99,13 +100,21 @@ class OpenShiftHelper extends ContainerHelper {
         try {
             deleteDeployment(name)
             deleteService(name)
+            deleteRoute(name)
         } catch (Throwable e) {
             logger.debug(e.getMessage())
         }
     }
 
+    static def cleanupRoute(name) {
+        try {
+            deleteRoute(name)
+        } catch (Throwable e) {
+            logger.debug(e.message)
+        }
+    }
+
     static def createDeployment(endpoint, token, payload) {
-        def namespace = 'default'
         def uri = "/apis/extensions/v1beta1/namespaces/${namespace}/deployments"
         request(getEndpoint(),
             uri, POST, null,
@@ -115,21 +124,24 @@ class OpenShiftHelper extends ContainerHelper {
     }
 
     static def createService(endpoint, token, payload) {
-        def namespace = 'default'
         def uri = "/api/v1/namespaces/${namespace}/services"
         request(getEndpoint(), uri, POST, null, ["Authorization": "Bearer ${getToken()}"], new JsonBuilder(payload).toPrettyString())
     }
 
+    static def createRoute(payload) {
+        def uri = "/oapi/v1/namespaces/${namespace}/routes"
+        request(getEndpoint(), uri, POST, null, ["Authorization": "Bearer ${getToken()}"], new JsonBuilder(payload).toPrettyString())
+    }
 
     static def getService(name) {
-        def uri = "/api/v1/namespaces/default/services/${name}"
+        def uri = "/api/v1/namespaces/${namespace}/services/${name}"
         request(
             getEndpoint(), uri, GET,
             null, ["Authorization": "Bearer ${getToken()}"], null).data
     }
 
     static def getDeployment(name) {
-        def uri = "/apis/apps/v1beta1/namespaces/default/deployments/${name}"
+        def uri = "/apis/apps/v1beta1/namespaces/${namespace}/deployments/${name}"
         request(
             getEndpoint(), uri, GET,
             null, ["Authorization": "Bearer ${getToken()}"], null).data
@@ -152,7 +164,7 @@ class OpenShiftHelper extends ContainerHelper {
                       data      : [".dockercfg": dockerCfgEnoded],
                       type      : "kubernetes.io/dockercfg"]
 
-        def uri = "/api/v1/namespaces/default/secrets"
+        def uri = "/api/v1/namespaces/${namespace}/secrets"
         request(getEndpoint(),
             uri, POST, null,
             ["Authorization": "Bearer ${getToken()}"],
@@ -161,7 +173,7 @@ class OpenShiftHelper extends ContainerHelper {
     }
 
     static def deleteSecret(name) {
-        def uri = "/api/v1/namespaces/default/secrets/$name"
+        def uri = "/api/v1/namespaces/${namespace}/secrets/$name"
         request(getEndpoint(),
             uri,
             DELETE,
@@ -171,22 +183,31 @@ class OpenShiftHelper extends ContainerHelper {
         )
     }
 
+    static def deleteRoute(routeName) {
+        def uri = "/oapi/v1/namespaces/${namespace}/routes/${routeName}"
+        request(getEndpoint(),
+            uri,
+            DELETE,
+            null,
+            ["Authorization" :"Bearer ${getToken()}"],
+            null
+        )
+    }
+
     static def request(requestUrl, requestUri, method, queryArgs, requestHeaders, requestBody) {
         def http = new RESTClient(requestUrl)
         http.ignoreSSLIssues()
-        logger.debug(requestBody)
 
         http.request(method, JSON) {
             if (requestUri) {
                 uri.path = requestUri
             }
-            logger.debug(uri.path)
-            logger.debug(method.toString())
             if (queryArgs) {
                 uri.query = queryArgs
             }
             headers = requestHeaders
             body = requestBody
+            logger.debug("Method: $method, URI: $uri, Body: $requestBody")
 
             response.success = { resp, json ->
                 [statusLine: resp.statusLine,
@@ -195,21 +216,20 @@ class OpenShiftHelper extends ContainerHelper {
             }
 
             response.failure = { resp, reader ->
-                println resp
-                println reader
-                throw new RuntimeException("Request failed")
+                println "Failute: ${resp}"
+                println "Failure: ${reader}"
+                throw new RuntimeException("Request failed ${resp} ${reader}")
             }
 
         }
     }
 
     static def deleteService(serviceName) {
-        def uri = "/api/v1/namespaces/default/services/$serviceName"
+        def uri = "/api/v1/namespaces/${namespace}/services/$serviceName"
         request(getEndpoint(), uri, DELETE, null, ["Authorization": "Bearer ${getToken()}"], null)
     }
 
     static def deleteDeployment(serviceName) {
-        def namespace = 'default'
         def headers = ["Authorization": "Bearer ${getToken()}"]
         def uri = "/apis/extensions/v1beta1/namespaces/${namespace}/deployments/$serviceName"
         request(getEndpoint(), uri, DELETE, null,  headers, null)
@@ -269,5 +289,11 @@ class OpenShiftHelper extends ContainerHelper {
         def endpoint = System.getenv('OPENSHIFT_CLUSTER')
         assert endpoint
         endpoint
+    }
+
+    static def getClusterVersion() {
+        def version = System.getenv('OPENSHIFT_CLUSTER_VERSION') ?: '1.9'
+        assert version
+        return version
     }
 }
