@@ -5,16 +5,19 @@ import groovy.transform.builder.Builder
 import groovy.transform.builder.ExternalStrategy
 import static Logger.*
 
-@Builder(builderStrategy = ExternalStrategy, forClass = Discovery, excludes = 'kubeClient, accessToken, clusterEndpoint, discoveredSummary')
+@Builder(builderStrategy = ExternalStrategy, forClass = Discovery, excludes = 'openShiftClient, accessToken, clusterEndpoint, discoveredSummary')
 public class DiscoveryBuilder {}
 
 public class Discovery extends EFClient {
+
+    static final def KIND_SERVICE = 'Service'
+
     @Lazy
-    KubernetesClient kubeClient = { new KubernetesClient() }()
+    OpenShiftClient openShiftClient = { new OpenShiftClient() }()
 
     def pluginConfig
     @Lazy
-    def accessToken = { kubeClient.retrieveAccessToken(pluginConfig) }()
+    def accessToken = { openShiftClient.retrieveAccessToken(pluginConfig) }()
 
     @Lazy
     def clusterEndpoint = { pluginConfig.clusterEndpoint }()
@@ -23,6 +26,8 @@ public class Discovery extends EFClient {
 
     @Lazy(soft = true)
     ElectricFlow ef = { new ElectricFlow() }()
+
+    def namespace
 
 //    Target
     def projectName
@@ -33,8 +38,8 @@ public class Discovery extends EFClient {
 
     static final String CREATED_DESCRIPTION = "Created by EF Discovery"
 
-    def discover(namespace) {
-        def kubeServices = kubeClient.getServices(clusterEndpoint, namespace, accessToken)
+    def discover() {
+        def kubeServices = openShiftClient.getServices(clusterEndpoint, namespace, accessToken)
         def efServices = []
         kubeServices.items.each { kubeService ->
             if (!isSystemService(kubeService)) {
@@ -42,7 +47,7 @@ public class Discovery extends EFClient {
                     k + '=' + v
                 }.join(',')
 
-                def deployments = kubeClient.getDeployments(
+                def deployments = openShiftClient.getDeployments(
                     clusterEndpoint,
                     namespace, accessToken,
                     [labelSelector: selector]
@@ -59,6 +64,7 @@ public class Discovery extends EFClient {
                 }
             }
         }
+
         efServices
     }
 
@@ -79,6 +85,7 @@ public class Discovery extends EFClient {
     }
 
     def saveToEF(services) {
+
         if (applicationName) {
             def app = ensureApplication()
             createAppDeployProcess(projectName, applicationName)
@@ -193,6 +200,8 @@ public class Discovery extends EFClient {
                 it.clusterName == clusterName
             }
         }
+
+
         if (!serviceClusterMapping) {
             def payload = [
                 clusterName           : clusterName,
@@ -427,7 +436,7 @@ public class Discovery extends EFClient {
         def retval = []
         secrets.each {
             def name = it.name
-            def secret = kubeClient.getSecret(name, clusterEndpoint, namespace, accessToken)
+            def secret = openShiftClient.getSecret(name, clusterEndpoint, namespace, accessToken)
 
             def dockercfg = secret.data['.dockercfg']
             if (dockercfg) {
@@ -514,14 +523,7 @@ public class Discovery extends EFClient {
             }
 
         }
-        efService.serviceMapping.loadBalancerIP = kubeService.spec?.loadBalancerIP
-        efService.serviceMapping.serviceType = kubeService.spec?.type
-        efService.serviceMapping.sessionAffinity = kubeService.spec?.sessionAffinity
-        def sourceRanges = kubeService.spec?.loadBalancerSourceRanges?.join(',')
-        efService.serviceMapping.loadBalancerSourceRanges = sourceRanges
-//        if (namespace != 'default') {
-//            efService.serviceMapping.namespace = namespace
-//        }
+        efService.serviceMapping = buildServiceMapping(kubeService)
         // Ports
         efService.ports = kubeService.spec?.ports?.collect { port ->
             def name
@@ -554,6 +556,70 @@ public class Discovery extends EFClient {
 
         efService
     }
+
+
+    def fetchRoutes() {
+        def routes = openShiftClient.getRoutes(clusterEndpoint, namespace, accessToken)
+        return routes
+    }
+
+//    This one can be redefined for OpenShift
+//    Copied from Import
+//    TODO refactor and merge into one class
+    def buildServiceMapping(kubeService) {
+        def mapping = [:]
+        mapping.loadBalancerIP = kubeService.spec?.loadBalancerIP
+        mapping.serviceType = kubeService.spec?.type
+        mapping.sessionAffinity = kubeService.spec?.sessionAffinity
+        def sourceRanges = kubeService.spec?.loadBalancerSourceRanges?.join(',')
+
+        mapping.loadBalancerSourceRanges = sourceRanges
+        // Not here, is's from kube
+        // if (namespace != 'default') {
+        //     mapping.namespace = namespace
+        // }
+
+        // Routes
+        def serviceName = getKubeServiceName(kubeService)
+
+        def route
+//        def routes = fetchRoutes()
+//        // One route per service for us
+//        // OpenShift allows more than one route
+//        parsedConfigList.each { object ->
+//            if (object.kind == KIND_ROUTE && object.spec?.to?.kind == KIND_SERVICE && object.spec?.to?.name == serviceName) {
+//                if (route) {
+//                    def routeName = object.metadata?.name
+//                    logger WARNING, "Only one route per service is allowed in ElectricFlow. The route ${routeName} will not be added."
+//                }
+//                else {
+//                    route = object
+//                }
+//            }
+//        }
+
+        fetchRoutes()?.each {
+            if (it?.spec?.to?.kind == KIND_SERVICE && it.spec?.to?.name == serviceName) {
+                if (route) {
+                    def routeName = it.metadata?.name
+                    logger WARNING, "Only one route per service is allowed in ElectricFlow. The route ${routeName} will not be added."
+                }
+                else {
+                    route = it
+                }
+            }
+        }
+
+        if (route) {
+            mapping.routeName = route.metadata?.name
+            mapping.routeHostname = route.spec?.host
+            mapping.routePath = route.spec?.path
+            mapping.routeTargetPort = route.spec?.port?.targetPort
+        }
+
+        return mapping
+    }
+
 
     def createEFService(service) {
         def payload = service.service
@@ -816,4 +882,13 @@ public class Discovery extends EFClient {
         new JsonBuilder(o).toPrettyString()
     }
 
+    def getKubeServiceName(kubeService) {
+        def name = kubeService.metadata?.name
+        assert name
+        return name
+    }
+
+    def stop() {
+        throw new RuntimeException('stop')
+    }
 }

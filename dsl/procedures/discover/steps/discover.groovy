@@ -89,9 +89,10 @@ try {
         .environmentName(environmentName)
         .clusterName(clusterName)
         .pluginConfig(pluginConfig)
+        .namespace(namespace)
         .build()
 
-    def services = discovery.discover(namespace)
+    def services = discovery.discover()
     if (services.size() == 0) {
         print "No services found on the cluster ${pluginConfig.clusterEndpoint}"
         ef.setProperty(propertyName: '/myCall/summary', value: "No services found on the cluster ${pluginConfig.clusterEndpoint}")
