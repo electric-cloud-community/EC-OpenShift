@@ -759,7 +759,7 @@ public class Discovery extends EFClient {
                 livenessPeriod = kubeContainer.livenessProbe?.periodSeconds
                 processedLivenessFields << 'initialDelaySeconds'
                 processedLivenessFields << 'periodSeconds'
-                if (probe.httpHeaders?.size() > 1) {
+                if (probe?.httpHeaders?.size() > 1) {
                     logger WARNING, 'Only one liveness header is supported, will take the first'
                 }
                 def header = probe?.httpHeaders?.first()
