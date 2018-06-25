@@ -1,6 +1,6 @@
+@Grab('org.yaml:snakeyaml:1.19')
 import groovy.json.JsonBuilder
 import groovy.json.JsonSlurper
-@Grab('org.yaml:snakeyaml:1.19')
 import org.yaml.snakeyaml.Yaml
 
 public class ImportFromTemplate extends EFClient {
@@ -11,14 +11,18 @@ public class ImportFromTemplate extends EFClient {
     '''
     static def REPORT_URL_PROPERTY = '/myJob/report-urls/'
 
+    static def KIND_ROUTE = 'Route'
+    static def KIND_SERVICE = 'Service'
+
     def ignoreList = []
     def discoveredSummary = [:]
+    def parsedConfigList = []
+
     Yaml parser = new Yaml()
 
     def importFromTemplate(namespace, fileYAML){
         def efServices = []
         def configList = fileYAML
-        def parsedConfigList = []
 
         def parsedConfig = parser.load(configList)
 
@@ -44,6 +48,7 @@ public class ImportFromTemplate extends EFClient {
             println "Failed to find any deployment configurations in the YAML file. Cause: ${e.message}"
             System.exit(-1)
         }
+
         if (deployments.size() < 1){
             println "Failed to find any deployment configurations in the YAML file."
             System.exit(-1)
@@ -191,7 +196,7 @@ public class ImportFromTemplate extends EFClient {
             def applicationId = app.applicationId
             setEFProperty("/myJob/report-urls/Application: $applicationName", "/flow/#applications/$applicationId")
         }
-      
+
         def efServices = getServices(projectName, applicationName)
         services.each { service ->
             def svc = createOrUpdateService(projectName, envProjectName, envName, clusterName, efServices, service, applicationName)
@@ -582,15 +587,12 @@ public class ImportFromTemplate extends EFClient {
         logService.push("/spec/type")
         logService.push("/spec/sessionAffinity")
         logService.push("/spec/loadBalancerSourceRanges")
-        efService.serviceMapping.loadBalancerIP = kubeService.spec?.loadBalancerIP
-        efService.serviceMapping.serviceType = kubeService.spec?.type
-        efService.serviceMapping.sessionAffinity = kubeService.spec?.sessionAffinity
-        def sourceRanges = kubeService.spec?.loadBalancerSourceRanges?.join(',')
 
-        efService.serviceMapping.loadBalancerSourceRanges = sourceRanges
-        if (namespace != 'default') {
-            efService.serviceMapping.namespace = namespace
+        def mapping = buildServiceMapping(kubeService)
+        mapping.each { k, v ->
+            efService.serviceMapping[k] = v;
         }
+
         // Ports
         def portInd = 0
         efService.ports = kubeService.spec?.ports?.collect { port ->
@@ -690,6 +692,48 @@ public class ImportFromTemplate extends EFClient {
             }
         }
         bool
+    }
+
+//    This one can be redefined for OpenShift
+    def buildServiceMapping(kubeService) {
+        def mapping = [:]
+        mapping.loadBalancerIP = kubeService.spec?.loadBalancerIP
+        mapping.serviceType = kubeService.spec?.type
+        mapping.sessionAffinity = kubeService.spec?.sessionAffinity
+        def sourceRanges = kubeService.spec?.loadBalancerSourceRanges?.join(',')
+
+        mapping.loadBalancerSourceRanges = sourceRanges
+        // Not here, is's from kube
+        // if (namespace != 'default') {
+        //     mapping.namespace = namespace
+        // }
+
+        // Routes
+        def serviceName = getKubeServiceName(kubeService)
+
+        def route
+        // One route per service for us
+        // OpenShift allows more than one route
+        parsedConfigList.each { object ->
+            if (object.kind == KIND_ROUTE && object.spec?.to?.kind == KIND_SERVICE && object.spec?.to?.name == serviceName) {
+                if (route) {
+                    def routeName = object.metadata?.name
+                    logger WARNING, "Only one route per service is allowed in ElectricFlow. The route ${routeName} will not be added."
+                }
+                else {
+                    route = object
+                }
+            }
+        }
+
+        if (route) {
+            mapping.routeName = route.metadata?.name
+            mapping.routeHostname = route.spec?.host
+            mapping.routePath = route.spec?.path
+            mapping.routeTargetPort = route.spec?.port?.targetPort
+        }
+
+        return mapping
     }
 
     def updateEFService(efService, kubeService) {
@@ -1014,4 +1058,11 @@ public class ImportFromTemplate extends EFClient {
         }
         writer.toString()
     }
+
+    def getKubeServiceName(kubeService) {
+        def name = kubeService.metadata?.name
+        assert name
+        return name
+    }
+
 }

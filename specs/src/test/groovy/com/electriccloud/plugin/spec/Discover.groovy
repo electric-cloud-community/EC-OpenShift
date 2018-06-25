@@ -1,30 +1,43 @@
+package com.electriccloud.plugin.spec
+
+
 import groovy.json.JsonSlurper
 import spock.lang.*
 import com.electriccloud.spec.*
 
-class Discover extends KubeHelper {
-    static def projectName = 'EC-Kubernetes Specs Discover'
-    static def clusterName = 'Kube Spec Cluster'
-    static def envName = 'Kube Spec Env'
-    static def serviceName = 'kube-spec-discovery-test'
+class Discover extends OpenShiftHelper {
+    static def projectName = 'EC-OpenShift Specs Discover'
+    static def clusterName = 'OpenShift Spec Cluster'
+    static def envName = 'OpenShift Spec Env'
+    static def serviceName = 'openshift-spec-discovery-test'
     static def configName
     static def secretName
+    static final def procedureName = 'Discover'
+
+    @Shared
+    def commonParams = [
+        clusterName: clusterName,
+        projName: projectName,
+        envName: envName,
+        envProjectName: projectName,
+        namespace: 'flowqe-test-project'
+    ]
 
     def doSetupSpec() {
-        configName = 'Kube Spec Config'
+        configName = 'OpenShift Spec Config'
         createCluster(projectName, envName, clusterName, configName)
         dslFile 'dsl/Discover.dsl', [
             projectName: projectName,
             params     : [
-                envName                         : '',
-                envProjectName                  : '',
-                clusterName                     : '',
-                namespace                       : '',
-                projName                        : '',
-                ecp_kubernetes_applicationScoped: '',
-                ecp_kubernetes_applicationName  : '',
-                ecp_kubernetes_apiEndpoint      : '',
-                ecp_kubernetes_apiToken         : '',
+                envName                        : '',
+                envProjectName                 : '',
+                clusterName                    : '',
+                namespace                      : '',
+                projName                       : '',
+                ecp_openshift_applicationScoped: '',
+                ecp_openshift_applicationName  : '',
+                ecp_openshift_apiEndpoint      : '',
+                ecp_openshift_apiToken         : '',
             ]
         ]
     }
@@ -34,6 +47,49 @@ class Discover extends KubeHelper {
         dsl """
             deleteProject(projectName: '$projectName')
         """
+    }
+
+    @IgnoreRest
+    def 'discover routes'() {
+        given:
+        def serviceName = 'sample-with-routes'
+        cleanupService(serviceName)
+        deployWithRoutes(serviceName)
+        when:
+        def result = runProcedure(projectName, procedureName, commonParams)
+        then:
+        logger.debug(result.logs)
+        assert result.outcome != 'error'
+        def service = getService(projectName, serviceName, clusterName, envName)
+        assert service
+        def routeName = getParameterDetail(service.service, 'routeName').parameterValue
+        assert routeName == serviceName
+        assert getParameterDetail(service.service, 'routeHostname').parameterValue
+        assert getParameterDetail(service.service, 'routePath').parameterValue
+        cleanup:
+        cleanupService(serviceName)
+        deleteService(projectName, serviceName)
+    }
+
+    @IgnoreRest
+    def 'warning for two routes'() {
+        given:
+        def serviceName = 'sample-with-routes'
+        def secondRouteName = 'second-route'
+        cleanupService(serviceName)
+        deployWithRoutes(serviceName)
+        cleanupRoute(secondRouteName)
+        deployRoute(serviceName, secondRouteName)
+        when:
+        def result = runProcedure(projectName, procedureName, commonParams)
+        then:
+        logger.debug(result.logs)
+        assert result.outcome == 'warning'
+        assert result.logs =~ /Only one route per service is allowed/
+        cleanup:
+        cleanupService(serviceName)
+        deleteService(projectName, serviceName)
+        cleanupRoute(secondRouteName)
     }
 
     def "create application-scoped services"() {
@@ -605,6 +661,72 @@ class Discover extends KubeHelper {
 
     }
 
+    def deployRoute(serviceName, routeName) {
+        def route = [
+            kind: 'Route',
+            metadata: [name: routeName],
+            spec: [
+                host: '10.200.1.100', path: '/', port: [targetPort: 'test'], to: [kind: 'Service', name: serviceName]
+            ]
+        ]
+        createRoute(route)
+    }
+
+    def deployWithRoutes(serviceName) {
+        def deployment = [
+            kind    : 'Deployment',
+            metadata: [
+                name: serviceName,
+            ],
+            spec    : [
+                replicas: 1,
+                template: [
+                    spec    : [
+                        containers: [
+                            [
+                                name        : 'nginx',
+                                image       : 'nginx:1.10',
+                                ports       : [[containerPort: 80]],
+                                env         : [
+                                    [name: "TEST_ENV", "value": "TEST"]
+                                ],
+                                volumeMounts: [
+                                    [name: 'my-volume', mountPath: '/tmp/path_in_container']
+                                ]
+                            ]
+                        ],
+                        volumes   : [
+                            [hostPath: [path: '/tmp/path'], name: 'my-volume']
+                        ]
+                    ],
+                    metadata: [labels: [app: 'nginx_test_spec']],
+
+                ]
+            ]
+        ]
+
+        def service = [
+            kind      : 'Service',
+            apiVersion: 'v1',
+            metadata  : [name: serviceName],
+            spec      : [
+                selector: [app: 'nginx_test_spec'],
+                ports   : [[protocol: 'TCP', port: 80, targetPort: 80]],
+            ]
+        ]
+
+        def route = [
+            kind: 'Route',
+            metadata: [name: serviceName],
+            spec: [
+                host: '10.200.1.100', path: '/', port: [targetPort: 'test'], to: [kind: 'Service', name: serviceName]
+            ]
+        ]
+        deploy(service, deployment)
+        logger.debug("Created service $serviceName")
+        createRoute(route)
+        logger.debug("Created route $serviceName")
+    }
 
     def deployTwoContainers(serviceName) {
         def deployment = [

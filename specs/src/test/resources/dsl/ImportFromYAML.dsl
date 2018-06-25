@@ -2,15 +2,15 @@ def projName = args.projectName
 def params = args.params
 
 project projName, {
-  procedure 'Discover', {
+  procedure 'Import Microservices', {
     params.each {k, v ->
       formalParameter k, defaultValue: '', {
         type = 'textarea'
       }
     }
-    step 'Discover', {
-      subproject = '/plugins/EC-Kubernetes/project'
-      subprocedure = 'Discover'
+    step 'ImportFromYAML', {
+      subproject = '/plugins/EC-OpenShift/project'
+      subprocedure = 'Import Microservices'
 
       params.each { k, v ->
         actualParameter k, value: '$[' + k + ']'
