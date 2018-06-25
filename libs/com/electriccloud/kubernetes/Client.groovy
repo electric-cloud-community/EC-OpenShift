@@ -93,7 +93,17 @@ class Client {
     }
 
     def getAllDeployments() {
-        def result = doHttpRequest(GET, "/apis/apps/v1beta1/deployments")
+        String apiPath = versionSpecificAPIPath('deployments')
+
+        def path = ''
+        if (isVersionGreaterThan15()) {
+            path  = "/apis/apps/v1beta1/deployments}"
+        }
+        else {
+            path = "/oapi/v1/deploymentconfigs"
+        }
+
+        def result = doHttpRequest(GET, path)
         result?.items
     }
 
@@ -112,12 +122,48 @@ class Client {
         if (labelSelector) {
             query.labelSelector = labelSelector
         }
-        def result = doHttpRequest(GET, "/apis/${versionSpecificAPIPath("deployments")}/namespaces/${namespace}/deployments", null, query)
+
+        String apiPath = versionSpecificAPIPath('deployments')
+
+
+        def result
+        if (isVersionGreaterThan15()) {
+            def path  = "/apis/${apiPath}/namespaces/${namespace}/deployments"
+            result = doHttpRequest(GET, path, null, query)
+        }
+        else {
+            def path = "/oapi/v1/namespaces/${namespace}/deploymentconfigs"
+            result = doHttpRequest(GET, path, null)
+            def tempDeployments = []
+            result?.items?.each{ deployment ->
+                def fit = false
+                deployment?.spec?.selector.each{ k, v ->
+                    labelSelector.split(',').each{ selector ->
+                        if ((k + '=' + v) == selector){
+                            fit = true
+                        }
+                    }
+                }
+                if (fit){
+                    tempDeployments.push(deployment)
+                }
+            }
+            result.items = tempDeployments
+        }
+
         result?.items
     }
 
+
     def getServiceVolumes(String namespaceName, String serviceName) {
-        def result = doHttpRequest(GET, "/apis/${versionSpecificAPIPath("deployments")}/namespaces/${namespaceName}/deployments/${serviceName}", null, [:])
+        def result
+        if(isVersionGreaterThan15()){
+            result = doHttpRequest(GET, "/apis/${versionSpecificAPIPath("deployments")}/namespaces/${namespaceName}/deployments/${serviceName}", null, [:])
+        }
+        else{
+            result = doHttpRequest(GET, "/oapi/v1/namespaces/${namespaceName}/deployments/${serviceName}", null, [:])
+        }
+
         result?.spec?.template?.spec?.volumes
     }
 
