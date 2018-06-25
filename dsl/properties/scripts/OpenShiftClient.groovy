@@ -250,18 +250,5 @@ public class OpenShiftClient extends KubernetesClient {
 
         response.status == 200 ? response.data : null
     }
-
-
-
-    // String versionSpecificAPIPath(String resource) {
-    //     switch (resource) {
-    //         case 'deployments':
-    //             return isVersionGreaterThan15() ? ( isVersionGreaterThan17() ? 'apps/v1beta2' : 'apps/v1beta1'): 'oapi/v1'
-    //         default:
-    //             handleError("Unsupported resource '$resource' for determining version specific API path")
-    //     }
-    // }
-
-
-
+    
 }

@@ -18,7 +18,6 @@ public class Discovery extends EFClient {
     }()
 
     def pluginConfig
-
     @Lazy
     def accessToken = { openShiftClient.retrieveAccessToken(pluginConfig) }()
 
@@ -51,9 +50,9 @@ public class Discovery extends EFClient {
                 }.join(',')
 
                 deployments = openShiftClient.getDeployments(
-                        clusterEndpoint,
-                        namespace, accessToken,
-                        [labelSelector: selector]
+                    clusterEndpoint,
+                    namespace, accessToken,
+                    [labelSelector: selector]
                 )
 
                 deployments.items.each { deploy ->
