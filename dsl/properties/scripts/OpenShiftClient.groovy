@@ -180,7 +180,74 @@ public class OpenShiftClient extends KubernetesClient {
             }
         }
         return (new JsonBuilder(result))
-
     }
 
+    def getDeployment(String clusterEndPoint, String namespace, String deploymentName, String accessToken) {
+
+        if (OFFLINE) return null
+
+        String apiPath = versionSpecificAPIPath('deployments')
+
+        def path = ''
+        if (isVersionGreaterThan15()) {
+            path  = "/apis/${apiPath}/namespaces/${namespace}/deployments/${formatName(deploymentName)}"
+        }
+        else {
+            path = "/oapi/v1/namespaces/${namespace}/deploymentconfigs/${formatName(deploymentName)}"
+        }
+
+        def response = doHttpGet(clusterEndPoint,
+                path,
+                accessToken, /*failOnErrorCode*/ false)
+        response.status == 200 ? response.data : null
+    }
+
+    def getDeployments(String clusterEndPoint, String namespace, String accessToken, parameters = [:]) {
+
+        if (OFFLINE) return null
+
+        def query = [:]
+        if (parameters.labelSelector) {
+            query.labelSelector = parameters.labelSelector
+        }
+        String apiPath = versionSpecificAPIPath('deployments')
+
+        def response
+        if (isVersionGreaterThan15()) {
+            def path  = "/apis/${apiPath}/namespaces/${namespace}/deployments"
+            response = doHttpGet(clusterEndPoint,
+                    path,
+                    accessToken, /*failOnErrorCode*/ false, null, query)
+
+            def str = response.data ? (new JsonBuilder(response.data)).toPrettyString(): response.data
+            logger DEBUG, "Deployments found: $str"
+        }
+        else {
+            def path = "/oapi/v1/namespaces/${namespace}/deploymentconfigs"
+            response = doHttpGet(clusterEndPoint,
+                    path,
+                    accessToken, /*failOnErrorCode*/ false, null)
+            def tempDeployments = []
+            response?.data?.items?.each{ deployment ->
+                def fit = false
+                deployment?.spec?.selector.each{ k, v ->
+                    parameters.labelSelector.split(',').each{ selector ->
+                        if ((k + '=' + v) == selector){
+                            fit = true
+                        }
+                    }
+                }
+                if (fit){
+                    tempDeployments.push(deployment)
+                }
+            }
+            response.data.items = tempDeployments
+            def str = response.data ? (new JsonBuilder(response.data)).toPrettyString(): response.data
+            logger DEBUG, "Deployments found: $str"
+        }
+
+
+        response.status == 200 ? response.data : null
+    }
+    
 }

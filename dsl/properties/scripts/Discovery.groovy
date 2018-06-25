@@ -13,7 +13,12 @@ public class Discovery extends EFClient {
     static final def KIND_SERVICE = 'Service'
 
     @Lazy
-    OpenShiftClient openShiftClient = { new OpenShiftClient() }()
+    OpenShiftClient openShiftClient = {
+        def version = pluginConfig.kubernetesVersion
+        def client = new OpenShiftClient()
+        client.kubernetesVersion = version
+        return client
+    }()
 
     def pluginConfig
     @Lazy
@@ -816,7 +821,7 @@ public class Discovery extends EFClient {
 
     def isSystemService(service) {
         def name = service.metadata.name
-        name == 'openshift'
+        name == 'kubernetes' || name == 'docker' || name == 'router' || name == 'openshift' || name == 'docker-registry'
     }
 
     def parseCPU(cpuString) {
