@@ -64,6 +64,7 @@ try {
         cluster = discoveryClusterHandler.ensureCluster(envProjectName, environmentName, clusterName, configName, namespace)
         pluginConfig.clusterEndpoint = endpoint
         pluginConfig.credential.password = token
+        pluginConfig.kubernetesVersion = discoveryClusterHandler.retrieveKubernetesVersion(endpoint, token)
     }
     else {
         throw e

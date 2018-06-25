@@ -5,16 +5,22 @@ import groovy.transform.builder.Builder
 import groovy.transform.builder.ExternalStrategy
 import static Logger.*
 
-@Builder(builderStrategy = ExternalStrategy, forClass = Discovery, excludes = 'kubeClient, accessToken, clusterEndpoint, discoveredSummary')
+@Builder(builderStrategy = ExternalStrategy, forClass = Discovery, excludes = 'openShiftClient, accessToken, clusterEndpoint, discoveredSummary')
 public class DiscoveryBuilder {}
 
 public class Discovery extends EFClient {
     @Lazy
-    KubernetesClient kubeClient = { new KubernetesClient() }()
+    OpenShiftClient openShiftClient = {
+        def version = pluginConfig.kubernetesVersion
+        def client = new OpenShiftClient()
+        client.kubernetesVersion = version
+        return client
+    }()
 
     def pluginConfig
+
     @Lazy
-    def accessToken = { kubeClient.retrieveAccessToken(pluginConfig) }()
+    def accessToken = { openShiftClient.retrieveAccessToken(pluginConfig) }()
 
     @Lazy
     def clusterEndpoint = { pluginConfig.clusterEndpoint }()
@@ -34,18 +40,20 @@ public class Discovery extends EFClient {
     static final String CREATED_DESCRIPTION = "Created by EF Discovery"
 
     def discover(namespace) {
-        def kubeServices = kubeClient.getServices(clusterEndpoint, namespace, accessToken)
+        def kubeServices = openShiftClient.getServices(clusterEndpoint, namespace, accessToken)
         def efServices = []
         kubeServices.items.each { kubeService ->
             if (!isSystemService(kubeService)) {
+
+                def deployments
                 def selector = kubeService.spec.selector.collect { k, v ->
                     k + '=' + v
                 }.join(',')
 
-                def deployments = kubeClient.getDeployments(
-                    clusterEndpoint,
-                    namespace, accessToken,
-                    [labelSelector: selector]
+                deployments = openShiftClient.getDeployments(
+                        clusterEndpoint,
+                        namespace, accessToken,
+                        [labelSelector: selector]
                 )
 
                 deployments.items.each { deploy ->
@@ -427,7 +435,7 @@ public class Discovery extends EFClient {
         def retval = []
         secrets.each {
             def name = it.name
-            def secret = kubeClient.getSecret(name, clusterEndpoint, namespace, accessToken)
+            def secret = openShiftClient.getSecret(name, clusterEndpoint, namespace, accessToken)
 
             def dockercfg = secret.data['.dockercfg']
             if (dockercfg) {
@@ -765,7 +773,7 @@ public class Discovery extends EFClient {
 
     def isSystemService(service) {
         def name = service.metadata.name
-        name == 'openshift'
+        name == 'kubernetes' || name == 'docker' || name == 'router' || name == 'openshift' || name == 'docker-registry'
     }
 
     def parseCPU(cpuString) {

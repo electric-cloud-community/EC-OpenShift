@@ -173,7 +173,95 @@ public class OpenShiftClient extends KubernetesClient {
             }
         }
         return (new JsonBuilder(result))
-
     }
+
+    def getDeployment(String clusterEndPoint, String namespace, String deploymentName, String accessToken) {
+
+        if (OFFLINE) return null
+
+        String apiPath = versionSpecificAPIPath('deployments')
+
+        def path = ''
+        if (isVersionGreaterThan15()) {
+            path  = "/apis/${apiPath}/namespaces/${namespace}/deployments/${formatName(deploymentName)}"
+        }
+        else {
+            path = "/oapi/v1/namespaces/${namespace}/deploymentconfigs/${formatName(deploymentName)}"
+        }
+
+        def response = doHttpGet(clusterEndPoint,
+                path,
+                accessToken, /*failOnErrorCode*/ false)
+        response.status == 200 ? response.data : null
+    }
+
+    def getDeployments(String clusterEndPoint, String namespace, String accessToken, parameters = [:]) {
+
+        if (OFFLINE) return null
+
+        def query = [:]
+        if (parameters.labelSelector) {
+            query.labelSelector = parameters.labelSelector
+        }
+        String apiPath = versionSpecificAPIPath('deployments')
+
+        def response
+        if (isVersionGreaterThan15()) {
+            def path  = "/apis/${apiPath}/namespaces/${namespace}/deployments"
+            println path
+            println query
+            response = doHttpGet(clusterEndPoint,
+                    path,
+                    accessToken, /*failOnErrorCode*/ false, null, query)
+            println response
+
+            def str = response.data ? (new JsonBuilder(response.data)).toPrettyString(): response.data
+            logger DEBUG, "Deployments found: $str"
+            println str
+        }
+        else {
+            def path = "/oapi/v1/namespaces/${namespace}/deploymentconfigs"
+            println path
+            println query
+            response = doHttpGet(clusterEndPoint,
+                    path,
+                    accessToken, /*failOnErrorCode*/ false, null)
+            println response
+            def tempDeployments = []
+            response?.data?.items?.each{ deployment ->
+                def fit = false
+                deployment?.spec?.selector.each{ k, v ->
+                    parameters.labelSelector.split(',').each{ selector ->
+                        if ((k + '=' + v) == selector){
+                            fit = true
+                        }
+                    }
+                }
+                if (fit){
+                    tempDeployments.push(deployment)
+                }
+            }
+            response.data.items = tempDeployments
+            def str = response.data ? (new JsonBuilder(response.data)).toPrettyString(): response.data
+            logger DEBUG, "Deployments found: $str"
+            println str
+        }
+
+
+        response.status == 200 ? response.data : null
+    }
+
+
+
+    // String versionSpecificAPIPath(String resource) {
+    //     switch (resource) {
+    //         case 'deployments':
+    //             return isVersionGreaterThan15() ? ( isVersionGreaterThan17() ? 'apps/v1beta2' : 'apps/v1beta1'): 'oapi/v1'
+    //         default:
+    //             handleError("Unsupported resource '$resource' for determining version specific API path")
+    //     }
+    // }
+
+
 
 }
