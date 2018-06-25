@@ -69,42 +69,50 @@ class Client {
 
     def getNamespaces() {
         def result = doHttpRequest(GET, "/api/v1/namespaces")
-        result?.items
+        return result?.items
     }
 
     def getNamespace(String namespace) {
         def result = doHttpRequest(GET, "/api/v1/namespaces/${namespace}")
-        result
+        return result
     }
 
     def getClusterVersion() {
         def result = doHttpRequest(GET, "/version")
-        "${result.major}.${result.minor}"
+        return "${result.major}.${result.minor}"
     }
 
     def getServices(String namespace) {
         def result = doHttpRequest(GET, "/api/v1/namespaces/${namespace}/services")
-        result?.items
+        return result?.items
     }
 
     def getAllServices() {
         def result = doHttpRequest(GET, "/api/v1/services")
-        result?.items
+        return result?.items
     }
 
     def getAllDeployments() {
-        def result = doHttpRequest(GET, "/apis/apps/v1beta1/deployments")
-        result?.items
+        def path = ''
+        if (isVersionGreaterThan15()) {
+            path  = "/apis/apps/v1beta1/deployments"
+        }
+        else {
+            path = "/oapi/v1/deploymentconfigs"
+        }
+
+        def result = doHttpRequest(GET, path)
+        return result?.items
     }
 
     def getAllPods() {
         def result = doHttpRequest(GET, "/api/v1/pods")
-        result?.items
+        return result?.items
     }
 
     def getService(String namespace, String serviceName){
         def result = doHttpRequest(GET, "/api/v1/namespaces/${namespace}/services/${serviceName}")
-        result
+        return result
     }
 
     def getDeployments(String namespace, String labelSelector = null) {
@@ -112,13 +120,49 @@ class Client {
         if (labelSelector) {
             query.labelSelector = labelSelector
         }
-        def result = doHttpRequest(GET, "/apis/${versionSpecificAPIPath("deployments")}/namespaces/${namespace}/deployments", null, query)
-        result?.items
+
+        String apiPath = versionSpecificAPIPath('deployments')
+
+
+        def result
+        if (isVersionGreaterThan15()) {
+            def path  = "/apis/${apiPath}/namespaces/${namespace}/deployments"
+            result = doHttpRequest(GET, path, null, query)
+        }
+        else {
+            def path = "/oapi/v1/namespaces/${namespace}/deploymentconfigs"
+            result = doHttpRequest(GET, path, null)
+            def tempDeployments = []
+            result?.items?.each{ deployment ->
+                def fit = false
+                deployment?.spec?.selector.each{ k, v ->
+                    labelSelector.split(',').each{ selector ->
+                        if ((k + '=' + v) == selector){
+                            fit = true
+                        }
+                    }
+                }
+                if (fit){
+                    tempDeployments.push(deployment)
+                }
+            }
+            result.items = tempDeployments
+        }
+
+        return result?.items
     }
 
+
     def getServiceVolumes(String namespaceName, String serviceName) {
-        def result = doHttpRequest(GET, "/apis/${versionSpecificAPIPath("deployments")}/namespaces/${namespaceName}/deployments/${serviceName}", null, [:])
-        result?.spec?.template?.spec?.volumes
+        def result
+        if(isVersionGreaterThan15()){
+            result = doHttpRequest(GET, "/apis/${versionSpecificAPIPath("deployments")}/namespaces/${namespaceName}/deployments/${serviceName}", null, [:])
+        }
+        else{
+            result = doHttpRequest(GET, "/oapi/v1/namespaces/${namespaceName}/deployments/${serviceName}", null, [:])
+        }
+
+        return result?.spec?.template?.spec?.volumes
     }
 
     def getPods(String namespace, String labelSelector = null) {
@@ -127,28 +171,28 @@ class Client {
             query.labelSelector = labelSelector
         }
         def result= doHttpRequest(GET, "/api/v1/namespaces/${namespace}/pods", null, query)
-        result?.items
+        return result?.items
     }
 
 
     def getPod(String namespace, String podId) {
         def result = doHttpRequest(GET, "/api/v1/namespaces/${namespace}/pods/${podId}")
-        result
+        return result
     }
 
     def getPodMetricsHeapster(String namespace, String podId) {
         def result = doHttpRequest(GET, "/api/v1/namespaces/kube-system/services/http:heapster:/proxy/apis/metrics/v1alpha1/namespaces/${namespace}/pods/${podId}")
-        result
+        return result
     }
 
     def getPodMetricsServerAlpha(String namespace, String podId) {
         def result = doHttpRequest(GET, "/apis/metrics/v1alpha1/namespaces/${namespace}/pods/${podId}")
-        result
+        return result
     }
 
     def getPodMetricsServerBeta(String namespace, String podId) {
         def result = doHttpRequest(GET, "/apis/metrics.k8s.io/v1beta1/namespaces/${namespace}/pods/${podId}")
-        result
+        return result
     }
 
     def getContainerLogs(String namespace, String pod, String container) {
