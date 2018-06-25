@@ -208,25 +208,18 @@ public class OpenShiftClient extends KubernetesClient {
         def response
         if (isVersionGreaterThan15()) {
             def path  = "/apis/${apiPath}/namespaces/${namespace}/deployments"
-            println path
-            println query
             response = doHttpGet(clusterEndPoint,
                     path,
                     accessToken, /*failOnErrorCode*/ false, null, query)
-            println response
 
             def str = response.data ? (new JsonBuilder(response.data)).toPrettyString(): response.data
             logger DEBUG, "Deployments found: $str"
-            println str
         }
         else {
             def path = "/oapi/v1/namespaces/${namespace}/deploymentconfigs"
-            println path
-            println query
             response = doHttpGet(clusterEndPoint,
                     path,
                     accessToken, /*failOnErrorCode*/ false, null)
-            println response
             def tempDeployments = []
             response?.data?.items?.each{ deployment ->
                 def fit = false
@@ -244,7 +237,6 @@ public class OpenShiftClient extends KubernetesClient {
             response.data.items = tempDeployments
             def str = response.data ? (new JsonBuilder(response.data)).toPrettyString(): response.data
             logger DEBUG, "Deployments found: $str"
-            println str
         }
 
 
