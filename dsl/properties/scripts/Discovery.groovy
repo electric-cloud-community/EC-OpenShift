@@ -43,13 +43,11 @@ public class Discovery extends EFClient {
         def efServices = []
         kubeServices.items.each { kubeService ->
             if (!isSystemService(kubeService)) {
-
-                def deployments
                 def selector = kubeService.spec.selector.collect { k, v ->
                     k + '=' + v
                 }.join(',')
 
-                deployments = openShiftClient.getDeployments(
+                def deployments = openShiftClient.getDeployments(
                     clusterEndpoint,
                     namespace, accessToken,
                     [labelSelector: selector]
