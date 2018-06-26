@@ -7,16 +7,20 @@ class SmartMap extends OpenShiftHelper {
     static final def clusterName = 'OpenShift Spec Cluster'
     static final def envName = 'OpenShift Spec Env'
     static final def configName = 'OpenShift Spec Config'
+    static final def serviceName = 'test-topology'
 
     def doSetupSpec() {
         createCluster(projectName, envName, clusterName, configName)
+        cleanupService(serviceName)
+        deploySample(serviceName)
+        waitForService(serviceName)
+    }
+
+    def doCleanupSpec() {
+        cleanupService(serviceName)
     }
 
     def 'get cluster topology'() {
-        given:
-        def serviceName = 'test-topology'
-        cleanupService(serviceName)
-        deploySample(serviceName)
         when:
         def result = getRealtimeClusterTopology()
         then:
@@ -34,15 +38,9 @@ class SmartMap extends OpenShiftHelper {
 
         def nodes = result?.nodes?.node
         assert ! nodes.find { it.name =~ /openshift/ }
-        cleanup:
-        cleanupService(serviceName)
     }
 
     def 'get service details'() {
-        given:
-        def serviceName = 'test-topology'
-        cleanupService(serviceName)
-        deploySample(serviceName)
         when:
         def result = getRealtimeClusterTopology()
         def service = getService(result, serviceName)
@@ -54,15 +52,9 @@ class SmartMap extends OpenShiftHelper {
         assert getNodeAttributeValue(details, 'Volumes')
         then:
         assert result
-        cleanup:
-        cleanupService(serviceName)
     }
 
     def 'get pod details'() {
-        given:
-        def serviceName = 'test-topology'
-        cleanupService(serviceName)
-        deploySample(serviceName)
         when:
         def topology = getRealtimeClusterTopology()
         then:
@@ -74,15 +66,9 @@ class SmartMap extends OpenShiftHelper {
         assert getNodeAttributeValue(details, "Start time")
         assert getNodeAttributeValue(details, "Node")
         assert getNodeAttributeValue(details, "Labels")?.items
-        cleanup:
-        cleanupService(serviceName)
     }
 
     def 'get container details'() {
-        given:
-        def serviceName = 'test-topology'
-        cleanupService(serviceName)
-        deploySample(serviceName)
         when:
         def topology = getRealtimeClusterTopology()
         then:
@@ -94,9 +80,6 @@ class SmartMap extends OpenShiftHelper {
         assert getNodeAttributeValue(details, "Image") =~ /nginx/
         assert getNodeAttributeValue(details, "Ports")?.items
         assert getNodeAttributeValue(details, "Volume Mounts")?.items
-
-        cleanup:
-        cleanupService(serviceName)
     }
 
     def getRealtimeClusterTopology() {
@@ -135,4 +118,18 @@ class SmartMap extends OpenShiftHelper {
         return node?.attributes?.attribute.find { it.name == name }?.value
     }
 
+    def waitForService(serviceName) {
+        def available = false
+        def timeout = 30
+        def time = 0
+        def delay = 5
+        while(!available && time < timeout) {
+            time += delay
+            sleep(delay * 1000)
+            def deployment = getDeployment(serviceName)
+            if (deployment?.status?.conditions?.find { it.type == 'Available'} ) {
+                available = true
+            }
+        }
+    }
 }
