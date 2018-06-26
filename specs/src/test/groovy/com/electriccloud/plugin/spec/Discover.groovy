@@ -459,52 +459,6 @@ class Discover extends OpenShiftHelper {
     }
 
 
-    def deploySample(serviceName) {
-        def deployment = [
-            kind    : 'Deployment',
-            metadata: [
-                name: serviceName,
-            ],
-            spec    : [
-                replicas: 1,
-                template: [
-                    spec    : [
-                        containers: [
-                            [
-                                name        : 'nginx',
-                                image       : 'nginx:1.10',
-                                ports       : [[containerPort: 80]],
-                                env         : [
-                                    [name: "TEST_ENV", "value": "TEST"]
-                                ],
-                                volumeMounts: [
-                                    [name: 'my-volume', mountPath: '/tmp/path_in_container']
-                                ]
-                            ]
-                        ],
-                        volumes   : [
-                            [hostPath: [path: '/tmp/path'], name: 'my-volume']
-                        ]
-                    ],
-                    metadata: [labels: [app: 'nginx_test_spec']],
-
-                ]
-            ]
-        ]
-
-        def service = [
-            kind      : 'Service',
-            apiVersion: 'v1',
-            metadata  : [name: serviceName],
-            spec      : [
-                selector: [app: 'nginx_test_spec'],
-                ports   : [[protocol: 'TCP', port: 80, targetPort: 80]],
-            ]
-        ]
-        deploy(service, deployment)
-    }
-
-
     def deployWithLoadBalancer(serviceName) {
         def service = [
             kind      : 'Service',
