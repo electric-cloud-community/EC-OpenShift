@@ -106,7 +106,7 @@ class ClusterView {
 
     def isSystemNamespace(namespace) {
         def name = getNamespaceName(namespace)
-        name == 'kube-public' || name == 'kube-system'
+        return name in ['openshift-infra', 'openshift-node', 'openshift-web-console', 'openshift', 'kube-public', 'kube-system']
     }
 
     def isValidNamespace(Map namespace) {
@@ -181,7 +181,7 @@ class ClusterView {
     }
 
     def isSystemService(service) {
-        service.metadata.name == 'kubernetes'
+        return service.metadata.name in ['kubernetes', 'docker', 'router', 'openshift', 'docker-registry']
     }
 
     def getServicePods(def service, boolean skipDeleted = false) {
