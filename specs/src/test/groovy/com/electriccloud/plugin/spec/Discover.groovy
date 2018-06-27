@@ -25,7 +25,12 @@ class Discover extends OpenShiftHelper {
 
     def doSetupSpec() {
         configName = 'OpenShift Spec Config'
+        dsl """
+            deleteProject(projectName: '$projectName')
+        """
+        cleanupCluster(configName)
         createCluster(projectName, envName, clusterName, configName)
+
         dslFile 'dsl/Discover.dsl', [
             projectName: projectName,
             params     : [
@@ -43,13 +48,9 @@ class Discover extends OpenShiftHelper {
     }
 
     def doCleanupSpec() {
-        cleanupCluster(configName)
-        dsl """
-            deleteProject(projectName: '$projectName')
-        """
+
     }
 
-    @IgnoreRest
     def 'discover routes'() {
         given:
         def serviceName = 'sample-with-routes'
@@ -71,7 +72,6 @@ class Discover extends OpenShiftHelper {
         deleteService(projectName, serviceName)
     }
 
-    @IgnoreRest
     def 'warning for two routes'() {
         given:
         def serviceName = 'sample-with-routes'
@@ -84,6 +84,13 @@ class Discover extends OpenShiftHelper {
         def result = runProcedure(projectName, procedureName, commonParams)
         then:
         logger.debug(result.logs)
+        def service = getService(projectName, serviceName, clusterName, envName)
+        assert service
+        def routeName = getParameterDetail(service.service, 'routeName').parameterValue
+        assert routeName == serviceName
+        assert getParameterDetail(service.service, 'routeHostname').parameterValue
+        assert getParameterDetail(service.service, 'routePath').parameterValue
+
         assert result.outcome == 'warning'
         assert result.logs =~ /Only one route per service is allowed/
         cleanup:
@@ -92,6 +99,7 @@ class Discover extends OpenShiftHelper {
         cleanupRoute(secondRouteName)
     }
 
+    @Ignore
     def "create application-scoped services"() {
         given:
         def sampleName = 'nginx-spec-application'
@@ -127,6 +135,7 @@ class Discover extends OpenShiftHelper {
         dsl "deleteApplication(projectName:'$projectName', applicationName: '$applicationName')"
     }
 
+    @Ignore
     def "create environment from scratch"() {
         given:
         def sampleName = 'nginx-spec-scratch'
@@ -168,19 +177,7 @@ class Discover extends OpenShiftHelper {
         cleanupService(sampleName)
         deploySample(sampleName)
         when:
-        def result = runProcedureDsl """
-                runProcedure(
-                    projectName: '$projectName',
-                    procedureName: 'Discover',
-                    actualParameter: [
-                        clusterName: '$clusterName',
-                        namespace: 'default',
-                        envProjectName: '$projectName',
-                        envName: '$envName',
-                        projName: '$projectName'
-                    ]
-                )
-            """
+        def result = runProcedure(projectName, procedureName, commonParams)
         then:
         logger.debug(result.logs)
         def service = getService(
@@ -222,23 +219,11 @@ class Discover extends OpenShiftHelper {
 
     def "discover load balancer IP"() {
         given:
-        def serviceName = 'kube-spec-load-balancer-ip'
+        def serviceName = 'openshift-spec-load-balancer-ip'
         cleanupService(serviceName)
         deployWithLoadBalancer(serviceName)
         when:
-        def result = runProcedureDsl """
-                runProcedure(
-                    projectName: '$projectName',
-                    procedureName: 'Discover',
-                    actualParameter: [
-                        clusterName: '$clusterName',
-                        namespace: 'default',
-                        envProjectName: '$projectName',
-                        envName: '$envName',
-                        projName: '$projectName'
-                    ]
-                )
-            """
+        def result = runProcedure(projectName, procedureName, commonParams)
         then:
         def service = getService(
             projectName,
@@ -255,25 +240,14 @@ class Discover extends OpenShiftHelper {
         cleanupService(serviceName)
     }
 
+    @Ignore
     def "Liveness/readiness probe"() {
         given:
-        def serviceName = 'kube-spec-liveness'
+        def serviceName = 'openshift-spec-liveness'
         cleanupService(serviceName)
         deployLiveness(serviceName)
         when:
-        def result = runProcedureDsl """
-                runProcedure(
-                    projectName: '$projectName',
-                    procedureName: 'Discover',
-                    actualParameter: [
-                        clusterName: '$clusterName',
-                        namespace: 'default',
-                        envProjectName: '$projectName',
-                        envName: '$envName',
-                        projName: '$projectName'
-                    ]
-                )
-            """
+        def result = runProcedure(projectName, procedureName, commonParams)
         then:
         logger.debug(result.logs)
         def service = getService(
@@ -299,24 +273,13 @@ class Discover extends OpenShiftHelper {
         cleanupService(serviceName)
     }
 
+    @Ignore
     def "Discover secrets"() {
         given:
         cleanupService(serviceName)
         secretName = deployWithSecret(serviceName)
         when:
-        def result = runProcedureDsl """
-                runProcedure(
-                    projectName: '$projectName',
-                    procedureName: 'Discover',
-                    actualParameter: [
-                        clusterName: '$clusterName',
-                        namespace: 'default',
-                        envProjectName: '$projectName',
-                        envName: '$envName',
-                        projName: '$projectName'
-                    ]
-                )
-            """
+        def result = runProcedure(projectName, procedureName, commonParams)
         then:
         logger.debug(result.logs)
         def service = getService(
@@ -336,24 +299,13 @@ class Discover extends OpenShiftHelper {
     @Ignore("Until deploy strategies")
     def "Percentage in surge/maxUnavailable"() {
         given:
-        def serviceName = 'kube-spec-service-percentage'
+        def serviceName = 'openshift-spec-service-percentage'
         cleanupService(serviceName)
         deployWithPercentage(serviceName)
         when:
-        def result = runProcedureDsl """
-                runProcedure(
-                    projectName: '$projectName',
-                    procedureName: 'Discover',
-                    actualParameter: [
-                        clusterName: '$clusterName',
-                        namespace: 'default',
-                        envProjectName: '$projectName',
-                        envName: '$envName',
-                        projName: '$projectName'
-                    ]
-                )
-            """
+        def result = runProcedure(projectName, procedureName, commonParams)
         then:
+
         logger.debug(result.logs)
         def service = getService(
             projectName,
@@ -371,24 +323,13 @@ class Discover extends OpenShiftHelper {
 
     def "Two containers"() {
         given:
-        def serviceName = 'two-containers-kube-discover-spec'
+        def serviceName = 'two-containers-openshift-discover-spec'
         cleanupService(serviceName)
         deployTwoContainers(serviceName)
         when:
-        def result = runProcedureDsl """
-                runProcedure(
-                    projectName: '$projectName',
-                    procedureName: 'Discover',
-                    actualParameter: [
-                        clusterName: '$clusterName',
-                        namespace: 'default',
-                        envProjectName: '$projectName',
-                        envName: '$envName',
-                        projName: '$projectName'
-                    ]
-                )
-            """
+        def result = runProcedure(projectName, procedureName, commonParams)
         then:
+        assert result.outcome != 'error'
         logger.debug(result.logs)
         def service = getService(
             projectName,
@@ -419,312 +360,68 @@ class Discover extends OpenShiftHelper {
         cleanupService(serviceName)
     }
 
-    def deployWithPercentage(serviceName) {
-        def deployment = [
-            kind    : 'Deployment',
-            metadata: [
-                name: serviceName,
-            ],
-            spec    : [
-                replicas: 3,
-                strategy: [
-                    rollingUpdate: [
-                        maxSurge      : '25%',
-                        maxUnavailable: '25%'
-                    ]
-                ],
-                template: [
-                    spec    : [
-                        containers: [
-                            [name: 'nginx', image: 'nginx:1.10', ports: [
-                                [containerPort: 80]
-                            ]]
-                        ],
-                    ],
-                    metadata: [labels: [app: 'nginx_test_spec']]
-                ]
-            ]
-        ]
+    def 'two different services'() {
+        given:
+        def firstService = 'first-service'
+        def secondService = 'second-service'
+        cleanupService(firstService)
+        cleanupService(secondService)
+        deploySample(firstService)
+        deploySample(secondService)
+        when:
+        def result = runProcedure(projectName, procedureName, commonParams)
+        then:
+        logger.debug(result.logs);
+        assert result.outcome != 'error'
 
-        def service = [
-            kind      : 'Service',
-            apiVersion: 'v1',
-            metadata  : [name: serviceName],
-            spec      : [
-                selector: [app: 'nginx_test_spec'],
-                ports   : [[protocol: 'TCP', port: 80, targetPort: 80]]
-            ]
-        ]
-        deploy(service, deployment)
+        def first = getService(
+            projectName,
+            firstService,
+            clusterName,
+            envName
+        )
+        assert first
+
+        def second = getService(
+            projectName,
+            secondService,
+            clusterName,
+            envName
+        )
+
+        assert second
+        assert first.service?.container?.size() == 1
+        assert second.service?.container?.size() == 1
+
+        cleanup:
+        cleanupService(firstService)
+        cleanupService(secondService)
+    }
+
+    def 'discover deploymentConfig'() {
+        given:
+        def serviceName = 'test-deployment-config'
+        cleanupDeploymentConfig(serviceName)
+        deployConfig(serviceName)
+        when:
+        def result = runProcedure(projectName, procedureName, commonParams)
+        then:
+        assert result.outcome != 'error'
+        logger.debug(result.logs)
+        def service = getService(
+            projectName,
+            serviceName,
+            clusterName,
+            envName
+        )
+        assert service
+        def containers = service.service.container
+        assert containers.size() == 2
+        cleanup:
+        cleanupDeploymentConfig(serviceName)
     }
 
 
-    def deployWithLoadBalancer(serviceName) {
-        def service = [
-            kind      : 'Service',
-            apiVersion: 'v1',
-            metadata  : [name: serviceName],
-            spec      : [
-                selector      : [app: 'nginx_test_spec'],
-                type          : 'LoadBalancer',
-                loadBalancerIP: '35.224.8.81',
-                ports         : [
-                    [port: 80, targetPort: 80]
-                ]
-            ]
-        ]
-        def deployment = [
-            kind    : 'Deployment',
-            metadata: [
-                name: serviceName,
-            ],
-            spec    : [
-                replicas: 1,
-                template: [
-                    spec    : [
-                        containers: [
-                            [
-                                name        : 'nginx',
-                                image       : 'nginx:1.10',
-                                ports       : [[containerPort: 80]],
-                                env         : [
-                                    [name: "TEST_ENV", "value": "TEST"]
-                                ],
-                                volumeMounts: [
-                                    [name: 'my-volume', mountPath: '/tmp/path_in_container']
-                                ]
-                            ]
-                        ],
-                        volumes   : [
-                            [hostPath: [path: '/tmp/path'], name: 'my-volume']
-                        ]
-                    ],
-                    metadata: [labels: [app: 'nginx_test_spec']],
-
-                ]
-            ]
-        ]
-
-        deploy(service, deployment)
-    }
-
-    def deployWithSecret(serviceName) {
-        def secretName = randomize('spec-secret')
-        secretName = secretName.replaceAll('_', '-')
-        createSecret(secretName, 'registry.hub.docker.com', 'ecplugintest', 'qweqweqwe')
-        def deployment = [
-            kind    : 'Deployment',
-            metadata: [
-                name: serviceName,
-            ],
-            spec    : [
-                replicas: 1,
-                template: [
-                    spec    : [
-                        containers      : [
-                            [name: 'hello', image: 'registry.hub.docker.com/imagostorm/hello-world:1.0', ports: [
-                                [containerPort: 80]
-                            ]]
-                        ],
-                        imagePullSecrets: [
-                            [name: secretName]
-                        ]
-                    ],
-                    metadata: [
-                        labels: [
-                            app: 'nginx_test_spec'
-                        ]
-                    ]
-                ]
-            ]
-        ]
-
-        def service = [
-            kind      : 'Service',
-            apiVersion: 'v1',
-            metadata  : [name: serviceName],
-            spec      : [
-                selector: [app: 'nginx_test_spec'],
-                ports   : [[protocol: 'TCP', port: 80, targetPort: 80]]
-            ]
-        ]
-        deploy(service, deployment)
-        secretName
-    }
-
-    def deployLiveness(serviceName) {
-        def container = [
-            args          : ['/server'],
-            image         : 'k8s.gcr.io/liveness',
-            livenessProbe : [
-                httpGet            : [
-                    path       : '/healthz',
-                    port       : 8080,
-                    httpHeaders: [
-                        [name: 'X-Custom-Header', value: 'Awesome']
-                    ]
-                ],
-                initialDelaySeconds: 15,
-                timeoutSeconds     : 1
-            ],
-            readinessProbe: [
-                exec               : [
-                    command: [
-                        'cat',
-                        '/tmp/healthy'
-                    ]
-                ],
-                initialDelaySeconds: 5,
-                periodSeconds      : 5,
-            ],
-            name          : 'liveness-readiness'
-        ]
-        def deployment = [
-            kind    : 'Deployment',
-            metadata: [
-                name: serviceName,
-            ],
-            spec    : [
-                replicas: 1,
-                template: [
-                    spec    : [
-                        containers: [
-                            container
-                        ],
-                    ],
-                    metadata: [
-                        labels: [
-                            app: 'liveness-probe'
-                        ]
-                    ]
-                ]
-            ]
-        ]
-
-        def service = [
-            kind      : 'Service',
-            apiVersion: 'v1',
-            metadata  : [name: serviceName],
-            spec      : [
-                selector: [app: 'liveness-probe'],
-                ports   : [[protocol: 'TCP', port: 80, targetPort: 8080]]
-            ]
-        ]
-
-        deploy(service, deployment)
-
-    }
-
-    def deployRoute(serviceName, routeName) {
-        def route = [
-            kind: 'Route',
-            metadata: [name: routeName],
-            spec: [
-                host: '10.200.1.100', path: '/', port: [targetPort: 'test'], to: [kind: 'Service', name: serviceName]
-            ]
-        ]
-        createRoute(route)
-    }
-
-    def deployWithRoutes(serviceName) {
-        def deployment = [
-            kind    : 'Deployment',
-            metadata: [
-                name: serviceName,
-            ],
-            spec    : [
-                replicas: 1,
-                template: [
-                    spec    : [
-                        containers: [
-                            [
-                                name        : 'nginx',
-                                image       : 'nginx:1.10',
-                                ports       : [[containerPort: 80]],
-                                env         : [
-                                    [name: "TEST_ENV", "value": "TEST"]
-                                ],
-                                volumeMounts: [
-                                    [name: 'my-volume', mountPath: '/tmp/path_in_container']
-                                ]
-                            ]
-                        ],
-                        volumes   : [
-                            [hostPath: [path: '/tmp/path'], name: 'my-volume']
-                        ]
-                    ],
-                    metadata: [labels: [app: 'nginx_test_spec']],
-
-                ]
-            ]
-        ]
-
-        def service = [
-            kind      : 'Service',
-            apiVersion: 'v1',
-            metadata  : [name: serviceName],
-            spec      : [
-                selector: [app: 'nginx_test_spec'],
-                ports   : [[protocol: 'TCP', port: 80, targetPort: 80]],
-            ]
-        ]
-
-        def route = [
-            kind: 'Route',
-            metadata: [name: serviceName],
-            spec: [
-                host: '10.200.1.100', path: '/', port: [targetPort: 'test'], to: [kind: 'Service', name: serviceName]
-            ]
-        ]
-        deploy(service, deployment)
-        logger.debug("Created service $serviceName")
-        createRoute(route)
-        logger.debug("Created route $serviceName")
-    }
-
-    def deployTwoContainers(serviceName) {
-        def deployment = [
-            kind    : 'Deployment',
-            metadata: [
-                name: serviceName,
-            ],
-            spec    : [
-                replicas: 2,
-                template: [
-                    spec    : [
-                        containers: [
-                            [name: 'hello', image: 'imagostorm/hello-world:1.0', ports: [
-                                [containerPort: 8080, name: 'first']
-                            ]],
-                            [name: 'hello-2', 'image': 'imagostorm/hello-world:2.0', ports: [
-                                [containerPort: 8080, name: 'second']
-                            ]]
-                        ]
-                    ],
-                    metadata: [
-                        labels: [
-                            app: 'hello-app'
-                        ]
-                    ]
-                ]
-            ]
-        ]
-        def service = [
-            kind      : 'Service',
-            apiVersion: 'v1',
-            metadata  : [name: serviceName],
-            spec      : [
-                type    : 'LoadBalancer',
-                selector: [app: 'hello-app'],
-                ports   : [
-                    [protocol: 'TCP', port: 80, targetPort: 'first', name: 'first'],
-                    [protocol: 'TCP', port: 81, targetPort: 'second', name: 'second']
-                ]
-            ]
-        ]
-
-        deploy(service, deployment)
-    }
 
     def getParameterDetail(struct, name) {
         return struct.parameterDetail.find {
