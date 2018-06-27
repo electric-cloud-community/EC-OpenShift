@@ -182,26 +182,6 @@ public class OpenShiftClient extends KubernetesClient {
         return (new JsonBuilder(result))
     }
 
-    def getDeployment(String clusterEndPoint, String namespace, String deploymentName, String accessToken) {
-
-        if (OFFLINE) return null
-
-        String apiPath = versionSpecificAPIPath('deployments')
-
-        def path = ''
-        if (isVersionGreaterThan15()) {
-            path  = "/apis/${apiPath}/namespaces/${namespace}/deployments/${formatName(deploymentName)}"
-        }
-        else {
-            path = "/oapi/v1/namespaces/${namespace}/deploymentconfigs/${formatName(deploymentName)}"
-        }
-
-        def response = doHttpGet(clusterEndPoint,
-                path,
-                accessToken, /*failOnErrorCode*/ false)
-        response.status == 200 ? response.data : null
-    }
-
 
     def getDeploymentConfigs(String clusterEndPoint, String namespace, String accessToken, parameters = [:]) {
         def path = "/oapi/v1/namespaces/${namespace}/deploymentconfigs"
