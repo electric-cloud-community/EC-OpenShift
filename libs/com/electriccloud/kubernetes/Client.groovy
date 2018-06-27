@@ -175,13 +175,20 @@ class Client {
 
     def getServiceVolumes(String namespaceName, String serviceName) {
         def result
-        if(isVersionGreaterThan15()){
+        // if(isVersionGreaterThan15() || true){
             result = doHttpRequest(GET, "/apis/${versionSpecificAPIPath("deployments")}/namespaces/${namespaceName}/deployments/${serviceName}", null, [:])
-        }
-        else{
-            result = doHttpRequest(GET, "/oapi/v1/namespaces/${namespaceName}/deployments/${serviceName}", null, [:])
-        }
+        // }
+        // else{
+        //     result = doHttpRequest(GET, "/oapi/v1/namespaces/${namespaceName}/deployments/${serviceName}", null, [:])
+        // }
+        // Not supported for now
 
+        return result?.spec?.template?.spec?.volumes
+    }
+
+
+    def getDeploymentConfigVolumes(String namespaceName, String serviceName) {
+        def result = doHttpRequest(GET, "/oapi/v1/namespaces/${namespaceName}/deploymentconfigs/${serviceName}", null, [:])
         return result?.spec?.template?.spec?.volumes
     }
 

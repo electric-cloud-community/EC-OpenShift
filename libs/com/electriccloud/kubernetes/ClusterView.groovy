@@ -204,7 +204,6 @@ class ClusterView {
         if (configs) {
             deployments += configs
         }
-
         deployments.each { deployment ->
             def labels = deployment?.spec?.selector?.matchLabels ?: deployment?.spec?.template?.metadata?.labels
             def podSelectorString = labels.collect { k, v ->
@@ -798,7 +797,7 @@ class ClusterView {
             volumes = kubeClient.getServiceVolumes(namespace, serviceId)
         } catch (Throwable e) {
             if (e.message =~ /404/) {
-//                Do nothing
+                // Do nothing
             }
             else {
                 throw e

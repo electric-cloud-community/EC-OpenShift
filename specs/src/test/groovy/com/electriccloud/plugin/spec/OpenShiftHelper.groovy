@@ -129,12 +129,44 @@ class OpenShiftHelper extends ContainerHelper {
     }
 
     static def createDeployment(endpoint, token, payload) {
-        def uri = "/apis/extensions/v1beta1/namespaces/${namespace}/deployments"
+        def apiPath = versionSpecificAPIPath('deployments')
+        def uri = "/apis/${apiPath}/namespaces/${namespace}/deployments"
         request(getEndpoint(),
             uri, POST, null,
             ["Authorization": "Bearer ${getToken()}"],
             new JsonBuilder(payload).toString()
         )
+    }
+
+
+
+    static boolean isVersionGreaterThan17() {
+        try {
+            float version = Float.parseFloat(getClusterVersion())
+            version >= 1.8
+        } catch (NumberFormatException ex) {
+            true
+        }
+    }
+
+    static boolean isVersionGreaterThan15() {
+        try {
+            float version = Float.parseFloat(getClusterVersion())
+            version >= 1.6
+        } catch (NumberFormatException ex) {
+            // default to considering this > 1.5 version
+            true
+        }
+    }
+
+
+    static String versionSpecificAPIPath(String resource) {
+        switch (resource) {
+            case 'deployments':
+                return isVersionGreaterThan15() ? (isVersionGreaterThan17() ? 'apps/v1beta2' : 'apps/v1beta1') : 'extensions/v1beta1'
+            default:
+                throw new RuntimeException('unsupported resource')
+        }
     }
 
 
@@ -166,7 +198,8 @@ class OpenShiftHelper extends ContainerHelper {
     }
 
     static def getDeployment(name) {
-        def uri = "/apis/apps/v1beta1/namespaces/${namespace}/deployments/${name}"
+        def apiPath = versionSpecificAPIPath('deployments')
+        def uri = "/apis/${apiPath}/namespaces/${namespace}/deployments/${name}"
         request(
             getEndpoint(), uri, GET,
             null, ["Authorization": "Bearer ${getToken()}"], null).data
@@ -255,15 +288,17 @@ class OpenShiftHelper extends ContainerHelper {
     }
 
     static def deleteDeployment(serviceName) {
+        def apiPath = versionSpecificAPIPath('deployments')
+
         def headers = ["Authorization": "Bearer ${getToken()}"]
-        def uri = "/apis/extensions/v1beta1/namespaces/${namespace}/deployments/$serviceName"
+        def uri = "/apis/${apiPath}/namespaces/${namespace}/deployments/$serviceName"
         request(getEndpoint(), uri, DELETE, null,  headers, null)
 
 //        RS
 
 
         def res = request(getEndpoint(),
-            "/apis/extensions/v1beta1/namespaces/${namespace}/replicasets",
+            "/apis/${apiPath}/namespaces/${namespace}/replicasets",
             GET, null, headers, null)
 
         res.data.items.each {rs ->
