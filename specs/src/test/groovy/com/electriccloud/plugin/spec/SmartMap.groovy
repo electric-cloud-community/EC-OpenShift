@@ -8,13 +8,16 @@ class SmartMap extends OpenShiftHelper {
     static final def envName = 'OpenShift Spec Env'
     static final def configName = 'OpenShift Spec Config'
     static final def serviceName = 'test-topology'
+    static final def deploymentConfigName = 'test-deploymentconfig'
 
     def doSetupSpec() {
         createCluster(projectName, envName, clusterName, configName)
         cleanupCluster(configName)
         cleanupService(serviceName)
         deploySample(serviceName)
+        deployConfig(deploymentConfigName)
         waitForService(serviceName)
+        waitForService(deploymentConfigName)
     }
 
     def doCleanupSpec() {
@@ -39,6 +42,13 @@ class SmartMap extends OpenShiftHelper {
 
         def nodes = result?.nodes?.node
         assert ! nodes.find { it.name =~ /openshift/ }
+
+        def dp = getService(result, deploymentConfigName)
+        assert dp
+        assert dp.status in ['Running', 'Pending']
+
+        def dpPod = getPod(result, deploymentConfigName)
+        assert dpPod
     }
 
     def 'get service details'() {

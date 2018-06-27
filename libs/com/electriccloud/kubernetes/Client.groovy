@@ -92,15 +92,36 @@ class Client {
         return result?.items
     }
 
-    def getAllDeployments() {
-        def path = ''
-        if (isVersionGreaterThan15()) {
-            path  = "/apis/apps/v1beta1/deployments"
-        }
-        else {
-            path = "/oapi/v1/deploymentconfigs"
-        }
+    def getAllDeploymentConfigs() {
+        def path = "/oapi/v1/deploymentconfigs"
+        def result = doHttpRequest(GET, path, null)
+        return result?.items
+    }
 
+    def getDeploymentConfigs(String namespace, String labelSelector = null) {
+        def path = "/oapi/v1/namespaces/${namespace}/deploymentconfigs"
+        def result = doHttpRequest(GET, path, null)
+        def tempDeployments = []
+        result?.items?.each{ deployment ->
+            def fit = false
+            deployment?.spec?.selector.each{ k, v ->
+                labelSelector.split(',').each{ selector ->
+                    if ((k + '=' + v) == selector){
+                        fit = true
+                    }
+                }
+            }
+            if (fit){
+                tempDeployments.push(deployment)
+            }
+        }
+        result.items = tempDeployments
+        return result?.items
+    }
+
+    def getAllDeployments() {
+        String apiPath = versionSpecificAPIPath('deployments')
+        def path  = "/apis/${apiPath}/deployments"
         def result = doHttpRequest(GET, path)
         return result?.items
     }
@@ -123,9 +144,8 @@ class Client {
 
         String apiPath = versionSpecificAPIPath('deployments')
 
-
         def result
-        if (isVersionGreaterThan15()) {
+        if (isVersionGreaterThan15() || true) {
             def path  = "/apis/${apiPath}/namespaces/${namespace}/deployments"
             result = doHttpRequest(GET, path, null, query)
         }

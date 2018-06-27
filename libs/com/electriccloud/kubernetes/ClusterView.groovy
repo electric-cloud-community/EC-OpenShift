@@ -68,6 +68,9 @@ class ClusterView {
     @Lazy
     private kubePods = { kubeClient.getAllPods() }()
 
+    @Lazy
+    private deploymentConfigs = { kubeClient.getAllDeploymentConfigs() }()
+
 
     ClusterTopology getRealtimeClusterTopology() {
         ClusterTopology topology = new ClusterTopologyImpl()
@@ -196,6 +199,12 @@ class ClusterView {
         def namespace = service.metadata.namespace
         def deployments = kubeClient.getDeployments(namespace, selectorString)
         def pods = []
+
+        def configs = kubeClient.getDeploymentConfigs(namespace, selectorString)
+        if (configs) {
+            deployments += configs
+        }
+
         deployments.each { deployment ->
             def labels = deployment?.spec?.selector?.matchLabels ?: deployment?.spec?.template?.metadata?.labels
             def podSelectorString = labels.collect { k, v ->
@@ -234,7 +243,10 @@ class ClusterView {
             if (!selector) {
                 return false
             }
-            def labels = object?.spec?.selector ?: object?.metadata?.labels
+
+            // def labels = object?.spec?.selector ?: object?.metadata?.labels
+            def labels = object.metadata?.labels
+            // stop(labels)
             def match = true
             selector.each { k, v ->
                 if (labels.get(k) != v) {
@@ -244,9 +256,33 @@ class ClusterView {
             match
         }
 
+        def matchConfig = { selector, object ->
+            if (!selector) {
+                return false
+            }
+
+            def labels = object?.spec?.selector
+            def matchConfig = true
+            selector.each { k, v ->
+                if (labels.get(k) != v) {
+                    matchConfig = false
+                }
+            }
+            matchConfig
+        }
+
+
         def deployments = kubeDeployments.findAll {
             it.metadata.namespace == service.metadata.namespace &&
                     match(serviceSelector, it)
+        }
+
+        def configs = deploymentConfigs.findAll {
+            it.metadata.namespace == service.metadata.namespace && matchConfig(serviceSelector, it)
+        }
+
+        if (configs) {
+            deployments += configs
         }
 
         deployments.each { deploy ->
