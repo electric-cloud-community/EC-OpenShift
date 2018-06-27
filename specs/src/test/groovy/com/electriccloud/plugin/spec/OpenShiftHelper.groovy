@@ -48,7 +48,7 @@ class OpenShiftHelper extends ContainerHelper {
             kubernetesVersion: getClusterVersion(),
             clusterEndpoint  : endpoint,
             testConnection   : 'false',
-            logLevel         : '4'
+            logLevel         : '2'
         ]
         def props = [:]
         if (System.getenv('RECREATE_CONFIG')) {
@@ -322,7 +322,18 @@ class OpenShiftHelper extends ContainerHelper {
         return version
     }
 
+
+    def getSelector(serviceName) {
+        def selector = "selector-${randomize(serviceName)}"
+        selector = selector.replaceAll(/-/, '')
+        if (selector.length() > 60)
+            selector = selector.substring(0, 60)
+        return selector
+    }
+
+
     def deploySample(serviceName) {
+        def selector = getSelector(serviceName)
         def deployment = [
             kind    : 'Deployment',
             metadata: [
@@ -349,7 +360,7 @@ class OpenShiftHelper extends ContainerHelper {
                             [hostPath: [path: '/tmp/path'], name: 'my-volume']
                         ]
                     ],
-                    metadata: [labels: [app: 'nginx_test_spec']],
+                    metadata: [labels: [app: selector]],
 
                 ]
             ]
@@ -360,11 +371,373 @@ class OpenShiftHelper extends ContainerHelper {
             apiVersion: 'v1',
             metadata  : [name: serviceName],
             spec      : [
-                selector: [app: 'nginx_test_spec'],
+                selector: [app: selector],
                 ports   : [[protocol: 'TCP', port: 80, targetPort: 80]],
             ]
         ]
         deploy(service, deployment)
     }
+
+
+    def deployConfig(serviceName) {
+        def selector = getSelector(serviceName)
+
+        def service = [
+            kind      : 'Service',
+            apiVersion: 'v1',
+            metadata  : [name: serviceName],
+            spec      : [
+                type    : 'LoadBalancer',
+                selector: [app: selector],
+                ports   : [
+                    [protocol: 'TCP', port: 80, targetPort: 'first', name: 'first'],
+                    [protocol: 'TCP', port: 81, targetPort: 'second', name: 'second']
+                ]
+            ]
+        ]
+
+        def deployment = [
+            kind    : 'DeploymentConfig',
+            metadata: [
+                name: serviceName,
+            ],
+            spec    : [
+                replicas: 1,
+                template: [
+                    spec    : [
+                        containers: [
+                            [name: 'hello', image: 'imagostorm/hello-world:1.0', ports: [
+                                [containerPort: 8080, name: 'first']
+                            ]],
+                            [name: 'hello-2', 'image': 'imagostorm/hello-world:2.0', ports: [
+                                [containerPort: 8080, name: 'second']
+                            ]]
+                        ]
+                    ],
+                    metadata: [
+                        labels: [
+                            app: selector
+                        ]
+                    ]
+                ]
+            ]
+        ]
+
+        deployConfig(service, deployment)
+    }
+
+    def deployWithRoutes(serviceName) {
+        def selector = getSelector(serviceName)
+        def deployment = [
+            kind    : 'Deployment',
+            metadata: [
+                name: serviceName,
+            ],
+            spec    : [
+                replicas: 1,
+                template: [
+                    spec    : [
+                        containers: [
+                            [
+                                name        : 'nginx',
+                                image       : 'nginx:1.10',
+                                ports       : [[containerPort: 80]],
+                                env         : [
+                                    [name: "TEST_ENV", "value": "TEST"]
+                                ],
+                                volumeMounts: [
+                                    [name: 'my-volume', mountPath: '/tmp/path_in_container']
+                                ]
+                            ]
+                        ],
+                        volumes   : [
+                            [hostPath: [path: '/tmp/path'], name: 'my-volume']
+                        ]
+                    ],
+                    metadata: [labels: [app: selector]],
+
+                ]
+            ]
+        ]
+
+        def service = [
+            kind      : 'Service',
+            apiVersion: 'v1',
+            metadata  : [name: serviceName],
+            spec      : [
+                selector: [app: selector],
+                ports   : [[protocol: 'TCP', port: 80, targetPort: 80]],
+            ]
+        ]
+
+        def route = [
+            kind: 'Route',
+            metadata: [name: serviceName],
+            spec: [
+                host: '10.200.1.100', path: '/', port: [targetPort: 'test'], to: [kind: 'Service', name: serviceName]
+            ]
+        ]
+        deploy(service, deployment)
+        logger.debug("Created service $serviceName")
+        createRoute(route)
+        logger.debug("Created route $serviceName")
+    }
+
+    def deployTwoContainers(serviceName) {
+        def selector = getSelector(serviceName)
+
+        def deployment = [
+            kind    : 'Deployment',
+            metadata: [
+                name: serviceName,
+            ],
+            spec    : [
+                replicas: 2,
+                template: [
+                    spec    : [
+                        containers: [
+                            [name: 'hello', image: 'imagostorm/hello-world:1.0', ports: [
+                                [containerPort: 8080, name: 'first']
+                            ]],
+                            [name: 'hello-2', 'image': 'imagostorm/hello-world:2.0', ports: [
+                                [containerPort: 8080, name: 'second']
+                            ]]
+                        ]
+                    ],
+                    metadata: [
+                        labels: [
+                            app: selector
+                        ]
+                    ]
+                ]
+            ]
+        ]
+        def service = [
+            kind      : 'Service',
+            apiVersion: 'v1',
+            metadata  : [name: serviceName],
+            spec      : [
+                type    : 'LoadBalancer',
+                selector: [app: selector],
+                ports   : [
+                    [protocol: 'TCP', port: 80, targetPort: 'first', name: 'first'],
+                    [protocol: 'TCP', port: 81, targetPort: 'second', name: 'second']
+                ]
+            ]
+        ]
+
+        deploy(service, deployment)
+    }
+
+
+    def deployWithPercentage(serviceName) {
+        def deployment = [
+            kind    : 'Deployment',
+            metadata: [
+                name: serviceName,
+            ],
+            spec    : [
+                replicas: 3,
+                strategy: [
+                    rollingUpdate: [
+                        maxSurge      : '25%',
+                        maxUnavailable: '25%'
+                    ]
+                ],
+                template: [
+                    spec    : [
+                        containers: [
+                            [name: 'nginx', image: 'nginx:1.10', ports: [
+                                [containerPort: 80]
+                            ]]
+                        ],
+                    ],
+                    metadata: [labels: [app: 'nginx_test_spec']]
+                ]
+            ]
+        ]
+
+        def service = [
+            kind      : 'Service',
+            apiVersion: 'v1',
+            metadata  : [name: serviceName],
+            spec      : [
+                selector: [app: 'nginx_test_spec'],
+                ports   : [[protocol: 'TCP', port: 80, targetPort: 80]]
+            ]
+        ]
+        deploy(service, deployment)
+    }
+
+
+    def deployWithLoadBalancer(serviceName) {
+        def selector = getSelector(serviceName)
+        def service = [
+            kind      : 'Service',
+            apiVersion: 'v1',
+            metadata  : [name: serviceName],
+            spec      : [
+                selector      : [app: selector],
+                type          : 'LoadBalancer',
+                loadBalancerIP: '35.224.8.81',
+                ports         : [
+                    [port: 80, targetPort: 80]
+                ]
+            ]
+        ]
+        def deployment = [
+            kind    : 'Deployment',
+            metadata: [
+                name: serviceName,
+            ],
+            spec    : [
+                replicas: 1,
+                template: [
+                    spec    : [
+                        containers: [
+                            [
+                                name        : 'nginx',
+                                image       : 'nginx:1.10',
+                                ports       : [[containerPort: 80]],
+                                env         : [
+                                    [name: "TEST_ENV", "value": "TEST"]
+                                ],
+                                volumeMounts: [
+                                    [name: 'my-volume', mountPath: '/tmp/path_in_container']
+                                ]
+                            ]
+                        ],
+                        volumes   : [
+                            [hostPath: [path: '/tmp/path'], name: 'my-volume']
+                        ]
+                    ],
+                    metadata: [labels: [app: selector]],
+
+                ]
+            ]
+        ]
+
+        deploy(service, deployment)
+    }
+
+    def deployWithSecret(serviceName) {
+        def secretName = randomize('spec-secret')
+        secretName = secretName.replaceAll('_', '-')
+        createSecret(secretName, 'registry.hub.docker.com', 'ecplugintest', 'qweqweqwe')
+        def deployment = [
+            kind    : 'Deployment',
+            metadata: [
+                name: serviceName,
+            ],
+            spec    : [
+                replicas: 1,
+                template: [
+                    spec    : [
+                        containers      : [
+                            [name: 'hello', image: 'registry.hub.docker.com/imagostorm/hello-world:1.0', ports: [
+                                [containerPort: 80]
+                            ]]
+                        ],
+                        imagePullSecrets: [
+                            [name: secretName]
+                        ]
+                    ],
+                    metadata: [
+                        labels: [
+                            app: 'nginx_test_spec'
+                        ]
+                    ]
+                ]
+            ]
+        ]
+
+        def service = [
+            kind      : 'Service',
+            apiVersion: 'v1',
+            metadata  : [name: serviceName],
+            spec      : [
+                selector: [app: 'nginx_test_spec'],
+                ports   : [[protocol: 'TCP', port: 80, targetPort: 80]]
+            ]
+        ]
+        deploy(service, deployment)
+        secretName
+    }
+
+    def deployLiveness(serviceName) {
+
+        def container = [
+            args          : ['/server'],
+            image         : 'k8s.gcr.io/liveness',
+            livenessProbe : [
+                httpGet            : [
+                    path       : '/healthz',
+                    port       : 8080,
+                    httpHeaders: [
+                        [name: 'X-Custom-Header', value: 'Awesome']
+                    ]
+                ],
+                initialDelaySeconds: 15,
+                timeoutSeconds     : 1
+            ],
+            readinessProbe: [
+                exec               : [
+                    command: [
+                        'cat',
+                        '/tmp/healthy'
+                    ]
+                ],
+                initialDelaySeconds: 5,
+                periodSeconds      : 5,
+            ],
+            name          : 'liveness-readiness'
+        ]
+        def deployment = [
+            kind    : 'Deployment',
+            metadata: [
+                name: serviceName,
+            ],
+            spec    : [
+                replicas: 1,
+                template: [
+                    spec    : [
+                        containers: [
+                            container
+                        ],
+                    ],
+                    metadata: [
+                        labels: [
+                            app: 'liveness-probe'
+                        ]
+                    ]
+                ]
+            ]
+        ]
+
+        def service = [
+            kind      : 'Service',
+            apiVersion: 'v1',
+            metadata  : [name: serviceName],
+            spec      : [
+                selector: [app: 'liveness-probe'],
+                ports   : [[protocol: 'TCP', port: 80, targetPort: 8080]]
+            ]
+        ]
+
+        deploy(service, deployment)
+
+    }
+
+    def deployRoute(serviceName, routeName) {
+        def route = [
+            kind: 'Route',
+            metadata: [name: routeName],
+            spec: [
+                host: '10.200.1.100', path: '/', port: [targetPort: 'test'], to: [kind: 'Service', name: serviceName]
+            ]
+        ]
+        createRoute(route)
+    }
+
 
 }

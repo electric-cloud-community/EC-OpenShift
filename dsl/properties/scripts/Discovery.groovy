@@ -68,7 +68,6 @@ public class Discovery extends EFClient {
                 def items = deployments?.items ?: []
                 items += (deploymentConfigs?.items ?: [])
 
-
                 items.each { deploy ->
                     def efService = buildServiceDefinition(kubeService, deploy, namespace)
 
@@ -486,10 +485,6 @@ public class Discovery extends EFClient {
     def buildServiceDefinition(kubeService, deployment, namespace) {
         def serviceName = kubeService.metadata.name
         def deployName = deployment.metadata.name
-
-        prettyPrint(deployment)
-        prettyPrint(deployName)
-        prettyPrint(serviceName)
 
         def efServiceName
         if (serviceName =~ /(?i)${deployName}/) {

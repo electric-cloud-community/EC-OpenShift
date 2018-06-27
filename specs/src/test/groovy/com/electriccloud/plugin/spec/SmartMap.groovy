@@ -11,6 +11,7 @@ class SmartMap extends OpenShiftHelper {
 
     def doSetupSpec() {
         createCluster(projectName, envName, clusterName, configName)
+        cleanupCluster(configName)
         cleanupService(serviceName)
         deploySample(serviceName)
         waitForService(serviceName)

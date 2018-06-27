@@ -6,6 +6,7 @@
 
 - name: Start Cluster
   shell: "{{ oc_path }} cluster up --public-hostname=\"{{ cluster_ip }}\""
+  ignore_errors: yes
 
 - name: Login
   shell: "{{ oc_path }} login -u admin -p admin"
@@ -64,20 +65,15 @@
 - name: policy hostnetwork
   shell: '{{ oc_path }} adm policy add-scc-to-user hostnetwork -z flowqe'
 
-- name: copy scc_admin.yaml
-  copy: src=scc_admin.yaml dest=/tmp/scc_admin.yaml
-
-- name: 'create scc admin'
-  shell: '{{ oc_path }} create -f /tmp/scc_admin.yaml'
-
-- name: copy get token script
-  copy: src=getToken.groovy dest=/tmp/getToken.groovy
 
 - name: get token
-  shell: 'groovy /tmp/getToken.groovy {{ oc_path }} {{ cluster_ip }}'
-  register: token
+  shell: '{{ oc_path }} serviceaccounts get-token flowqe'
+  register: token_content
 
-- name: echo token
-  debug: msg="{{ token.stdout }}"
+- name: show token
+  debug:
+    msg: 'ENVIRONMENT VARIABLE OPENSHIFT_TOKEN=## {{ token_content.stdout }} ##'
 
-# groovy getToken.groovy > token.txt
+- name: show endpoint
+  debug:
+    msg: 'ENVIRONMENT VARIABLE OPENSHIFT_CLUSTER=## https://{{ cluster_ip }}:8443 ##'
