@@ -92,15 +92,36 @@ class Client {
         return result?.items
     }
 
-    def getAllDeployments() {
-        def path = ''
-        if (isVersionGreaterThan15()) {
-            path  = "/apis/apps/v1beta1/deployments"
-        }
-        else {
-            path = "/oapi/v1/deploymentconfigs"
-        }
+    def getAllDeploymentConfigs() {
+        def path = "/oapi/v1/deploymentconfigs"
+        def result = doHttpRequest(GET, path, null)
+        return result?.items
+    }
 
+    def getDeploymentConfigs(String namespace, String labelSelector = null) {
+        def path = "/oapi/v1/namespaces/${namespace}/deploymentconfigs"
+        def result = doHttpRequest(GET, path, null)
+        def tempDeployments = []
+        result?.items?.each{ deployment ->
+            def fit = false
+            deployment?.spec?.selector.each{ k, v ->
+                labelSelector.split(',').each{ selector ->
+                    if ((k + '=' + v) == selector){
+                        fit = true
+                    }
+                }
+            }
+            if (fit){
+                tempDeployments.push(deployment)
+            }
+        }
+        result.items = tempDeployments
+        return result?.items
+    }
+
+    def getAllDeployments() {
+        String apiPath = versionSpecificAPIPath('deployments')
+        def path  = "/apis/${apiPath}/deployments"
         def result = doHttpRequest(GET, path)
         return result?.items
     }
@@ -123,45 +144,29 @@ class Client {
 
         String apiPath = versionSpecificAPIPath('deployments')
 
-
         def result
-        if (isVersionGreaterThan15()) {
-            def path  = "/apis/${apiPath}/namespaces/${namespace}/deployments"
-            result = doHttpRequest(GET, path, null, query)
-        }
-        else {
-            def path = "/oapi/v1/namespaces/${namespace}/deploymentconfigs"
-            result = doHttpRequest(GET, path, null)
-            def tempDeployments = []
-            result?.items?.each{ deployment ->
-                def fit = false
-                deployment?.spec?.selector.each{ k, v ->
-                    labelSelector.split(',').each{ selector ->
-                        if ((k + '=' + v) == selector){
-                            fit = true
-                        }
-                    }
-                }
-                if (fit){
-                    tempDeployments.push(deployment)
-                }
-            }
-            result.items = tempDeployments
-        }
-
+        def path  = "/apis/${apiPath}/namespaces/${namespace}/deployments"
+        result = doHttpRequest(GET, path, null, query)
         return result?.items
     }
 
 
     def getServiceVolumes(String namespaceName, String serviceName) {
         def result
-        if(isVersionGreaterThan15()){
+        // if(isVersionGreaterThan15() || true){
             result = doHttpRequest(GET, "/apis/${versionSpecificAPIPath("deployments")}/namespaces/${namespaceName}/deployments/${serviceName}", null, [:])
-        }
-        else{
-            result = doHttpRequest(GET, "/oapi/v1/namespaces/${namespaceName}/deployments/${serviceName}", null, [:])
-        }
+        // }
+        // else{
+        //     result = doHttpRequest(GET, "/oapi/v1/namespaces/${namespaceName}/deployments/${serviceName}", null, [:])
+        // }
+        // Not supported for now
 
+        return result?.spec?.template?.spec?.volumes
+    }
+
+
+    def getDeploymentConfigVolumes(String namespaceName, String serviceName) {
+        def result = doHttpRequest(GET, "/oapi/v1/namespaces/${namespaceName}/deploymentconfigs/${serviceName}", null, [:])
         return result?.spec?.template?.spec?.volumes
     }
 

@@ -68,6 +68,9 @@ class ClusterView {
     @Lazy
     private kubePods = { kubeClient.getAllPods() }()
 
+    @Lazy
+    private deploymentConfigs = { kubeClient.getAllDeploymentConfigs() }()
+
 
     ClusterTopology getRealtimeClusterTopology() {
         ClusterTopology topology = new ClusterTopologyImpl()
@@ -195,6 +198,11 @@ class ClusterView {
         def namespace = service.metadata.namespace
         def deployments = kubeClient.getDeployments(namespace, selectorString)
         def pods = []
+
+        def configs = kubeClient.getDeploymentConfigs(namespace, selectorString)
+        if (configs) {
+            deployments += configs
+        }
         deployments.each { deployment ->
             def labels = deployment?.spec?.selector?.matchLabels ?: deployment?.spec?.template?.metadata?.labels
             def podSelectorString = labels.collect { k, v ->
@@ -231,6 +239,7 @@ class ClusterView {
             if (!selector) {
                 return false
             }
+
             def labels = object.metadata?.labels
             def match = true
             selector.each { k, v ->
@@ -241,10 +250,35 @@ class ClusterView {
             match
         }
 
+        def matchConfig = { selector, object ->
+            if (!selector) {
+                return false
+            }
+
+            def labels = object?.spec?.selector
+            def matchConfig = true
+            selector.each { k, v ->
+                if (labels.get(k) != v) {
+                    matchConfig = false
+                }
+            }
+            matchConfig
+        }
+
+
         def deployments = kubeDeployments.findAll {
             it.metadata.namespace == service.metadata.namespace &&
                     match(serviceSelector, it)
         }
+
+        def configs = deploymentConfigs.findAll {
+            it.metadata.namespace == service.metadata.namespace && matchConfig(serviceSelector, it)
+        }
+
+        if (configs) {
+            deployments += configs
+        }
+
         deployments.each { deploy ->
             def deploySelector = deploy?.spec?.selector?.matchLabels ?: deploy?.spec?.template?.metadata?.labels
             pods.addAll(kubePods.findAll {
@@ -758,7 +792,7 @@ class ClusterView {
             volumes = kubeClient.getServiceVolumes(namespace, serviceId)
         } catch (Throwable e) {
             if (e.message =~ /404/) {
-//                Do nothing
+                // Do nothing
             }
             else {
                 throw e

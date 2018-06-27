@@ -219,7 +219,7 @@ class Discover extends OpenShiftHelper {
 
     def "discover load balancer IP"() {
         given:
-        def serviceName = 'openshift-spec-load-balancer-ip'
+        def serviceName = 'spec-load-balancer-ip'
         cleanupService(serviceName)
         deployWithLoadBalancer(serviceName)
         when:
@@ -243,7 +243,7 @@ class Discover extends OpenShiftHelper {
     @Ignore
     def "Liveness/readiness probe"() {
         given:
-        def serviceName = 'openshift-spec-liveness'
+        def serviceName = 'spec-liveness'
         cleanupService(serviceName)
         deployLiveness(serviceName)
         when:
@@ -299,7 +299,7 @@ class Discover extends OpenShiftHelper {
     @Ignore("Until deploy strategies")
     def "Percentage in surge/maxUnavailable"() {
         given:
-        def serviceName = 'openshift-spec-service-percentage'
+        def serviceName = 'spec-service-percentage'
         cleanupService(serviceName)
         deployWithPercentage(serviceName)
         when:
@@ -323,7 +323,7 @@ class Discover extends OpenShiftHelper {
 
     def "Two containers"() {
         given:
-        def serviceName = 'two-containers-openshift-discover-spec'
+        def serviceName = 'two-containers-discover-spec'
         cleanupService(serviceName)
         deployTwoContainers(serviceName)
         when:
