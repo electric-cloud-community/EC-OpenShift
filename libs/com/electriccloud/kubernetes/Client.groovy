@@ -98,7 +98,7 @@ class Client {
             path  = "/apis/apps/v1beta1/deployments"
         }
         else {
-            path = "/oapi/v1/deploymentconfigs"
+            path = "/apis/extensions/v1beta1/deployments"
         }
 
         def result = doHttpRequest(GET, path)
