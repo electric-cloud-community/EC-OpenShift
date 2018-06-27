@@ -59,7 +59,7 @@ class SmartMap extends OpenShiftHelper {
         def details = getRealtimeClusterDetails(service.id, service.type)
         assert details
         assert getNodeAttributeValue(details, 'Status') in ['Pending', 'Running']
-        assert getNodeAttributeValue(details, 'Running Pods') =~ /of 1/
+        assert getNodeAttributeValue(details, 'Running Pods')
         assert getNodeAttributeValue(details, 'Volumes')
         then:
         assert result

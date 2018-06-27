@@ -145,30 +145,8 @@ class Client {
         String apiPath = versionSpecificAPIPath('deployments')
 
         def result
-        if (isVersionGreaterThan15() || true) {
-            def path  = "/apis/${apiPath}/namespaces/${namespace}/deployments"
-            result = doHttpRequest(GET, path, null, query)
-        }
-        else {
-            def path = "/oapi/v1/namespaces/${namespace}/deploymentconfigs"
-            result = doHttpRequest(GET, path, null)
-            def tempDeployments = []
-            result?.items?.each{ deployment ->
-                def fit = false
-                deployment?.spec?.selector.each{ k, v ->
-                    labelSelector.split(',').each{ selector ->
-                        if ((k + '=' + v) == selector){
-                            fit = true
-                        }
-                    }
-                }
-                if (fit){
-                    tempDeployments.push(deployment)
-                }
-            }
-            result.items = tempDeployments
-        }
-
+        def path  = "/apis/${apiPath}/namespaces/${namespace}/deployments"
+        result = doHttpRequest(GET, path, null, query)
         return result?.items
     }
 
