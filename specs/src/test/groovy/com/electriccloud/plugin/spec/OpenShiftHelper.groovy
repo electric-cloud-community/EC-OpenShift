@@ -130,6 +130,7 @@ class OpenShiftHelper extends ContainerHelper {
 
     static def createDeployment(endpoint, token, payload) {
         def apiPath = versionSpecificAPIPath('deployments')
+        println apiPath
         def uri = "/apis/${apiPath}/namespaces/${namespace}/deployments"
         request(getEndpoint(),
             uri, POST, null,
@@ -138,9 +139,9 @@ class OpenShiftHelper extends ContainerHelper {
         )
     }
 
-
-
     static boolean isVersionGreaterThan17() {
+        return false
+//        Different payload
         try {
             float version = Float.parseFloat(getClusterVersion())
             version >= 1.8
@@ -359,7 +360,7 @@ class OpenShiftHelper extends ContainerHelper {
 
 
     def getSelector(serviceName) {
-        def selector = "selector-${randomize(serviceName)}"
+        def selector = "${randomize(serviceName)}"
         selector = selector.replaceAll(/-/, '')
         if (selector.length() > 60)
             selector = selector.substring(0, 60)
@@ -369,6 +370,7 @@ class OpenShiftHelper extends ContainerHelper {
 
     def deploySample(serviceName) {
         def selector = getSelector(serviceName)
+        selector = 'test-smart-map'
         def deployment = [
             kind    : 'Deployment',
             metadata: [
