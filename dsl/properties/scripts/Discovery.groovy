@@ -58,16 +58,15 @@ public class Discovery extends EFClient {
                     [labelSelector: selector]
                 )
 
-                def deploymentConfigs = openShiftClient.getDeploymentConfigs(
+                 def deploymentConfigs = openShiftClient.getDeploymentConfigs(
                     clusterEndpoint,
                     namespace,
                     accessToken,
                     [labelSelector: selector]
                 )
 
-                def items = deployments.items ?: []
-                items += deploymentConfigs.items
-//                prettyPrint(items)
+                def items = deployments?.items ?: []
+                items += (deploymentConfigs?.items ?: [])
 
 
                 items.each { deploy ->
@@ -82,7 +81,6 @@ public class Discovery extends EFClient {
 
             }
         }
-
 
         efServices
     }

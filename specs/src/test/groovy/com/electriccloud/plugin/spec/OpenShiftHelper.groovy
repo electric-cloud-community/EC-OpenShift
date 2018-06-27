@@ -48,7 +48,7 @@ class OpenShiftHelper extends ContainerHelper {
             kubernetesVersion: getClusterVersion(),
             clusterEndpoint  : endpoint,
             testConnection   : 'false',
-            logLevel         : '2'
+            logLevel         : '4'
         ]
         def props = [:]
         if (System.getenv('RECREATE_CONFIG')) {
@@ -96,6 +96,11 @@ class OpenShiftHelper extends ContainerHelper {
         createService(endpoint, token, service)
     }
 
+    static def deployConfig(service, deployment) {
+        createDeploymentConfig(deployment)
+        createService(endpoint, token, service)
+    }
+
     static def cleanupService(name) {
         try {
             deleteDeployment(name)
@@ -103,6 +108,15 @@ class OpenShiftHelper extends ContainerHelper {
             deleteRoute(name)
         } catch (Throwable e) {
             logger.debug(e.getMessage())
+        }
+    }
+
+    static def cleanupDeploymentConfig(name) {
+        try {
+            deleteDeploymentConfig(name)
+            deleteService(name)
+        } catch (Throwable e) {
+            logger.debug(e.message)
         }
     }
 
@@ -121,6 +135,17 @@ class OpenShiftHelper extends ContainerHelper {
             ["Authorization": "Bearer ${getToken()}"],
             new JsonBuilder(payload).toString()
         )
+    }
+
+
+    static def createDeploymentConfig(payload) {
+        def uri = "/oapi/v1/namespaces/${namespace}/deploymentconfigs"
+        request(getEndpoint(), uri, POST, null, ["Authorization": "Bearer ${getToken()}"], new JsonBuilder(payload).toString())
+    }
+
+    static def deleteDeploymentConfig(name) {
+        def uri = "/oapi/v1/namespaces/${namespace}/deploymentconfigs/${name}"
+        request(getEndpoint(), uri, DELETE, null, ["Authorization": "Bearer ${getToken()}"], null)
     }
 
     static def createService(endpoint, token, payload) {

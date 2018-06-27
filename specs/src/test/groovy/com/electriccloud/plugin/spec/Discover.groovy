@@ -25,7 +25,12 @@ class Discover extends OpenShiftHelper {
 
     def doSetupSpec() {
         configName = 'OpenShift Spec Config'
+        dsl """
+            deleteProject(projectName: '$projectName')
+        """
+        cleanupCluster(configName)
         createCluster(projectName, envName, clusterName, configName)
+
         dslFile 'dsl/Discover.dsl', [
             projectName: projectName,
             params     : [
@@ -43,13 +48,9 @@ class Discover extends OpenShiftHelper {
     }
 
     def doCleanupSpec() {
-        cleanupCluster(configName)
-        dsl """
-            deleteProject(projectName: '$projectName')
-        """
+
     }
 
-    @IgnoreRest
     def 'discover routes'() {
         given:
         def serviceName = 'sample-with-routes'
@@ -71,7 +72,6 @@ class Discover extends OpenShiftHelper {
         deleteService(projectName, serviceName)
     }
 
-    @IgnoreRest
     def 'warning for two routes'() {
         given:
         def serviceName = 'sample-with-routes'
@@ -92,6 +92,7 @@ class Discover extends OpenShiftHelper {
         cleanupRoute(secondRouteName)
     }
 
+    @Ignore
     def "create application-scoped services"() {
         given:
         def sampleName = 'nginx-spec-application'
@@ -127,6 +128,7 @@ class Discover extends OpenShiftHelper {
         dsl "deleteApplication(projectName:'$projectName', applicationName: '$applicationName')"
     }
 
+    @Ignore
     def "create environment from scratch"() {
         given:
         def sampleName = 'nginx-spec-scratch'
@@ -168,19 +170,7 @@ class Discover extends OpenShiftHelper {
         cleanupService(sampleName)
         deploySample(sampleName)
         when:
-        def result = runProcedureDsl """
-                runProcedure(
-                    projectName: '$projectName',
-                    procedureName: 'Discover',
-                    actualParameter: [
-                        clusterName: '$clusterName',
-                        namespace: 'default',
-                        envProjectName: '$projectName',
-                        envName: '$envName',
-                        projName: '$projectName'
-                    ]
-                )
-            """
+        def result = runProcedure(projectName, procedureName, commonParams)
         then:
         logger.debug(result.logs)
         def service = getService(
@@ -222,23 +212,11 @@ class Discover extends OpenShiftHelper {
 
     def "discover load balancer IP"() {
         given:
-        def serviceName = 'kube-spec-load-balancer-ip'
+        def serviceName = 'openshift-spec-load-balancer-ip'
         cleanupService(serviceName)
         deployWithLoadBalancer(serviceName)
         when:
-        def result = runProcedureDsl """
-                runProcedure(
-                    projectName: '$projectName',
-                    procedureName: 'Discover',
-                    actualParameter: [
-                        clusterName: '$clusterName',
-                        namespace: 'default',
-                        envProjectName: '$projectName',
-                        envName: '$envName',
-                        projName: '$projectName'
-                    ]
-                )
-            """
+        def result = runProcedure(projectName, procedureName, commonParams)
         then:
         def service = getService(
             projectName,
@@ -255,25 +233,14 @@ class Discover extends OpenShiftHelper {
         cleanupService(serviceName)
     }
 
+    @Ignore
     def "Liveness/readiness probe"() {
         given:
-        def serviceName = 'kube-spec-liveness'
+        def serviceName = 'openshift-spec-liveness'
         cleanupService(serviceName)
         deployLiveness(serviceName)
         when:
-        def result = runProcedureDsl """
-                runProcedure(
-                    projectName: '$projectName',
-                    procedureName: 'Discover',
-                    actualParameter: [
-                        clusterName: '$clusterName',
-                        namespace: 'default',
-                        envProjectName: '$projectName',
-                        envName: '$envName',
-                        projName: '$projectName'
-                    ]
-                )
-            """
+        def result = runProcedure(projectName, procedureName, commonParams)
         then:
         logger.debug(result.logs)
         def service = getService(
@@ -299,24 +266,13 @@ class Discover extends OpenShiftHelper {
         cleanupService(serviceName)
     }
 
+    @Ignore
     def "Discover secrets"() {
         given:
         cleanupService(serviceName)
         secretName = deployWithSecret(serviceName)
         when:
-        def result = runProcedureDsl """
-                runProcedure(
-                    projectName: '$projectName',
-                    procedureName: 'Discover',
-                    actualParameter: [
-                        clusterName: '$clusterName',
-                        namespace: 'default',
-                        envProjectName: '$projectName',
-                        envName: '$envName',
-                        projName: '$projectName'
-                    ]
-                )
-            """
+        def result = runProcedure(projectName, procedureName, commonParams)
         then:
         logger.debug(result.logs)
         def service = getService(
@@ -336,23 +292,11 @@ class Discover extends OpenShiftHelper {
     @Ignore("Until deploy strategies")
     def "Percentage in surge/maxUnavailable"() {
         given:
-        def serviceName = 'kube-spec-service-percentage'
+        def serviceName = 'openshift-spec-service-percentage'
         cleanupService(serviceName)
         deployWithPercentage(serviceName)
         when:
-        def result = runProcedureDsl """
-                runProcedure(
-                    projectName: '$projectName',
-                    procedureName: 'Discover',
-                    actualParameter: [
-                        clusterName: '$clusterName',
-                        namespace: 'default',
-                        envProjectName: '$projectName',
-                        envName: '$envName',
-                        projName: '$projectName'
-                    ]
-                )
-            """
+        def result = runProcedure(projectName, procedureName, commonParams)
         then:
         logger.debug(result.logs)
         def service = getService(
@@ -371,23 +315,11 @@ class Discover extends OpenShiftHelper {
 
     def "Two containers"() {
         given:
-        def serviceName = 'two-containers-kube-discover-spec'
+        def serviceName = 'two-containers-openshift-discover-spec'
         cleanupService(serviceName)
         deployTwoContainers(serviceName)
         when:
-        def result = runProcedureDsl """
-                runProcedure(
-                    projectName: '$projectName',
-                    procedureName: 'Discover',
-                    actualParameter: [
-                        clusterName: '$clusterName',
-                        namespace: 'default',
-                        envProjectName: '$projectName',
-                        envName: '$envName',
-                        projName: '$projectName'
-                    ]
-                )
-            """
+        def result = runProcedure(projectName, procedureName, commonParams)
         then:
         logger.debug(result.logs)
         def service = getService(
@@ -417,6 +349,66 @@ class Discover extends OpenShiftHelper {
         assert secondPort.listenerPort == '81'
         cleanup:
         cleanupService(serviceName)
+    }
+
+    def 'two different services'() {
+        given:
+        def firstService = 'first-service'
+        def secondService = 'second-service'
+        cleanupService(firstService)
+        cleanupService(secondService)
+        deploySample(firstService)
+        deploySample(secondService)
+        when:
+        def result = runProcedure(projectName, procedureName, commonParams)
+        then:
+        logger.debug(result.logs);
+        assert result.outcome != 'error'
+
+        def first = getService(
+            projectName,
+            firstService,
+            clusterName,
+            envName
+        )
+        assert first
+
+        def second = getService(
+            projectName,
+            secondService,
+            clusterName,
+            envName
+        )
+
+        assert second
+        assert first.service?.container?.size() == 1
+        assert second.service?.container?.size() == 1
+
+        cleanup:
+        cleanupService(firstService)
+        cleanupService(secondService)
+    }
+
+    def 'discover deploymentConfig'() {
+        given:
+        def serviceName = 'test-deployment-config'
+        cleanupDeploymentConfig(serviceName)
+        deployConfig(serviceName)
+        when:
+        def result = runProcedure(projectName, procedureName, commonParams)
+        then:
+        logger.debug(result.logs)
+        def service = getService(
+            projectName,
+            serviceName,
+            clusterName,
+            envName
+        )
+        assert service
+        def containers = service.service.container
+        assert containers.size() == 2
+        cleanup:
+        cleanupDeploymentConfig(serviceName)
     }
 
     def deployWithPercentage(serviceName) {
@@ -627,6 +619,7 @@ class Discover extends OpenShiftHelper {
     }
 
     def deployWithRoutes(serviceName) {
+        def selector = "selector-${randomize(serviceName)}"
         def deployment = [
             kind    : 'Deployment',
             metadata: [
@@ -653,7 +646,7 @@ class Discover extends OpenShiftHelper {
                             [hostPath: [path: '/tmp/path'], name: 'my-volume']
                         ]
                     ],
-                    metadata: [labels: [app: 'nginx_test_spec']],
+                    metadata: [labels: [app: selector]],
 
                 ]
             ]
@@ -664,7 +657,7 @@ class Discover extends OpenShiftHelper {
             apiVersion: 'v1',
             metadata  : [name: serviceName],
             spec      : [
-                selector: [app: 'nginx_test_spec'],
+                selector: [app: selector],
                 ports   : [[protocol: 'TCP', port: 80, targetPort: 80]],
             ]
         ]
@@ -683,6 +676,8 @@ class Discover extends OpenShiftHelper {
     }
 
     def deployTwoContainers(serviceName) {
+        def selector = "selector-${randomize(serviceName)}"
+
         def deployment = [
             kind    : 'Deployment',
             metadata: [
@@ -703,7 +698,7 @@ class Discover extends OpenShiftHelper {
                     ],
                     metadata: [
                         labels: [
-                            app: 'hello-app'
+                            app: selector
                         ]
                     ]
                 ]
@@ -715,7 +710,7 @@ class Discover extends OpenShiftHelper {
             metadata  : [name: serviceName],
             spec      : [
                 type    : 'LoadBalancer',
-                selector: [app: 'hello-app'],
+                selector: [app: selector],
                 ports   : [
                     [protocol: 'TCP', port: 80, targetPort: 'first', name: 'first'],
                     [protocol: 'TCP', port: 81, targetPort: 'second', name: 'second']
@@ -724,6 +719,54 @@ class Discover extends OpenShiftHelper {
         ]
 
         deploy(service, deployment)
+    }
+
+
+    def deployConfig(serviceName) {
+        def selector = "selector-${randomize(serviceName)}"
+
+        def service = [
+            kind      : 'Service',
+            apiVersion: 'v1',
+            metadata  : [name: serviceName],
+            spec      : [
+                type    : 'LoadBalancer',
+                selector: [app: selector],
+                ports   : [
+                    [protocol: 'TCP', port: 80, targetPort: 'first', name: 'first'],
+                    [protocol: 'TCP', port: 81, targetPort: 'second', name: 'second']
+                ]
+            ]
+        ]
+
+        def deployment = [
+            kind    : 'DeploymentConfig',
+            metadata: [
+                name: serviceName,
+            ],
+            spec    : [
+                replicas: 1,
+                template: [
+                    spec    : [
+                        containers: [
+                            [name: 'hello', image: 'imagostorm/hello-world:1.0', ports: [
+                                [containerPort: 8080, name: 'first']
+                            ]],
+                            [name: 'hello-2', 'image': 'imagostorm/hello-world:2.0', ports: [
+                                [containerPort: 8080, name: 'second']
+                            ]]
+                        ]
+                    ],
+                    metadata: [
+                        labels: [
+                            app: selector
+                        ]
+                    ]
+                ]
+            ]
+        ]
+
+        deployConfig(service, deployment)
     }
 
     def getParameterDetail(struct, name) {
