@@ -58,7 +58,19 @@ public class Discovery extends EFClient {
                     [labelSelector: selector]
                 )
 
-                deployments.items.each { deploy ->
+                def deploymentConfigs = openShiftClient.getDeploymentConfigs(
+                    clusterEndpoint,
+                    namespace,
+                    accessToken,
+                    [labelSelector: selector]
+                )
+
+                def items = deployments.items ?: []
+                items += deploymentConfigs.items
+//                prettyPrint(items)
+
+
+                items.each { deploy ->
                     def efService = buildServiceDefinition(kubeService, deploy, namespace)
 
                     if (deploy.spec.template.spec.imagePullSecrets) {
@@ -67,8 +79,10 @@ public class Discovery extends EFClient {
                     }
                     efServices.push(efService)
                 }
+
             }
         }
+
 
         efServices
     }
@@ -474,6 +488,10 @@ public class Discovery extends EFClient {
     def buildServiceDefinition(kubeService, deployment, namespace) {
         def serviceName = kubeService.metadata.name
         def deployName = deployment.metadata.name
+
+        prettyPrint(deployment)
+        prettyPrint(deployName)
+        prettyPrint(serviceName)
 
         def efServiceName
         if (serviceName =~ /(?i)${deployName}/) {
