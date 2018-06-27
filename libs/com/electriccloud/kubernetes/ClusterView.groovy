@@ -88,7 +88,6 @@ class ClusterView {
             }
 
             services.each { service ->
-
                 def pods = getServicePodsTopology(service)
                 topology.addLink(getNamespaceId(namespace), getServiceId(service))
                 topology.addNode(buildServiceNode(service, pods))
@@ -233,19 +232,15 @@ class ClusterView {
 
 
     def getServicePodsTopology(def service) {
-
         def serviceSelector = service?.spec?.selector
         def pods = []
-
 
         def match = { selector, object ->
             if (!selector) {
                 return false
             }
 
-            // def labels = object?.spec?.selector ?: object?.metadata?.labels
             def labels = object.metadata?.labels
-            // stop(labels)
             def match = true
             selector.each { k, v ->
                 if (labels.get(k) != v) {
@@ -840,10 +835,6 @@ class ClusterView {
         node.setElectricFlowEnvironmentName(environmentName)
         node.setElectricFlowProjectName(projectName)
         return node
-    }
-
-    def stop(def message) {
-        throw new RuntimeException("$message")
     }
 
 }

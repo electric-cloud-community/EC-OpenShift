@@ -72,8 +72,8 @@
 
 - name: show token
   debug:
-    msg: 'ENVIRONMENT VARIABLE OPENSHIFT_TOKEN=\{\{ {{ token_content.stdout }} \}\}'
+    msg: 'ENVIRONMENT VARIABLE OPENSHIFT_TOKEN=[[ {{ token_content.stdout }} ]]'
 
 - name: show endpoint
   debug:
-    msg: 'ENVIRONMENT VARIABLE OPENSHIFT_CLUSTER=\{\{ https://{{ cluster_ip }}:8443 \}\}'
+    msg: 'ENVIRONMENT VARIABLE OPENSHIFT_CLUSTER=[[ https://{{ cluster_ip }}:8443 ]]'
