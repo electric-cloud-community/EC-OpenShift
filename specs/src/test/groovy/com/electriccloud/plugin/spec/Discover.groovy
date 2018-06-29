@@ -99,7 +99,6 @@ class Discover extends OpenShiftHelper {
         cleanupRoute(secondRouteName)
     }
 
-    @Ignore
     def "create application-scoped services"() {
         given:
         def sampleName = 'nginx-spec-application'
@@ -107,21 +106,8 @@ class Discover extends OpenShiftHelper {
         deploySample(sampleName)
         def applicationName = "Discovered Application Spec"
         when:
-        def result = runProcedureDsl """
-            runProcedure(
-                projectName: '$projectName',
-                procedureName: 'Discover',
-                actualParameter: [
-                    clusterName: '$clusterName',
-                    namespace: 'default',
-                    envProjectName: '$projectName',
-                    envName: '$envName',
-                    projName: '$projectName',
-                    ecp_kubernetes_applicationScoped: 'true',
-                    ecp_kubernetes_applicationName: '$applicationName'
-                ]
-            )
-        """
+        def params = commonParams + [ecp_openshift_applicationScoped: 'true', ecp_openshift_applicationName: applicationName]
+        def result = runProcedure(projectName, procedureName, params)
         then:
         logger.debug(result.logs)
         def application = dsl "getApplication(projectName: '$projectName', applicationName: '$applicationName')"
@@ -135,40 +121,28 @@ class Discover extends OpenShiftHelper {
         dsl "deleteApplication(projectName:'$projectName', applicationName: '$applicationName')"
     }
 
-    @Ignore
     def "create environment from scratch"() {
         given:
         def sampleName = 'nginx-spec-scratch'
         cleanupService(sampleName)
         deploySample(sampleName)
-        def token = System.getenv('KUBE_TOKEN')
-        assert token
-        def endpoint = System.getenv('KUBE_ENDPOINT')
-        assert endpoint
+        def envName = 'Spec Openshift Created Env'
         when:
-        def result = runProcedureDsl """
-            runProcedure(
-                projectName: '$projectName',
-                procedureName: 'Discover',
-                actualParameter: [
-                    clusterName: 'Created Cluster',
-                    namespace: 'default',
-                    envProjectName: '$projectName',
-                    envName: 'Spec Kubernetes Created Env',
-                    projName: '$projectName',
-                    ecp_kubernetes_apiEndpoint: '$endpoint',
-                    ecp_kubernetes_apiToken: '$token'
-                ]
-            )
-        """
+        def params = commonParams + [
+            envName: envName,
+            clusterName: 'Created Cluster',
+            ecp_openshift_apiEndpoint: getEndpoint(),
+            ecp_openshift_apiToken: getToken()
+        ]
+        def result = runProcedure(projectName, procedureName, params)
         then:
         logger.debug(result.logs)
         assert result.outcome != 'error'
-        def environment = dsl "getEnvironment(projectName: '$projectName', environmentName: 'Spec Kubernetes Created Env')"
+        def environment = dsl "getEnvironment(projectName: '$projectName', environmentName: '$envName')"
         assert environment.environment
         cleanup:
         cleanupService(serviceName)
-        dsl "deleteEnvironment(projectName: '$projectName', environmentName: 'Spec Kubernetes Created Env')"
+        dsl "deleteEnvironment(projectName: '$projectName', environmentName: '$envName')"
     }
 
     def "discover sample"() {
@@ -273,7 +247,6 @@ class Discover extends OpenShiftHelper {
         cleanupService(serviceName)
     }
 
-    @Ignore
     def "Discover secrets"() {
         given:
         cleanupService(serviceName)
