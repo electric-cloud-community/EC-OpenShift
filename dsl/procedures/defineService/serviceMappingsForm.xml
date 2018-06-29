@@ -71,11 +71,15 @@
         <documentation>Kind of Kubernetes service to create.</documentation>
     </formElement>
     <!-- Improvements for ECPOPSHIFT-101 -->
-    <!-- Header for Additional Resource Details -->
+    <!-- Header for Additional LoadBalancer Details -->
     <formElement>
         <type>header</type>
         <label>Additional LoadBalancer Details</label>
         <property>headerType</property>
+        <!-- Improvements for ECPOPSHIFT-123 -->
+        <condition>${serviceType} == 'LoadBalancer'</condition>
+        <dependsOn>serviceType</dependsOn>
+        <!-- End Improvements for ECPOPSHIFT-123 -->
     </formElement>
     <!-- End of improvements for ECPOPSHIFT-101 -->
     <!-- Dependent fields -->
@@ -172,6 +176,10 @@
         <type>header</type>
         <label>Additional Resource Details</label>
         <property>headerType</property>
+        <!-- Improvements for ECPOPSHIFT-123 -->
+        <condition>${createOrUpdateResource} == 1</condition>
+        <dependsOn>createOrUpdateResource</dependsOn>
+        <!-- End of Improvements for ECPOPSHIFT-123 -->
     </formElement>
     <!-- End of improvements for ECPOPSHIFT-101 -->
     <formElement>
@@ -203,6 +211,10 @@
         <property>requestType</property>
         <value>create</value>
         <required>0</required>
+        <!-- Improvements for ECPOPSHIFT-123 -->
+        <condition>${createOrUpdateResource} == 1</condition>
+        <dependsOn>createOrUpdateResource</dependsOn>
+        <!-- End of Improvements for ECPOPSHIFT-123 -->
         <option>
             <name>Create (POST)</name>
             <value>create</value>
