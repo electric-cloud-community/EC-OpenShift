@@ -104,7 +104,15 @@ class OpenShiftHelper extends ContainerHelper {
     static def cleanupService(name) {
         try {
             deleteDeployment(name)
+        } catch (Throwable e) {
+            logger.debug(e.getMessage())
+        }
+        try {
             deleteService(name)
+        } catch (Throwable e) {
+            logger.debug(e.getMessage())
+        }
+        try {
             deleteRoute(name)
         } catch (Throwable e) {
             logger.debug(e.getMessage())

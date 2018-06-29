@@ -116,6 +116,8 @@ class ImportFromYAML extends OpenShiftHelper {
         then:
         logger.debug(result.logs)
         assert result.outcome != 'error'
+        def service = getService(projectName, serviceName, clusterName, envName)
+        assert service
         cleanup:
         deleteService(projectName, serviceName)
     }
