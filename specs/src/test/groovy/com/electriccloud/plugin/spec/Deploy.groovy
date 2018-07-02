@@ -214,67 +214,7 @@ class Deploy extends OpenShiftHelper {
             deleteService(projectName: '$projectName', serviceName: '$serviceName')
         """
     }
-
-    @Unroll
-    @Ignore("Until deploy strategies are implemented")
-    def "Rolling Deploy #minAvailabilityPercentage%:#minAvailabilityCount #maxRunningPercentage%:#maxRunningCount"() {
-        given:
-        def serviceName = 'OpenShift Deploy Spec'
-        def imageName = 'imagostorm/hello-world'
-        dslFile "dsl/Deploy.dsl", [
-            serviceName             : serviceName,
-            projectName             : projectName,
-            clusterName             : clusterName,
-            envName                 : envName,
-            imageName               : imageName,
-            containerPort           : '80',
-            listenerPort            : '8080',
-            serviceMappingParameters: [
-                deploymentStrategy       : 'rollingDeployment',
-                minAvailabilityPercentage: minAvailabilityPercentage,
-                minAvailabilityCount     : minAvailabilityCount,
-                maxRunningCount          : maxRunningCount,
-                maxRunningPercentage     : maxRunningPercentage
-            ]
-        ]
-        when:
-        def result = deployService(projectName, serviceName)
-        then:
-        logger.debug(result.logs)
-        def deployment = getDeployment(getServiceName(serviceName))
-        logger.debug(objectToJson(deployment))
-        def rollingUpdate = deployment.spec.strategy.rollingUpdate
-
-        if (maxRunningCount) {
-            assert rollingUpdate.maxSurge == maxRunningCount.toInteger()
-        }
-        if (maxRunningPercentage) {
-            assert rollingUpdate.maxSurge == "${maxRunningPercentage.toInteger() + 100}%"
-        }
-        if (minAvailabilityPercentage) {
-            def expectedUnavailable = 100 - minAvailabilityPercentage.toInteger()
-            assert rollingUpdate.maxUnavailable == "${expectedUnavailable}%"
-        }
-        if (minAvailabilityCount) {
-            def expectedUnavalilable = 1 - minAvailabilityCount.toInteger()
-            assert rollingUpdate.maxUnavailable == expectedUnavalilable
-        }
-        cleanup:
-        undeployService(projectName, serviceName)
-        dsl """
-                deleteService(
-                    serviceName: '$serviceName',
-                    projectName: '$projectName'
-                )
-            """
-        where:
-        minAvailabilityCount | minAvailabilityPercentage | maxRunningCount | maxRunningPercentage
-        '1'                  | null                      | '2'             | null
-        null                 | '10'                      | '2'             | null
-        null                 | '10'                      | null            | '150'
-
-    }
-
+    
     def getServiceName(serviceName) {
         serviceName.replaceAll(/\s+/, '-').toLowerCase()
     }
