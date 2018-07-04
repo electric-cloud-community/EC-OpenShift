@@ -1,3 +1,5 @@
+1.4.1:
+  - Fixed 'Import Microservices' procedure - procedure now can succeed without optional parameters related to environment mapping provided.
 1.4.0:
   - Configured the plugin to allow the ElectricFlow UI to create configs inline of procedure form.
   - 'Added new procedures: Discovery, Import Microservices.'

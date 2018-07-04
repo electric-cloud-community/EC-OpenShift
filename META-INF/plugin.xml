@@ -11,5 +11,5 @@
   <key>EC-OpenShift</key>
   <label>EC-OpenShift</label>
   <!--A build number will be appended to the version when the plugin is built on the build server-->
-  <version>1.4.0</version>
+  <version>1.4.1</version>
 </plugin>
