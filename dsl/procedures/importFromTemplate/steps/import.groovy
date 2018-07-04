@@ -59,15 +59,7 @@ if (envProjectName && environmentName && clusterName) {
     System.exit(-1)
 }
 
-def clusterParameters = efClient.getProvisionClusterParameters(
-    clusterName,
-    envProjectName,
-    environmentName
-)
-
-String namespace = clusterParameters.project
-
 def importFromTemplate = new ImportFromTemplate()
 
-def services = importFromTemplate.importFromTemplate(namespace, osTemplateYaml)
+def services = importFromTemplate.importFromTemplate(osTemplateYaml)
 importFromTemplate.saveToEF(services, projectName, envProjectName, environmentName, clusterName, applicationName)
