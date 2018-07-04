@@ -20,7 +20,7 @@ public class ImportFromTemplate extends EFClient {
 
     Yaml parser = new Yaml()
 
-    def importFromTemplate(namespace, fileYAML){
+    def importFromTemplate(fileYAML){
         def efServices = []
         def configList = fileYAML
 
@@ -85,7 +85,7 @@ public class ImportFromTemplate extends EFClient {
                     }
                 }
                 dedupedQueryDeployments.eachWithIndex { deploy, indexDeploy ->
-                    def efService = buildServiceDefinition(kubeService, deploy, namespace)
+                    def efService = buildServiceDefinition(kubeService, deploy)
                     efServices.push(efService)
                 }
             }
@@ -515,7 +515,7 @@ public class ImportFromTemplate extends EFClient {
         retval
     }
 
-    def buildServiceDefinition(kubeService, deployment, namespace){
+    def buildServiceDefinition(kubeService, deployment){
 
         def logService = []
         def logDeployment = []
