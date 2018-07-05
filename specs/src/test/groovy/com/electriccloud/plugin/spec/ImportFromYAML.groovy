@@ -92,6 +92,65 @@ class ImportFromYAML extends OpenShiftHelper {
         deleteService(projectName, serviceName)
     }
 
+    def "top level service without env mapping"() {
+        given:
+        def serviceName = 'test-service-without-env-mapping'
+        def fileName = 'simpleService.yaml'
+        kubeYAMLFile = getTemplate(fileName, [serviceName: serviceName])
+
+        when:
+        def result = runProcedureDsl """
+            runProcedure(
+                projectName: '$projectName',
+                procedureName: 'Import Microservices',
+                actualParameter: [
+                    osTemplateYaml: '''$kubeYAMLFile''',
+                    projName: '$projectName',
+                    envProjectName: '',
+                    envName: '',
+                    clusterName: ''
+                ]
+            )
+        """
+
+        then:
+        logger.debug(result.logs)
+        assert result.outcome != 'error'
+
+        def service = getServiceDsl(
+                projectName,
+                serviceName
+        )
+        assert service.service
+        assert service.service.defaultCapacity == '3'
+        assert service.service.containerCount == '1'
+        assert service.service.environmentMapCount == '0'
+
+        def container = getContainerDsl(
+                projectName,
+                serviceName,
+                'nginx',
+                true
+        )
+        assert container.container
+        assert container.container.containerName == 'nginx'
+        assert container.container.imageName == 'nginx'
+        assert container.container.imageVersion == '1.7.9'
+        assert container.container.cpuCount == '0.25'
+        assert container.container.cpuLimit == '0.5'
+        assert container.container.memorySize == '128'
+        assert container.container.memoryLimit == '256'
+
+        assert container.container.port.size() == 1
+
+        def port = container.container.port[0]
+        assert port
+        assert port.containerPort == '80'
+
+        cleanup:
+        deleteService(projectName, serviceName)
+    }
+
     def 'with hpa'() {
         given:
         def serviceName = 'my-service'

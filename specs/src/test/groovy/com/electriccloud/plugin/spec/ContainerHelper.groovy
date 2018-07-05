@@ -211,4 +211,26 @@ class ContainerHelper extends PluginSpockTestSupport {
         result
     }
 
+    def getServiceDsl(projectName, serviceName) {
+        def result = dsl """
+            getService(
+                projectName: '$projectName',
+                serviceName: '$serviceName'
+            )
+        """
+        return result
+    }
+
+    def getContainerDsl(projectName, serviceName, containerName, includeDetails = true) {
+        def result = dsl """
+            getContainer(
+                projectName: '$projectName',
+                serviceName: '$serviceName',
+                containerName: '$containerName',
+                includeDetails: $includeDetails,
+            )
+        """
+        return result
+    }
+
 }
