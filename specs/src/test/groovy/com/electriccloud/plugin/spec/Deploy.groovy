@@ -14,7 +14,6 @@ class Deploy extends OpenShiftHelper {
         createCluster(projectName, envName, clusterName, configName)
     }
 
-
     @Unroll
     def "deploy service #imageName, #imageVersion, capacity #defaultCapacity, #containerPort:#listenerPort"() {
         given:
@@ -129,92 +128,135 @@ class Deploy extends OpenShiftHelper {
         ]
         undeployService(projectName, serviceName)
         dsl """
-            deleteService(projectName:'$projectName', serviceName: '$serviceName')     
+            deleteService(projectName:'$projectName', serviceName: '$serviceName')
         """
     }
 
-    def "update previously deployed service (compatibility with ec-track label)"() {
-        given: "the service was already deployed without ec-track label"
-        def serviceName = 'old-deployed-service'
-        def container =  [
-            name: 'nginx',
-            image: 'nginx:1.10',
-            ports: [[containerPort: 80]]
-        ]
-        def deployment = [
-            kind: 'Deployment',
-            metadata: [
-                name: serviceName
-            ],
-            spec: [
-                replicas: 2,
-                template: [
-                    spec: [
-                        containers: [container]
-                    ],
-                    metadata: [
-                        name: serviceName,
-                        labels: [
-                            'ec-svc': serviceName,
-                            'ec-track': 'stable'
-                        ]
-                    ]
-                ],
-                selector: [
-                    matchLabels: [
-                        'ec-svc': serviceName
-                    ]
+        def "deploy route"() {
+        given: "first-time deploy runs"
+        def serviceName = 'OpenShift Deploy Spec Route'
+        def routeName = 'nginx-spec-route'
+        def routePath = '/'
+        def routeHostname = getEndpoint().replaceAll("https://", '').replaceAll(":8443", '')
+        def routeTargetPort = 'servicehttpnginx-container01523616023078'
+
+        dslFile "dsl/Deploy.dsl", [
+                serviceName    : serviceName,
+                projectName    : projectName,
+                clusterName    : clusterName,
+                envName        : envName,
+                imageName      : 'nginx',
+                imageVersion   : '1.10',
+                defaultCapacity: '1',
+                containerPort  : '8080',
+                listenerPort   : '80',
+                serviceMappingParameters: [
+                        'routeHostname': routeHostname,
+                        'routeName': routeName,
+                        'routePath': routePath,
+                        'routeTargetPort': routeTargetPort
                 ]
-            ]
-        ]
-        def service = [
-            kind: 'Service',
-            apiVersion: 'v1',
-            metadata: [
-                name: serviceName
-            ],
-            spec: [
-                selector: [
-                    'ec-svc': serviceName
-                ],
-                ports: [[protocol: 'TCP', port: 80, targetPort: 80]]
-            ]
         ]
 
-        createDeployment(getEndpoint(), getToken(), deployment)
-        createService(getEndpoint(), getToken(), service)
-        dslFile "dsl/Deploy.dsl", [
-            serviceName    : serviceName,
-            projectName    : projectName,
-            clusterName    : clusterName,
-            envName        : envName,
-            imageName      : 'nginx',
-            imageVersion   : '1.10',
-            defaultCapacity: '2',
-            containerPort  : '80',
-            listenerPort   : '80',
-        ]
-        when:
+        when: "route deploy runs"
         def result = deployService(projectName, serviceName)
+        logger.debug(result.logs)
+
+        then:
+        def deployedRoute = getRoutes(routeName)
+        logger.debug("serviceBody")
+        logger.debug(objectToJson(deployedRoute))
+        def deployedServiceName = serviceName.replaceAll(/\s+/, '-').toLowerCase()
+        assert deployedRoute.spec.to.name == deployedServiceName
+        assert deployedRoute.spec.port.targetPort == routeTargetPort
+        assert deployedRoute.spec.host == routeHostname
+        assert deployedRoute.spec.path == routePath
+
+        cleanup:
+        dslFile "dsl/Deploy.dsl", [
+                serviceName    : serviceName,
+                projectName    : projectName,
+                clusterName    : clusterName,
+                envName        : envName,
+                imageName      : 'nginx',
+                imageVersion   : '1.10',
+                defaultCapacity: '1',
+                containerPort  : '80',
+                listenerPort   : '8080',
+        ]
+        undeployService(projectName, serviceName)
+        cleanupRoute(routeName)
+        dsl """
+            deleteService(projectName:'$projectName', serviceName: '$serviceName')
+        """
+    }
+
+    def "update previously deployed service"() {
+        given: "first-time deploy runs"
+        def serviceName = 'OpenShift Deploy previously deployed'
+        dslFile "dsl/Deploy.dsl", [
+                serviceName    : serviceName,
+                projectName    : projectName,
+                clusterName    : clusterName,
+                envName        : envName,
+                imageName      : 'nginx',
+                imageVersion   : '1.10',
+                defaultCapacity: '1',
+                containerPort  : '8080',
+                listenerPort   : '80'
+        ]
+        def result = deployService(projectName, serviceName)
+        logger.debug(result.logs)
+        assert result.outcome == 'success'
+        def deployedServiceName = serviceName.replaceAll(/\s+/, '-').toLowerCase()
+        def deployment = getDeployment(deployedServiceName)
+        logger.debug("serviceBody")
+        logger.debug(objectToJson(deployment))
+        assert deployment.spec.template.spec.containers[0].image == "nginx:1.10"
+        assert deployment.spec.template.spec.containers[0].ports[0].containerPort == 8080
+
+        when: "update previously deployed service"
+        dslFile "dsl/Deploy.dsl", [
+                serviceName    : serviceName,
+                projectName    : projectName,
+                clusterName    : clusterName,
+                envName        : envName,
+                imageName      : 'nginx',
+                imageVersion   : '1.11',
+                defaultCapacity: '1',
+                containerPort  : '80',
+                listenerPort   : '80'
+        ]
+        result = deployService(projectName, serviceName)
+
         then:
         logger.debug(result.logs)
-        def deploy = getDeployment(serviceName)
-        def svc = getService(serviceName)
-        logger.debug(objectToJson(deploy))
-        logger.debug(objectToJson(svc))
-        assert deploy.spec.selector.matchLabels['ec-track'] == 'stable'
-        assert deploy.status.availableReplicas == 2
-        def ip = svc.status.loadBalancer.ingress[0].ip
-        def endpoint = "http://${ip}:80"
-        def content = new URL(endpoint).text
-        assert content =~ /Welcome to nginx/
+        def updatedDeployment = getDeployment(deployedServiceName)
+        logger.debug(objectToJson(updatedDeployment))
+        assert updatedDeployment.metadata.generation > deployment.metadata.generation
+        assert updatedDeployment.spec.template.spec.containers[0].image == "nginx:1.11"
+        assert updatedDeployment.spec.template.spec.containers[0].ports[0].containerPort == 80
+        assert result.outcome == 'success'
+
         cleanup:
+        dslFile "dsl/Deploy.dsl", [
+                serviceName    : serviceName,
+                projectName    : projectName,
+                clusterName    : clusterName,
+                envName        : envName,
+                imageName      : 'nginx',
+                imageVersion   : '1.11',
+                defaultCapacity: '1',
+                containerPort  : '80',
+                listenerPort   : '8080',
+        ]
         undeployService(projectName, serviceName)
         dsl """
-            deleteService(projectName: '$projectName', serviceName: '$serviceName')
+            deleteService(projectName:'$projectName', serviceName: '$serviceName')
         """
     }
-    
+
+
     def getServiceName(serviceName) {
         serviceName.replaceAll(/\s+/, '-').toLowerCase()
     }
