@@ -178,6 +178,12 @@ class OpenShiftHelper extends ContainerHelper {
         }
     }
 
+    def getRoutes(name) {
+        def uri = "/oapi/v1/namespaces/${namespace}/routes/${name}"
+        def response = request(getEndpoint(), uri, GET, null, ["Authorization": "Bearer ${getToken()}"], null)
+        logger.debug("Routes: ${response.logs}")
+        return response.data
+    }
 
     static def createDeploymentConfig(payload) {
         def uri = "/oapi/v1/namespaces/${namespace}/deploymentconfigs"
