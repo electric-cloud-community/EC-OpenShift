@@ -151,6 +151,33 @@ class ImportFromYAML extends OpenShiftHelper {
         deleteService(projectName, serviceName)
     }
 
+    def "negative, not all env mapping params provided"() {
+        given:
+        def serviceName = 'negative-test-env-mapping-missing-params'
+        def fileName = 'simpleService.yaml'
+        kubeYAMLFile = getTemplate(fileName, [serviceName: serviceName])
+
+        when:
+        def result = runProcedureDsl """
+            runProcedure(
+                projectName: '$projectName',
+                procedureName: 'Import Microservices',
+                actualParameter: [
+                    osTemplateYaml: '''$kubeYAMLFile''',
+                    projName: '$projectName',
+                    envProjectName: '$projectName',
+                    envName: '$envName',
+                    clusterName: ''
+                ]
+            )
+        """
+
+        then:
+        logger.debug(result.logs)
+        assert result.outcome == 'error'
+
+    }
+
     def 'with hpa'() {
         given:
         def serviceName = 'my-service'
