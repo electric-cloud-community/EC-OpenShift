@@ -21,17 +21,17 @@ class ImportFromYAML extends OpenShiftHelper {
         """
         createCluster(projectName, envName, clusterName, configName)
         dslFile 'dsl/ImportFromYAML.dsl', [
-            projectName: projectName,
-            params: [
-                osTemplateYaml:       '',
-                templateParamValues:  '',
-                projName:             '',
-                application_scoped:   '',
-                application_name:   '',
-                envProjectName:     '',
-                envName:            '',
-                clusterName:       '',
-            ]
+                projectName: projectName,
+                params     : [
+                        osTemplateYaml     : '',
+                        templateParamValues: '',
+                        projName           : '',
+                        application_scoped : '',
+                        application_name   : '',
+                        envProjectName     : '',
+                        envName            : '',
+                        clusterName        : '',
+                ]
         ]
 
     }
@@ -72,10 +72,10 @@ class ImportFromYAML extends OpenShiftHelper {
         then:
         logger.debug(result.logs)
         def service = getService(
-            projectName,
-            sampleName,
-            clusterName,
-            envName
+                projectName,
+                sampleName,
+                clusterName,
+                envName
         )
         assert result.outcome != 'error'
         assert service.service
@@ -151,9 +151,9 @@ class ImportFromYAML extends OpenShiftHelper {
         deleteService(projectName, serviceName)
     }
 
-    def "negative, not all env mapping params provided"() {
+    def "negative, wrong env mapping params provided"(envProjectNameSample, envNameSample, clusterNameSample) {
         given:
-        def serviceName = 'negative-test-env-mapping-missing-params'
+        def serviceName = 'negative-test-wrong-env-mapping-params'
         def fileName = 'simpleService.yaml'
         kubeYAMLFile = getTemplate(fileName, [serviceName: serviceName])
 
@@ -165,9 +165,9 @@ class ImportFromYAML extends OpenShiftHelper {
                 actualParameter: [
                     osTemplateYaml: '''$kubeYAMLFile''',
                     projName: '$projectName',
-                    envProjectName: '$projectName',
-                    envName: '$envName',
-                    clusterName: ''
+                    envProjectName: '$envProjectNameSample',
+                    envName: '$envNameSample',
+                    clusterName: '$clusterNameSample'
                 ]
             )
         """
@@ -175,6 +175,18 @@ class ImportFromYAML extends OpenShiftHelper {
         then:
         logger.debug(result.logs)
         assert result.outcome == 'error'
+
+        def services = getServicesDsl(projectName)
+        assert !(services.service.any { it.serviceName == serviceName })
+
+        where:
+        envProjectNameSample   | envNameSample      | clusterNameSample
+        projectName            | envName            | ""
+        projectName            | ""                 | clusterName
+        ""                     | envName            | clusterName
+        projectName            | envName            | "non-existing-cluster"
+        projectName            | "non-existing-env" | clusterName
+        "non-existing-project" | envName            | clusterName
 
     }
 
@@ -259,11 +271,11 @@ class ImportFromYAML extends OpenShiftHelper {
         then:
         logger.debug(result.logs)
         def service = getAppScopedService(
-            projectName,
-            sampleName,
-            applicationName,
-            clusterName,
-            envName
+                projectName,
+                sampleName,
+                applicationName,
+                clusterName,
+                envName
         )
         assert result.outcome != 'error'
         assert service.service
@@ -372,16 +384,16 @@ class ImportFromYAML extends OpenShiftHelper {
         then:
         logger.debug(result.logs)
         def serviceOne = getService(
-            projectName,
-            sampleOneName,
-            clusterName,
-            envName
+                projectName,
+                sampleOneName,
+                clusterName,
+                envName
         )
         def serviceTwo = getService(
-            projectName,
-            sampleTwoName,
-            clusterName,
-            envName
+                projectName,
+                sampleTwoName,
+                clusterName,
+                envName
         )
 
 
@@ -419,12 +431,11 @@ class ImportFromYAML extends OpenShiftHelper {
 
 
     def getMappingDetail(service, name) {
-      def parameterDetail = service.service?.parameterDetail.find {
-        it.parameterName == name
-      }.parameterValue
-      return parameterDetail
+        def parameterDetail = service.service?.parameterDetail.find {
+            it.parameterName == name
+        }.parameterValue
+        return parameterDetail
     }
-
 
 
 }
