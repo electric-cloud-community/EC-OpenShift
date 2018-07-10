@@ -20,6 +20,38 @@ public class ImportFromTemplate extends EFClient {
 
     Yaml parser = new Yaml()
 
+    static def resolveTemplateByParameters(template, parametersMap) {
+        parametersMap = parametersMap ?: [:]
+        def parametersMapCloned = parametersMap.clone();
+
+        // checking whether there are parameters with default values defined in template
+        Yaml parser = new Yaml()
+        def parsedTemplate = parser.load(template)
+        def parametersWithDefaultValuesFromTemplate = [:]
+        parsedTemplate.parameters.each { item ->
+            if (item.containsKey('value')) {
+                parametersWithDefaultValuesFromTemplate.put(item.name, item.value)
+            }
+
+        }
+
+        // expand parameters map by default values for not provided parameters
+        parametersWithDefaultValuesFromTemplate.each { parameterName, parameterValue ->
+            if (!parametersMapCloned.containsKey(parameterName)) {
+                logger INFO, "Parameter '$parameterName' is not provided, using its default value from template: '$parameterValue'"
+                parametersMapCloned.put(parameterName, parameterValue)
+            }
+        }
+
+        // resolve the template by provided parameters or default values
+        def resolvedTemplate = template
+        parametersMapCloned.each { parameterName, parameterValue ->
+            resolvedTemplate = resolvedTemplate.replaceAll(/\$\{{1,2}\s*${parameterName}\s*\}{1,2}/, parameterValue)
+        }
+
+        return resolvedTemplate
+    }
+
     def importFromTemplate(fileYAML){
         def efServices = []
         def configList = fileYAML
