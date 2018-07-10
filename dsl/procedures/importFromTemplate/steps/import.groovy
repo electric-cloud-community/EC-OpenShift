@@ -57,7 +57,7 @@ if (envProjectName && environmentName && clusterName) {
 
 def importFromTemplate = new ImportFromTemplate()
 
-def templateResolved = ImportFromTemplate.resolveTemplateByParameters(osTemplateYaml, param2value)
+def templateResolved = importFromTemplate.resolveTemplateByParameters(osTemplateYaml, param2value)
 
 def services = importFromTemplate.importFromTemplate(templateResolved)
 importFromTemplate.saveToEF(services, projectName, envProjectName, environmentName, clusterName, applicationName)

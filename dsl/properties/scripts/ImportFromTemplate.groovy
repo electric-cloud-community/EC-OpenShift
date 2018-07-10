@@ -20,7 +20,7 @@ public class ImportFromTemplate extends EFClient {
 
     Yaml parser = new Yaml()
 
-    static def resolveTemplateByParameters(template, parametersMap) {
+    def resolveTemplateByParameters(template, parametersMap) {
         parametersMap = parametersMap ?: [:]
         def parametersMapCloned = parametersMap.clone();
 
