@@ -793,40 +793,55 @@ public class ImportFromTemplate extends EFClient {
         return 100 + percentage
     }
 
-    private def parseImage(image) {
-        // Image can consist of
-        // repository url
-        // repo name
-        // image name
+    def parseImage(image) {
+        // examples:
+        // 'some.domain.name/repository-name:image-tag' = registry / repository name : tag
+        // 'localhost:5000/some-namespace/repository-name:image-tag' = registry / repository namespace / repository name : tag
+        // fyi... registry cannot contain extra URI path according to Docker limitations
+
         def parts = image.split('/')
-        // The name always exists
-        def imageName = parts.last()
-        def registry
-        def repoName
-        if (parts.size() >= 2) {
-            repoName = parts[parts.size() - 2]
-            // It may be an image without repo, like nginx
-            if (repoName =~ /\./) {
-                registry = repoName
-                repoName = null
+
+        def optionalRegistry
+        def optionalNamespace
+        def repository
+        def optionalTag
+
+        def repositoryAndOptionalTag = parts.last()
+
+        def repositoryAndOptionalTagSplitted = repositoryAndOptionalTag.split(':')
+        repository = repositoryAndOptionalTagSplitted.first()
+        if (repositoryAndOptionalTagSplitted.size() > 1) {
+            optionalTag = repositoryAndOptionalTagSplitted.last()
+        } else {
+            optionalTag = 'latest'
+        }
+
+        if (parts.size() == 2) {
+            if (parts.first() =~ /[:.]/) {
+                // if first part contains ':' or '.' then it is considered as registry
+                // e.g. 'some.domain.name' from 'some.domain.name/repository-name:image-tag'
+                // e.g. 'localhost:5000' from 'localhost:5000/repository-name'
+                optionalRegistry = parts.first()
+            } else {
+                // if first part does not contain ':' or '.' then it is considered as repository namespace
+                // e.g. 'username' from 'username/repository-name:image-tag'
+                // e.g. 'organization-namespace' from 'organization-namespace/repository-name'
+                optionalNamespace = parts.first()
             }
+        } else if (parts.size() > 2) {
+            // e.g. 'some.domain.name/some-namespace/repository-name:image-tag'
+            optionalRegistry = parts.first()
+            optionalNamespace = parts[1..parts.size() - 2].join('/')
         }
-        if (!registry && parts.size() > 2) {
-            registry = parts.take(parts.size() - 2).join('/')
+
+        def repositoryWithOptionalNamespace
+        if (optionalNamespace) {
+            repositoryWithOptionalNamespace = optionalNamespace + '/' + repository
+        } else {
+            repositoryWithOptionalNamespace = repository
         }
-        if (repoName) {
-            imageName = repoName + '/' + imageName
-        }
-        def versioned = imageName.split(':')
-        def version
-        if (versioned.size() > 1) {
-            version = versioned.last()
-        }
-        else {
-            version = 'latest'
-        }
-        imageName = versioned.first()
-        return [imageName: imageName, version: version, repoName: repoName, registry: registry]
+
+        return [imageName: repositoryWithOptionalNamespace, version: optionalTag, repoName: optionalNamespace, registry: optionalRegistry]
     }
 
     def getImageName(image) {
