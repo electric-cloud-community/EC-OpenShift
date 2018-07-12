@@ -629,8 +629,9 @@ public class ImportFromTemplate extends EFClient {
                 logDeployment.push("/spec/template/spec/containers[${index}]/ports[${ind}]/containerPort")
             }
             kubeContainer?.volumeMounts.eachWithIndex{ volume, ind ->
-                logDeployment.push("/spec/template/spec/containers[${index}]/volumeMounts[${ind}]/name")
-                logDeployment.push("/spec/template/spec/containers[${index}]/volumeMounts[${ind}]/mountPath")
+                volume.each{ key, value ->
+                    logDeployment.push("/spec/template/spec/containers[${index}]/volumeMounts[${ind}]/${key}")
+                }
             }
             kubeContainer?.env.eachWithIndex{ singleEnv, ind ->
                 logDeployment.push("/spec/template/spec/containers[${index}]/env[${ind}]/name")
@@ -937,13 +938,7 @@ public class ImportFromTemplate extends EFClient {
         container.container.memoryLimit = parseMemory(resources?.limits?.memory)
 
         // Volume mounts
-        def mounts = kubeContainer.volumeMounts?.collect { vm ->
-            def retval = [name: vm.name]
-            if (vm.mountPath) {
-                retval.mountPath = vm.mountPath
-            }
-            retval
-        }
+        def mounts = kubeContainer.volumeMounts
         if (mounts) {
             container.container.volumeMount = new JsonBuilder(mounts).toString()
         }
