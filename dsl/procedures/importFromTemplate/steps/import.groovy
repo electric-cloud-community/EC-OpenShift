@@ -35,10 +35,6 @@ if (osTemplateValues) {
     }
 }
 
-param2value.each { p,v ->
-    osTemplateYaml = osTemplateYaml.replaceAll(/\$\{{1,2}\s*${p}\s*\}{1,2}/, v)
-}
-
 if (envProjectName && environmentName && clusterName) {
     def clusters = efClient.getClusters(envProjectName, environmentName)
     def cluster = clusters.find {
@@ -61,5 +57,7 @@ if (envProjectName && environmentName && clusterName) {
 
 def importFromTemplate = new ImportFromTemplate()
 
-def services = importFromTemplate.importFromTemplate(osTemplateYaml)
+def templateResolved = importFromTemplate.resolveTemplateByParameters(osTemplateYaml, param2value)
+
+def services = importFromTemplate.importFromTemplate(templateResolved)
 importFromTemplate.saveToEF(services, projectName, envProjectName, environmentName, clusterName, applicationName)
