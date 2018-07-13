@@ -21,17 +21,17 @@ class ImportFromYAML extends OpenShiftHelper {
         """
         createCluster(projectName, envName, clusterName, configName)
         dslFile 'dsl/ImportFromYAML.dsl', [
-            projectName: projectName,
-            params: [
-                osTemplateYaml:       '',
-                templateParamValues:  '',
-                projName:             '',
-                application_scoped:   '',
-                application_name:   '',
-                envProjectName:     '',
-                envName:            '',
-                clusterName:       '',
-            ]
+                projectName: projectName,
+                params     : [
+                        osTemplateYaml     : '',
+                        templateParamValues: '',
+                        projName           : '',
+                        application_scoped : '',
+                        application_name   : '',
+                        envProjectName     : '',
+                        envName            : '',
+                        clusterName        : '',
+                ]
         ]
 
     }
@@ -72,10 +72,10 @@ class ImportFromYAML extends OpenShiftHelper {
         then:
         logger.debug(result.logs)
         def service = getService(
-            projectName,
-            sampleName,
-            clusterName,
-            envName
+                projectName,
+                sampleName,
+                clusterName,
+                envName
         )
         assert result.outcome != 'error'
         assert service.service
@@ -90,6 +90,104 @@ class ImportFromYAML extends OpenShiftHelper {
         assert port.containerPort == '80'
         cleanup:
         deleteService(projectName, serviceName)
+    }
+
+    def "top level service without env mapping"() {
+        given:
+        def serviceName = 'test-service-without-env-mapping'
+        def fileName = 'simpleService.yaml'
+        kubeYAMLFile = getTemplate(fileName, [serviceName: serviceName])
+
+        when:
+        def result = runProcedureDsl """
+            runProcedure(
+                projectName: '$projectName',
+                procedureName: 'Import Microservices',
+                actualParameter: [
+                    osTemplateYaml: '''$kubeYAMLFile''',
+                    projName: '$projectName',
+                    envProjectName: '',
+                    envName: '',
+                    clusterName: ''
+                ]
+            )
+        """
+
+        then:
+        logger.debug(result.logs)
+        assert result.outcome != 'error'
+
+        def service = getServiceDsl(
+                projectName,
+                serviceName
+        )
+        assert service.service
+        assert service.service.defaultCapacity == '3'
+        assert service.service.containerCount == '1'
+        assert service.service.environmentMapCount == '0'
+
+        def container = getContainerDsl(
+                projectName,
+                serviceName,
+                'nginx',
+                true
+        )
+        assert container.container
+        assert container.container.containerName == 'nginx'
+        assert container.container.imageName == 'nginx'
+        assert container.container.imageVersion == '1.7.9'
+        assert container.container.cpuCount == '0.25'
+        assert container.container.cpuLimit == '0.5'
+        assert container.container.memorySize == '128'
+        assert container.container.memoryLimit == '256'
+
+        assert container.container.port.size() == 1
+
+        def port = container.container.port[0]
+        assert port
+        assert port.containerPort == '80'
+
+        cleanup:
+        deleteService(projectName, serviceName)
+    }
+
+    def "negative, wrong env mapping params provided"(envProjectNameSample, envNameSample, clusterNameSample) {
+        given:
+        def serviceName = 'negative-test-wrong-env-mapping-params'
+        def fileName = 'simpleService.yaml'
+        kubeYAMLFile = getTemplate(fileName, [serviceName: serviceName])
+
+        when:
+        def result = runProcedureDsl """
+            runProcedure(
+                projectName: '$projectName',
+                procedureName: 'Import Microservices',
+                actualParameter: [
+                    osTemplateYaml: '''$kubeYAMLFile''',
+                    projName: '$projectName',
+                    envProjectName: '$envProjectNameSample',
+                    envName: '$envNameSample',
+                    clusterName: '$clusterNameSample'
+                ]
+            )
+        """
+
+        then:
+        logger.debug(result.logs)
+        assert result.outcome == 'error'
+
+        def services = getServicesDsl(projectName)
+        assert !(services.service.any { it.serviceName == serviceName })
+
+        where:
+        envProjectNameSample   | envNameSample      | clusterNameSample
+        projectName            | envName            | ""
+        projectName            | ""                 | clusterName
+        ""                     | envName            | clusterName
+        projectName            | envName            | "non-existing-cluster"
+        projectName            | "non-existing-env" | clusterName
+        "non-existing-project" | envName            | clusterName
+
     }
 
     def 'with hpa'() {
@@ -173,11 +271,11 @@ class ImportFromYAML extends OpenShiftHelper {
         then:
         logger.debug(result.logs)
         def service = getAppScopedService(
-            projectName,
-            sampleName,
-            applicationName,
-            clusterName,
-            envName
+                projectName,
+                sampleName,
+                applicationName,
+                clusterName,
+                envName
         )
         assert result.outcome != 'error'
         assert service.service
@@ -286,16 +384,16 @@ class ImportFromYAML extends OpenShiftHelper {
         then:
         logger.debug(result.logs)
         def serviceOne = getService(
-            projectName,
-            sampleOneName,
-            clusterName,
-            envName
+                projectName,
+                sampleOneName,
+                clusterName,
+                envName
         )
         def serviceTwo = getService(
-            projectName,
-            sampleTwoName,
-            clusterName,
-            envName
+                projectName,
+                sampleTwoName,
+                clusterName,
+                envName
         )
 
 
@@ -333,12 +431,11 @@ class ImportFromYAML extends OpenShiftHelper {
 
 
     def getMappingDetail(service, name) {
-      def parameterDetail = service.service?.parameterDetail.find {
-        it.parameterName == name
-      }.parameterValue
-      return parameterDetail
+        def parameterDetail = service.service?.parameterDetail.find {
+            it.parameterName == name
+        }.parameterValue
+        return parameterDetail
     }
-
 
 
 }
