@@ -41,10 +41,6 @@ public class OpenShiftClient extends KubernetesClient {
         String routePath = getServiceParameter(serviceDetails, 'routePath', '/')
         String routeTargetPort = getServiceParameter(serviceDetails, 'routeTargetPort')
 
-        if (!routeHostname) {
-            handleError("Hostname for the route not specified.")
-        }
-
         def payload = buildRoutePayload(routeName, routeHostname, routePath, routeTargetPort, serviceDetails, existingRoute)
 
         def createRoute = existingRoute == null
@@ -68,7 +64,9 @@ public class OpenShiftClient extends KubernetesClient {
                 name routeName
             }
             spec {
-                host routeHostname
+                if (routeHostname) {
+                    host routeHostname
+                }
                 path routePath
                 to {
                     kind "Service"
