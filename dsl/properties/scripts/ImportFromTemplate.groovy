@@ -456,11 +456,11 @@ public class ImportFromTemplate extends EFClient {
         existingServiceMapping
     }
 
-    def isBoundPort(containerPort, servicePort) {
-        if (containerPort.portName == servicePort.portName) {
+    def isBoundPort(containerPort, servicePortMeta) {
+        if (containerPort.portName == servicePortMeta.portName) {
             return true
         }
-        if (servicePort.targetPort =~ /^\d+$/ && servicePort.targetPort == containerPort.containerPort) {
+        if (servicePortMeta.targetPort =~ /^\d+$/ && servicePortMeta.targetPort == containerPort.containerPort) {
             return true
         }
         return false
@@ -468,17 +468,17 @@ public class ImportFromTemplate extends EFClient {
 
     def mapContainerPorts(projectName, serviceName, container, service, applicationName = null) {
         container.ports?.each { containerPort ->
-            service.ports?.each { servicePort ->
-                if (isBoundPort(containerPort, servicePort)) {
-                    def generatedPortName = "servicehttp${serviceName}${container.container.containerName}${containerPort.containerPort}"
+            service.portsMeta?.each { servicePortMeta ->
+                if (isBoundPort(containerPort, servicePortMeta)) {
+                    def portName = servicePortMeta.portNameRaw ? servicePortMeta.portNameRaw : "servicehttp${serviceName}${container.container.containerName}${containerPort.containerPort}"
                     def generatedPort = [
-                        portName: generatedPortName,
-                        listenerPort: servicePort.listenerPort,
+                        portName: portName,
+                        listenerPort: servicePortMeta.listenerPort,
                         subcontainer: container.container.containerName,
                         subport: containerPort.portName
                     ]
                     createPort(projectName, serviceName, generatedPort, null, false, applicationName)
-                    logger INFO, "Port ${generatedPortName} has been created for service ${serviceName}, listener port: ${generatedPort.listenerPort}, container port: ${generatedPort.subport}"
+                    logger INFO, "Port ${portName} has been created for service ${serviceName}, listener port: ${generatedPort.listenerPort}, container port: ${generatedPort.subport}"
                 }
             }
         }
@@ -627,7 +627,7 @@ public class ImportFromTemplate extends EFClient {
 
         // Ports
         def portInd = 0
-        efService.ports = kubeService.spec?.ports?.collect { port ->
+        efService.portsMeta = kubeService.spec?.ports?.collect { port ->
             def name
             if (port.targetPort) {
                 name = port.targetPort as String
@@ -635,11 +635,12 @@ public class ImportFromTemplate extends EFClient {
             else {
                 name = "${port.protocol}${port.port}"
             }
+            logService.push("/spec/ports[${portInd}]/name")
             logService.push("/spec/ports[${portInd}]/protocol")
             logService.push("/spec/ports[${portInd}]/port")
             logService.push("/spec/ports[${portInd}]/targetPort")
             portInd += 1
-            [portName: name.toLowerCase(), listenerPort: port.port, targetPort: port.targetPort]
+            [portName: name.toLowerCase(), listenerPort: port.port, targetPort: port.targetPort, portNameRaw: port.name]
         }
 
         // Containers
