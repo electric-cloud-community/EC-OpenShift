@@ -227,8 +227,6 @@ class ImportFromYAML extends OpenShiftHelper {
 
         assert service
         assert service.defaultCapacity == '1'
-        // for services volumes 'configMap' is currently ignored due to ECPOPSHIFT-142 so let's check only 'name' property
-        assert service.volumes =~ /\[\{.*\\"name\\":\\\"myVolume\\".*\}\]/
 
         def containers = service.container
         assert containers.size() == 1
@@ -241,10 +239,14 @@ class ImportFromYAML extends OpenShiftHelper {
         assert container.imageName == "some.repository.namespace.with.dots/$serviceName"
         // ECPOPSHIFT-133 provided and default values (2 test cases)
         assert container.imageVersion == paramValues ? '1.0' : 'local'
-        // for container volumeMounts 'readonly' is currently ignored due to ECPOPSHIFT-135 so let's check only 'name' and 'mountPath' properties
-        assert container.volumeMounts =~ /\[\{.*\\"name\\":\\\"myVolume\\".*\}\]/
-        assert container.volumeMounts =~ /\[\{.*\\"mountPath\\":\\\"\/mount\/path\\".*\}\]/
 
+        def containerVolumeMounts = container.volumeMounts
+        assert containerVolumeMounts.size() == 1
+
+        def containerVolumeMount = containerVolumeMounts[0]
+        // for container volumeMounts 'readonly' is currently ignored due to ECPOPSHIFT-135 so let's check only 'name' and 'mountPath' properties
+        assert containerVolumeMount.name == 'myVolume'
+        assert containerVolumeMount.mountPath == '/mount/path'
 
         assert container.cpuCount == '2.0'
         assert container.cpuLimit == '4.0'
@@ -298,6 +300,13 @@ class ImportFromYAML extends OpenShiftHelper {
         assert servicePort.portName == '8080-tcp'
         assert servicePort.subcontainer == 'my-service'
         assert servicePort.subport == 'tcp8080' // see containerPort.portName
+
+        def serviceVolumes = service.volumes
+        assert serviceVolumes.size() == 1
+
+        def serviceVolume = serviceVolumes[0]
+        // for services volumes 'configMap' is currently ignored due to ECPOPSHIFT-142 so let's check only 'name' property
+        assert serviceVolume.name == 'myVolume'
 
         cleanup:
         deleteService(projectName, serviceName)
