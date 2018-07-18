@@ -303,9 +303,7 @@ class ImportFromYAML extends OpenShiftHelper {
         deleteService(projectName, serviceName)
 
         where:
-        paramValues
-        'DOCKERIMAGE_VERSION=1.0, REPLICAS=3'
-        ''
+        paramValues << ['DOCKERIMAGE_VERSION=1.0, REPLICAS=3', '']
     }
 
     @Ignore
