@@ -191,10 +191,12 @@ class ImportFromYAML extends OpenShiftHelper {
 
     }
 
-    @Issue("ECPOPSHIFT-132")
-    @Issue("ECPOPSHIFT-133")
-    @Issue("ECPOPSHIFT-134")
-    @Issue("ECPOPSHIFT-149")
+    @Issues([
+            @Issue("ECPOPSHIFT-132"),
+            @Issue("ECPOPSHIFT-133"),
+            @Issue("ECPOPSHIFT-134"),
+            @Issue("ECPOPSHIFT-149")
+    ])
     def 'Some template to support. Objects: deployment config, service, route, hpa (not supported); non standard registry and namespace; parameters with default values)'(paramValues) {
         given:
         def serviceName = 'my-service'
