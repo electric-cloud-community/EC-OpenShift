@@ -30,7 +30,7 @@ objects:
           deploymentconfig: ${serviceName}
       spec:
         containers:
-        - image: repo/image:<% print '${DOCKERIMAGE_VERSION}' %>
+        - image: some.registry.with.dots/some.repository.namespace.with.dots/${serviceName}:<% print '${DOCKERIMAGE_VERSION}' %>
           imagePullPolicy: Always
           name: ${serviceName}
           ports:
@@ -42,7 +42,11 @@ objects:
               httpHeaders:
               - name: myHeader
                 value: value
-              path: /tmp/path
+              - name: someHeaderTwo
+                value: '12345'
+              - name: Some-Header-Three
+                value: '123456789'
+              path: /some/path/probes/ping
               port: 8080
               scheme: HTTP
             initialDelaySeconds: 180
@@ -53,9 +57,13 @@ objects:
             failureThreshold: 3
             httpGet:
               httpHeaders:
-                - name: test
-                  value: value
-              path: /private/partaccounts/appinternals/ping
+              - name: myHeader
+                value: value
+              - name: someHeaderTwo
+                value: '12345'
+              - name: Some-Header-Three
+                value: '123456789'
+              path: /some/path/probes/ping
               port: 8080
               scheme: HTTP
             initialDelaySeconds: 180
