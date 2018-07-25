@@ -1,5 +1,7 @@
 1.4.1:
-  - Fixed 'Import Microservices' procedure - procedure now can succeed without optional parameters related to environment mapping provided.
+  - Fixed 'Import Microservices' procedure by the following:<ul><li>fixed handling of default values for template parameters;</li><li>fixed parsing of image URL for cases of non default registry and repository namespace which contains dots;</li><li>fixed parsing of service port name which may be used by route as target port reference;</li><li>procedure now can succeed without optional parameters related to environment mapping provided.</li></ul>
+  - Fixed 'Deploy Service' procedure by the following - deploy of route can now succeed without hostname provided.
+  - Added 'Test Connection' step for 'EditConfiguration' procedure.
 1.4.0:
   - Configured the plugin to allow the ElectricFlow UI to create configs inline of procedure form.
   - 'Added new procedures: Discovery, Import Microservices.'

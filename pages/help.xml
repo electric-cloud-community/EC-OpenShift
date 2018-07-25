@@ -14,7 +14,7 @@
     <h1>@PLUGIN_KEY@</h1>
     <p>Plugin version @PLUGIN_VERSION@</p>
     
-    <p>Revised on July 04, 2018</p>
+    <p>Revised on July 25, 2018</p>
     
     <hr style="margin-left: -10px; margin-top: 10px; height: 1px; width: 100%; color: #5981BD;" noshade="noshade"/>
     <h3>Overview</h3>
@@ -686,7 +686,11 @@ definitions retrieved from there.</p>
     <h3>@PLUGIN_KEY@ 1.4.1</h3>
     <ul>
         
-        <li>Fixed 'Import Microservices' procedure - procedure now can succeed without optional parameters related to environment mapping provided.</li>
+        <li>Fixed 'Import Microservices' procedure by the following:<ul><li>fixed handling of default values for template parameters;</li><li>fixed parsing of image URL for cases of non default registry and repository namespace which contains dots;</li><li>fixed parsing of service port name which may be used by route as target port reference;</li><li>procedure now can succeed without optional parameters related to environment mapping provided.</li></ul></li>
+        
+        <li>Fixed 'Deploy Service' procedure by the following - deploy of route can now succeed without hostname provided.</li>
+        
+        <li>Added 'Test Connection' step for 'EditConfiguration' procedure.</li>
         
     </ul>
     
