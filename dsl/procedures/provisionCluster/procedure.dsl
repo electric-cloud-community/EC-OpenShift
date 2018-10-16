@@ -13,10 +13,10 @@ procedure 'Provision Cluster on ESX',
       releaseMode: 'none',
       timeLimitUnits: 'minutes', {
 
-    	  actualParameter 'additionalArtifactVersion', 'com.electriccloud:EC-OpenShift-Grapes:1.0.0'
+    	  actualParameter 'additionalArtifactVersion', ''
     }
 
-   step 'Prepare Setup', 
+   step 'Prepare Setup',
       command: new File(pluginDir, 'dsl/procedures/provisionCluster/steps/prepare.groovy').text,
 	  errorHandling: 'failProcedure',
 	  exclusiveMode: 'none',
@@ -26,7 +26,7 @@ procedure 'Provision Cluster on ESX',
 	  shell: 'ec-groovy',
 	  timeLimitUnits: 'minutes'
 
-	step 'Install Ansible Playbooks', 
+	step 'Install Ansible Playbooks',
 	  command: new File(pluginDir, 'dsl/procedures/provisionCluster/steps/installPlaybooks.pl').text,
 	  errorHandling: 'failProcedure',
 	  exclusiveMode: 'none',
@@ -36,7 +36,7 @@ procedure 'Provision Cluster on ESX',
 	  shell: 'ec-perl',
 	  condition: '$[openshiftNotPresent]',
 	  timeLimitUnits: 'minutes'
-   
+
    step 'Generate Certs',
 	  command: "htpasswd -b -c passwordfile test test",
 	  releaseMode: 'none',
@@ -44,8 +44,8 @@ procedure 'Provision Cluster on ESX',
 	  errorHandling: 'failProcedure',
 	  condition: '$[openshiftNotPresent]',
 	  timeLimitUnits: 'minutes'
-	    
-   step 'Import VMs', 
+
+   step 'Import VMs',
 	  command: new File(pluginDir, 'dsl/procedures/provisionCluster/steps/generateSteps.pl').text,
 	  errorHandling: 'failProcedure',
 	  exclusiveMode: 'none',
@@ -56,7 +56,7 @@ procedure 'Provision Cluster on ESX',
 	  condition: '$[openshiftNotPresent]',
 	  timeLimitUnits: 'minutes'
 
-	step "generateHostsFile", 
+	step "generateHostsFile",
 	  command: new File(pluginDir, 'dsl/procedures/provisionCluster/steps/generateHostsFile.groovy').text,
 	  errorHandling: 'failProcedure',
 	  exclusiveMode: 'none',
@@ -67,7 +67,7 @@ procedure 'Provision Cluster on ESX',
 	  condition: '$[openshiftNotPresent]',
 	  timeLimitUnits: 'minutes'
 
-	step 'provisionCluster', 
+	step 'provisionCluster',
 	  command: new File(pluginDir, 'dsl/procedures/provisionCluster/steps/provisionCluster.sh').text,
 	  errorHandling: 'failProcedure',
 	  exclusiveMode: 'none',
@@ -80,7 +80,7 @@ procedure 'Provision Cluster on ESX',
 	def project_name = '$[project]'
 	def service_account = '$[service_account]'
 
-	step 'configureCluster', 
+	step 'configureCluster',
 	  command: new File(pluginDir, 'dsl/procedures/provisionCluster/steps/configureCluster.sh').text,
 	  errorHandling: 'failProcedure',
 	  exclusiveMode: 'none',
@@ -89,9 +89,9 @@ procedure 'Provision Cluster on ESX',
 	  resourceName: '$[grabbedResource]',
 	  condition: '$[openshiftNotPresent]',
 	  timeLimitUnits: 'minutes'
-	
-	step 'createPluginConfiguration', 
-	  command: new File(pluginDir, 'dsl/procedures/provisionCluster/steps/createPluginConfig.pl').text,	 
+
+	step 'createPluginConfiguration',
+	  command: new File(pluginDir, 'dsl/procedures/provisionCluster/steps/createPluginConfig.pl').text,
 	  errorHandling: 'failProcedure',
 	  exclusiveMode: 'none',
 	  shell: 'ec-perl',

@@ -14,4 +14,4 @@ procedure 'Define Service',
     	  shell: 'ec-groovy',
     	  timeLimitUnits: 'minutes'
 }
-  
+

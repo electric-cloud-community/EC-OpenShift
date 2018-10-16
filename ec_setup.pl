@@ -6,8 +6,8 @@ my $setup = ECSetup->new(
     upgradeAction => $upgradeAction,
     promoteAction => $promoteAction,
 );
+$commander->deleteArtifact('com.electriccloud:@PLUGIN_KEY@-Grapes');
 $setup->promotePlugin([
-    {artifactName => '@PLUGIN_KEY@-Grapes', artifactVersion => '1.0.0', fromDirectory => 'lib/grapes'},
     {artifactName => '@PLUGIN_KEY@-Ansible', artifactVersion => '1.0.0', fromDirectory => 'lib/ansible'},
 ]);
 
