@@ -6,10 +6,12 @@ my $setup = ECSetup->new(
     upgradeAction => $upgradeAction,
     promoteAction => $promoteAction,
 );
-$commander->deleteArtifact('com.electriccloud:@PLUGIN_KEY@-Grapes');
 $setup->promotePlugin([
-    {artifactName => '@PLUGIN_KEY@-Ansible', artifactVersion => '1.0.0', fromDirectory => 'lib/ansible'},
+    {artifactName => '@PLUGIN_KEY@-Grapes', artifactVersion => '1.0.0', fromDirectory => 'lib/grapes'}
 ]);
+
+$setup->removeArtifact('@PLUGIN_KEY@-Ansible');
+
 
 # ec_setup.pl shared code
 #####################################
@@ -17,6 +19,8 @@ package ECSetup;
 
 use strict;
 use warnings;
+
+no warnings 'redefine';
 
 use File::Spec;
 use Archive::Zip;
@@ -45,6 +49,19 @@ sub promoteAction { shift->{promoteAction} }
 sub upgradeAction { shift->{upgradeAction} }
 sub pluginName { shift->{pluginName} }
 sub otherPluginName { shift->{otherPluginName} }
+
+sub removeArtifact {
+    my ($self, $artifactName, $artifactVersion, $fromDirectory) = @_;
+
+    $artifactName or die 'Artifact name should be provided!';
+    $artifactVersion or die 'Artifact version should be provided!';
+    $fromDirectory or die 'fromDirectory should be provided!';
+
+    # This is here because we cannot do publishArtifactVersion in dsl today
+    # delete artifact if it exists first
+    my $commander = $self->commander;
+    $commander->deleteArtifact("com.electriccloud:$artifactName");
+}
 
 sub publishArtifact {
     my ($self, $artifactName, $artifactVersion, $fromDirectory) = @_;
@@ -188,14 +205,12 @@ sub promotePlugin {
         },
     );
 
-
     $logfile .= $dslReponse->findnodes_as_string("/");
-
     my $errorMessage = $commander->getError();
     if ( !$errorMessage ) {
         if ($dependencies) {
             for my $dependency (@$dependencies) {
-                $logfile .= $self->publishArtifact($dependency->{artifactName}, $dependency->{artifactVersion}, $dependency->{fromDirectory});
+                $logfile .= $self->removeArtifact($dependency->{artifactName}, $dependency->{artifactVersion}, $dependency->{fromDirectory});
             }
         }
     }
