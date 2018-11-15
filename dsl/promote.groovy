@@ -182,6 +182,6 @@ upgrade(upgradeAction, pluginName, otherPluginName,
             procedureName: 'Undeploy Service',
             stepName: 'undeployService'
          ],[
-                procedureName: 'Discover',
-                stepName: 'discover'
+            procedureName: 'Discover',
+            stepName: 'discover'
         ]])
