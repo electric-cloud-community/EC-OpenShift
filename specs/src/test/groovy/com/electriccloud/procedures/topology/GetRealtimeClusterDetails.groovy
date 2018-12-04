@@ -2,6 +2,7 @@ package com.electriccloud.procedures.topology
 
 import com.electriccloud.models.config.ConfigHelper
 import com.electriccloud.procedures.OpenshiftTestBase
+import groovy.json.JsonBuilder
 import io.qameta.allure.*
 import org.testng.annotations.AfterClass
 import org.testng.annotations.BeforeClass
@@ -70,8 +71,8 @@ class GetRealtimeClusterDetails extends OpenshiftTestBase {
         assert attr("Ports").value.items[0].name == 'http'
         assert attr("Ports").value.items[0].value == '8080/TCP'
         assert attr("Volume Mounts").type == "map"
-        assert attr("Volume Mounts").value.items[1].name =~ /default-token-[\w]/
-        assert attr("Volume Mounts").value.items[1].value == '/var/run/secrets/kubernetes.io/serviceaccount (read only)'
+        assert attr("Volume Mounts").value.items[0].name =~ /default-token-[\w]+/
+        assert attr("Volume Mounts").value.items[0].value == '/var/run/secrets/kubernetes.io/serviceaccount (read only)'
 
         /*assert !_node(  id: ecpContainerName,
                 name: containerName,
