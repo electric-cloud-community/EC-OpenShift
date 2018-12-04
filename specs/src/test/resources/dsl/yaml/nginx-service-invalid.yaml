@@ -1,0 +1,77 @@
+metadata:
+  name: nginx-service
+  namespace: flowqe-test-project
+  selfLink: /api/v1/namespaces/flowqe-test-project/services/nginx-service
+spec:
+  clusterIP: 172.30.69.11
+  externalIPs:
+    - 172.29.110.220
+  externalTrafficPolicy: Cluster
+  ports:
+    - name: servicehttpnginx-container01523616023078
+      nodePort: 30472
+      port: 81
+      protocol: TCP
+      targetPort: http
+  selector:
+    ec-svc: nginx-service
+  type: LoadBalancer
+---
+metadata:
+  annotations:
+    deployment.kubernetes.io/revision: '1'
+  generation: 1
+  labels:
+    ec-svc: nginx-service
+    ec-track: stable
+  name: nginx-service
+  namespace: flowqe-test-project
+  selfLink: /apis/apps/v1beta1/namespaces/flowqe-test-project/deployments/nginx-service
+spec:
+  progressDeadlineSeconds: 120
+  replicas: 2
+  revisionHistoryLimit: 2
+  selector:
+    matchLabels:
+      ec-svc: nginx-service
+      ec-track: stable
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        ec-svc: nginx-service
+        ec-track: stable
+      name: nginx-service
+    spec:
+      containers:
+        - env:
+            - name: NGINX_PORT
+              value: '8080'
+          image: 'tomaskral/nonroot-nginx:latest'
+          imagePullPolicy: Always
+          name: nginx-container
+          ports:
+            - containerPort: 8080
+              name: http
+              protocol: TCP
+          resources:
+            limits:
+              cpu: '2'
+              memory: 255M
+            requests:
+              cpu: 100m
+              memory: 128M
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: /usr/share/nginx/html
+              name: html-content
+      volumes:
+        - hostPath:
+            path: /var/html
+          name: html-content
