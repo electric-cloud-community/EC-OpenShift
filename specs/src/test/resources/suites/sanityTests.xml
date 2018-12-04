@@ -3,7 +3,7 @@
 
 <suite name = "Sanity tests" parallel="false" thread-count="3">
 
-   <!-- <test name="Configuration Tests">
+    <test name="Configuration Tests">
         <groups>
             <run>
                 <include name="Positive">
@@ -52,17 +52,17 @@
                 </include>
             </run>
         </groups>
-    </test>-->
+    </test>
 
     <test name="Topology Tests">
         <groups>
             <run>
                 <include name="Positive">
                     <classes>
-                        <!--<class name="com.electriccloud.procedures.topology.DoActionOnRealtimeCluster"/>
-                        <class name="com.electriccloud.procedures.topology.GetDeployTopology"/>-->
+                        <class name="com.electriccloud.procedures.topology.DoActionOnRealtimeCluster"/>
+                        <class name="com.electriccloud.procedures.topology.GetDeployTopology"/>
                         <class name="com.electriccloud.procedures.topology.GetRealtimeClusterDetails"/>
-                        <!--<class name="com.electriccloud.procedures.topology.GetRealtimeClusterTopology"/>-->
+                        <class name="com.electriccloud.procedures.topology.GetRealtimeClusterTopology"/>
                     </classes>
                 </include>
             </run>
