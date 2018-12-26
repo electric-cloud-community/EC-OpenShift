@@ -14,7 +14,7 @@
     <h1>@PLUGIN_KEY@</h1>
     <p>Plugin version @PLUGIN_VERSION@</p>
     
-    <p>Revised on December 07, 2018</p>
+    <p>Revised on December 25, 2018</p>
     
     <hr style="margin-left: -10px; margin-top: 10px; height: 1px; width: 100%; color: #5981BD;" noshade="noshade"/>
     <h1>Contents</h1>
@@ -712,6 +712,13 @@ definitions retrieved from there.</p>
     
 
     <h1 id="releaseNotes">Release Notes</h1>
+    
+    <h3>@PLUGIN_KEY@ 1.5.1</h3>
+    <ul>
+        
+        <li>Updated the plugin icon.</li>
+        
+    </ul>
     
     <h3>@PLUGIN_KEY@ 1.5.0</h3>
     <ul>
