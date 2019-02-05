@@ -27,6 +27,7 @@
   shell: "{{ oc_path }} adm --config='/var/lib/origin/openshift.local.config/master/openshift-master.kubeconfig' policy add-cluster-role-to-user {{ item }} system:serviceaccount:{{ project_name }}:{{ service_account }}"
   with_items:
     - edit
+    - cluster-reader
 
 - shell: '{{ oc_path }} adm policy add-scc-to-user anyuid system:serviceaccount:{{ project_name }}:{{ service_account }}'
 
