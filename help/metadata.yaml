@@ -5,10 +5,18 @@ excludeProcedures:
   - Cleanup Cluster - Experimental
 deprecatedProcedures:
   - Create Resource
-proceduresOrder:
-  - Check Cluster
-  - Deploy Service
-  - Undeploy Service
-  - Discover
-  - Invoke Kubernetes API
-  - Wait For Kubernetes API
+
+proceduresGrouping:
+  groups:
+    - name: Micro Service Deployment
+      procedures:
+        - Deploy Service
+        - Undeploy Service
+    - name: Micro Service Discovery and Import
+      procedures:
+        - Discover
+        - Import Microservices
+    - name: Cluster Management
+      procedures:
+        - Provision Cluster on ESX
+        - Check Cluster

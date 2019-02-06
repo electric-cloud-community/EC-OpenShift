@@ -14,12 +14,13 @@
     <h1>@PLUGIN_KEY@</h1>
     <p>Plugin version @PLUGIN_VERSION@</p>
     
-    <p>Revised on December 25, 2018</p>
+    <p>Revised on February 06, 2019</p>
     
     <hr style="margin-left: -10px; margin-top: 10px; height: 1px; width: 100%; color: #5981BD;" noshade="noshade"/>
     <h1>Contents</h1>
     <ul>
     <li><a href="#overview">Overview</a></li>
+    
     
     <li><a href="#prerequisites">Prerequisites</a></li>
     
@@ -31,92 +32,55 @@
     
 
     <li><a href="#procedures">Plugin Procedures</a></li>
-    
-
-    <ul>
-        
-
-        <li><a href="#CheckCluster">Check Cluster</a></li>
-        
-
-        <li><a href="#DeployService">Deploy Service</a></li>
-        
-
-        <li><a href="#UndeployService">Undeploy Service</a></li>
-        
-
-        <li><a href="#Discover">Discover</a></li>
-        
-
-        <li><a href="#ImportMicroservices">Import Microservices</a></li>
-        
-
-        <li><a href="#ProvisionClusteronESX">Provision Cluster on ESX</a></li>
-        
-    </ul>
-
-    
+    <li>Micro Service Deployment</li><ul><li><a href="#DeployService">Deploy Service</a></li><li><a href="#UndeployService">Undeploy Service</a></li></ul><li>Micro Service Discovery and Import</li><ul><li><a href="#Discover">Discover</a></li><li><a href="#ImportMicroservices">Import Microservices</a></li></ul><li>Cluster Management</li><ul><li><a href="#ProvisionClusteronESX">Provision Cluster on ESX</a></li><li><a href="#CheckCluster">Check Cluster</a></li></ul>
     
     
     <li><a href="#releaseNotes">Release Notes</a></li>
 </ul>
-    <h3>Overview</h3>
-    <p><p>EC-OpenShift plugin integrates with the <a href="https://www.openshift.com/">OpenShift container platform</a> allowing you to coordinate and manage microservices-based applications deployments and releases on both on-premise and hosted OpenShift offerings.</p>
+    <h1>Overview</h1>
+    <p><p>EC-OpenShift plugin integrates with the 
+<a href="https://www.openshift.com/" target="_blank">https://www.openshift.com/</a>
+ and helps you manage microservices based applications deployments and releases on both on-premise as well as hosted OpenShift offerings.</p>
+<p>In case of on-premise setup, plugin helps you in addition to install 
+<a href="https://www.openshift.org/" target="_blank">https://www.openshift.org/</a>
+. Plugin supports the following topologies:</p>
 <ul>
-    <li>
-        In case of on-premise setup, plugin helps you install <a href="https://www.openshift.org/">OpenShift Origin</a> on VMWare setup right from importing underlying hosts (VMs) from OVF template, installing OpenShift Origin using <a href="https://github.com/openshift/openshift-ansible">Ansible scripts</a> and performs post installation steps like creation of project, service accout and router (with same name as project name). This makes deployment of any micro-service simple and straight forward. For the detailed requirements about OVF template, see <a href="#ProvisionClusterOnESX">Provision Cluster on ESX procedure details.</a>
-    <br/> Plugin also supports various installation topologies based on requirements. Supported topologies are:
-    <br/>
-        <ul>
-            <li><b>Minimal</b> : Sets up one OpenShift master, embedded etcd and user supplied number of nodes. Suitable for setting up OpenShift cluster for evaluation purpose or for development setup.  </li>
-            <li><b>Multiple Etcd</b> : Sets up one OpenShift master, separate cluster of three etcd instances and user supplied number of nodes.</li>
-            <li><b>Multiple Etcd + HAProxy</b> : Highly available setup with three OpenShift masters, cluster of three etcd instances and user supplied number of nodes. Suitable for production environment.</li>
-        </ul>
-    </li>
-    <li>
-        For hosted OpenShift offerings, plugin assumes that you have a service account which has full access on projects that you intend to use through this plugin.
-    </li>
+<li><strong>Minimal</strong>: Sets up one OpenShift master, embedded etcd and user supplied number of nodes. This is typically used for creating an OpenShift cluster for a Development environment .</li>
+<li><strong>Multiple Etcd</strong>: Sets up one OpenShift master, separate cluster of three etcd instances and user supplied number of nodes.</li>
+<li><strong>Multiple Etcd + HAProxy</strong>: Highly available setup with three OpenShift masters, cluster of three etcd instances and user supplied number of nodes. This is meant for a production
+environment.</li>
 </ul>
 </p>
     
     
     <div id="prerequisites">
-        <h2>Prerequisites</h2>
-        <ol>
+        <h1>Prerequisites</h1>
+        <ul>
 <li>EC-Kubernetes plugin version 1.0.5 or higher</li>
-<li>EC-ESX plugin version 2.3.* (Only for running the <i>Provision Cluster on ESX</i> procedure)</li>
+<li>If using the Provision Cluster on ESX procedure, EC-ESX plugin version 2.3.*</li>
 <li>RedHat OpenShift 3 cluster - RedHat OpenShift Online, RedHat OpenShift Dedicated, or RedHat OpenShift On-premise.</li>
-<li>A service account with cluster access on RedHat OpenShift
-<p>Service accounts provide a flexible way to control API access without sharing a regular user's credentials. Every service account has an associated username that can be granted roles, just like a regular user.<br/>
-Run the following commands to create a service account, grant the required access for deploying services in the OpenShift cluster, and retrieve the bearer token that will be used when creating the plugin configuration.
-The service account bearer token will be used to authenticate against the Kubernetes and OpenShift APIs for managing projects (namespaces) and deploying services.
-<pre>
-    # Login using cluster admin credentials
-    oc login cluster_IP_here:8443 --username=cluster_admin_user_here --password=admin_user_password_here
-<pre><code># Create a service account in the current project say 'us-project-test'. Full name of the serviceaccount will be system:serviceaccount:us-project-test:erobot
-oc create serviceaccount erobot
+<li>For microservices deployment using hosted OpenShift offerings, plugin assumes that you have a service account which has appropriate access on projects that you intend to use through this plugin.  Run the following commands to create a service account, grant the required access for deploying services in the OpenShift cluster, and retrieve the bearer token that will be used when creating the plugin configuration. The service account bearer token will be used to authenticate against the Kubernetes and OpenShift APIs for managing projects (namespaces) and deploying services.</li>
+</ul>
+<pre><code>    # Login using cluster admin credentials
+    oc login cluster_IP_here:8443 --username=&lt;cluster_admin_user_here&gt; --password=&lt;admin_user_password_here&gt;
 
+    # Create a service account in the current project say 'us-project-test'. Full name of the serviceaccount will be system:serviceaccount:us-project-test:erobot
+    oc create serviceaccount erobot
 
-# Grant the roles to allow the service account create resources in the cluster such as projects.
+    # Grant the following roles to allow the service account create resources in the cluster such as projects.
+    sudo ./oadm --config='openshift.local.config/master/openshift-master.kubeconfig' policy add-cluster-role-to-user edit system:serviceaccount:us-project-test:erobot
+    sudo ./oadm --config='openshift.local.config/master/openshift-master.kubeconfig' policy add-cluster-role-to-user cluster-reader system:serviceaccount:us-project-test:erobot
 
-sudo ./oadm --config='openshift.local.config/master/openshift-master.kubeconfig' policy add-cluster-role-to-user cluster-admin system:serviceaccount:us-project-test:erobot
-sudo ./oadm --config='openshift.local.config/master/openshift-master.kubeconfig' policy add-cluster-role-to-user cluster-reader system:serviceaccount:us-project-test:erobot
-sudo ./oadm --config='openshift.local.config/master/openshift-master.kubeconfig' policy add-cluster-role-to-user admin system:serviceaccount:us-project-test:erobot
+    # Describe the service account to discover the secret token name
+    oc describe serviceaccount erobot
 
-# Describe the service account to discover the secret token name
-oc describe serviceaccount erobot
+    # Describe the secret token to get the token value, say 'erobot-token-8zlsh'
+    oc describe secret erobot-token-8zlsh
+    or
+    oc describe secret erobot-token-8zlsh &gt; oc-secret-with-token.txt
 
-# Describe the secret token to get the token value, say 'erobot-token-8zlsh'
-oc describe secret erobot-token-8zlsh
-or
-oc describe secret erobot-token-8zlsh &gt; oc-secret-with-token.txt
-
-# You will need to provide this token value in the plugin configuration for the Service Account Key value.
+    # You will need to provide this token value in the plugin configuration for the Service Account Key value.
 </code></pre>
-</pre>
-</p>
-</li>
-</ol>
 
     </div>
     
@@ -127,7 +91,7 @@ oc describe secret erobot-token-8zlsh &gt; oc-secret-with-token.txt
     
     <div id="CreateConfiguration">
         <a name='CreateConfiguration' id="CreateConfiguration"> </a>
-        <h2>Plugin Configurations</h2>
+        <h1>Plugin Configurations</h1>
 
         <p>
             Plugin configurations are sets of parameters that apply
@@ -208,53 +172,12 @@ oc describe secret erobot-token-8zlsh &gt; oc-secret-with-token.txt
     
 
     
-    <div id="CheckCluster">
-        <h2>Check Cluster</h2>
-        
-        
-        <p>Checks that the configured OpenShift cluster is accessible using the given service account bearer token.</p>
-        
-        
-            <p>
-    The procedure checks if the OpenShift cluster exists and is reachable using the cluster details provided in the plugin configuration.
-</p>
-
-        
-        <h3>Check Cluster Parameters</h3>
-        <table class="grid">
-            <thead>
-            <tr>
-                <th>Parameter</th>
-                <th>Description</th>
-            </tr>
-            </thead>
-            <tbody>
-            
-            <tr>
-                <td class="required">Configuration</td>
-                <td>The name of an existing configuration which holds all the connection information for OpenShift cluster.</td>
-            </tr>
-            
-            <tr>
-                <td class="required">OpenShift Project</td>
-                <td>The name of the OpenShift project to which the services and deployments should be deployed. If the project does not exist, it will be created during service deployment.</td>
-            </tr>
-            
-            </tbody>
-        </table>
-        
-    </div>
-
-    
     <div id="DeployService">
         <h2>Deploy Service</h2>
         
         
         <p>Deploys a service, creating or updating pod definitions, service and deployment in the OpenShift project on the cluster. The OpenShift project(namespace) is created if it does not exist.</p>
         
-        
-            <p>This procedure deploys a service, creating or updating pod definitions, service and deployment in the OpenShift project on the cluster. The OpenShift project(namespace) is created if it does not exist.</p>
-
         
         <h3>Deploy Service Parameters</h3>
         <table class="grid">
@@ -554,7 +477,7 @@ definitions retrieved from there.</p>
             
             <tr>
                 <td >Create Microservices within an Application</td>
-                <td>(Optional) Select to create all services defined in the template file within one application in ElectricFlow. If selected, then the application name must be provided. If unselected, microservices will be created at the top-level in the project.</td>
+                <td>(Optional) Select to create all services defined in the template file within one application in ElectricFlow. If selected, then the application name must be provided. If not selected, microservices will be created at the top-level in the project.</td>
             </tr>
             
             <tr>
@@ -591,17 +514,18 @@ definitions retrieved from there.</p>
         
         
             <p>The procedure checks if the OpenShift cluster exists and is reachable with provided details. If not, then provisions a new one.<br/>
-    The procedure uses ESX plugin's import procedure to setup underlying VMs.For system requirements, see <a href="https://docs.openshift.com/enterprise/3.0/install_config/install/prerequisites.html#install-config-install-prerequisites">here</a>.For networking requirements, see <a href="https://docs.openshift.org/latest/install_config/install/prerequisites.html#prereq-network-access">here</a>. <br/>
-    Once VMs are available, procedure uses <a href="https://github.com/openshift/openshift-ansible">ansible scripts</a> provided by OpenShift to setup openshift cluster. <br/>Bellow are the prerequisite to use this procedure:
-    <ol>
-        <li> Ansible (v2.2.0.0) must be installed on ElectricFlow agent machines and <b>'ansible-playbook'</b> command should be included in PATH. </li>
-        <li> <b>'htpasswd'</b> must be installed and included in PATH on ElectricFlow agent machine.</li>
-        <li> ElectricFlow agent machine should have passwordless SSH access to imported VMs.<br/>
-            <li> Plugin passes the hostname to OVF template using OVF property "--prop:hostname=some_hostname" while importing using OVF tool.</li>
-            The OVF template must have mechanism (<a href="https://github.com/vmware/open-vm-tools">'open-vm-tools'</a> is one such example) to read this OVF property and set its hostname accordingly. </li>
-        <li> It should also add "127.0.0.1 some_hostname some_hostname.domain_name" entry to /etc/hosts file.</li>
-        <li> <a href="https://buildlogs.centos.org/centos/7/paas/x86_64/openshift-origin/origin-docker-excluder-1.4.0-2.el7.noarch.rpm">'origin-docker-excluder'</a> and <a href="https://buildlogs.centos.org/centos/7/paas/x86_64/openshift-origin/origin-excluder-1.4.0-2.el7.noarch.rpm">'origin-excluder'</a> RPMs must be already installed on OVF template. </li>
-    </ol>
+<p>The procedure uses ESX plugin's import procedure to setup underlying VMs.For system requirements, see <a href="https://docs.openshift.com/enterprise/3.0/install_config/install/prerequisites.html#install-config-install-prerequisites">here</a>.For networking requirements, see <a href="https://docs.openshift.org/latest/install_config/install/prerequisites.html#prereq-network-access">here</a>.
+<br/></p>
+<p>Once VMs are available, the procedure uses <a href="https://github.com/openshift/openshift-ansible">ansible scripts</a> provided by OpenShift to setup an OpenShift cluster. <br/>Below are the prerequisites to use this procedure:
+<ol>
+<li> Ansible (v2.2.0.0) must be installed on ElectricFlow agent machines and <b>'ansible-playbook'</b> command should be included in PATH. </li>
+<li> <b>'htpasswd'</b> must be installed and included in PATH on ElectricFlow agent machine.</li>
+<li> ElectricFlow agent machine should have passwordless SSH access to imported VMs.<br/></li>
+<li>The plugin passes the hostname to OVF template using OVF property &quot;--prop:hostname=some_hostname&quot; while importing using OVF tool.</li>
+<li>The OVF template must have a mechanism (<a href="https://github.com/vmware/open-vm-tools">'open-vm-tools'</a> is one such example) to read this OVF property and set its hostname accordingly. </li>
+<li> It should also add &quot;127.0.0.1 some_hostname some_hostname.domain_name&quot; entry to /etc/hosts file.</li>
+<li> <a href="https://buildlogs.centos.org/centos/7/paas/x86_64/openshift-origin/origin-docker-excluder-1.4.0-2.el7.noarch.rpm">'origin-docker-excluder'</a> and <a href="https://buildlogs.centos.org/centos/7/paas/x86_64/openshift-origin/origin-excluder-1.4.0-2.el7.noarch.rpm">'origin-excluder'</a> RPMs must be already installed on OVF template. </li>
+</ol></p>
 </p>
 
         
@@ -632,7 +556,7 @@ definitions retrieved from there.</p>
             
             <tr>
                 <td class="required">Path to OVF Tool</td>
-                <td>Install location to ovftool binary.</td>
+                <td>Install location of the ovftool binary.</td>
             </tr>
             
             <tr>
@@ -652,7 +576,7 @@ definitions retrieved from there.</p>
             
             <tr>
                 <td class="required">OpenShift VM name prefix</td>
-                <td>Prefix to be prepended to VM names and their hostnames to uniquely distinguish from other OpenShift setups. </td>
+                <td>Prefix to be prepended to VM names and their hostnames to uniquely distinguish them from other OpenShift setups. </td>
             </tr>
             
             <tr>
@@ -687,7 +611,7 @@ definitions retrieved from there.</p>
             
             <tr>
                 <td class="required">Number of worker nodes</td>
-                <td>Number of nodes to add to OpenShift cluster.</td>
+                <td>Number of nodes to add to the OpenShift cluster.</td>
             </tr>
             
             <tr>
@@ -697,7 +621,45 @@ definitions retrieved from there.</p>
             
             <tr>
                 <td class="required">User login to use</td>
-                <td>The user ansible will use to login to VMs.This user should have passwordless SSH access preconfigured to imported VMs.</td>
+                <td>The user to be used by ansible to login into VMs. The user should have preconfigured passwordless SSH access to the imported VMs.</td>
+            </tr>
+            
+            </tbody>
+        </table>
+        
+    </div>
+
+    
+    <div id="CheckCluster">
+        <h2>Check Cluster</h2>
+        
+        
+        <p>Checks that the configured OpenShift cluster is accessible using the given service account bearer token.</p>
+        
+        
+            <p>
+    The procedure checks if the OpenShift cluster exists and is reachable using the cluster details provided in the plugin configuration.
+</p>
+
+        
+        <h3>Check Cluster Parameters</h3>
+        <table class="grid">
+            <thead>
+            <tr>
+                <th>Parameter</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            
+            <tr>
+                <td class="required">Configuration</td>
+                <td>The name of an existing configuration which holds all the connection information for OpenShift cluster.</td>
+            </tr>
+            
+            <tr>
+                <td class="required">OpenShift Project</td>
+                <td>The name of the OpenShift project to which the services and deployments should be deployed. If the project does not exist, it will be created during service deployment.</td>
             </tr>
             
             </tbody>
@@ -712,6 +674,13 @@ definitions retrieved from there.</p>
     
 
     <h1 id="releaseNotes">Release Notes</h1>
+    
+    <h3>@PLUGIN_KEY@ 1.5.2</h3>
+    <ul>
+        
+        <li>Fixed plugin documentation.</li>
+        
+    </ul>
     
     <h3>@PLUGIN_KEY@ 1.5.1</h3>
     <ul>
