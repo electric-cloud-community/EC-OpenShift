@@ -477,7 +477,7 @@ definitions retrieved from there.</p>
             
             <tr>
                 <td >Create Microservices within an Application</td>
-                <td>(Optional) Select to create all services defined in the template file within one application in ElectricFlow. If selected, then the application name must be provided. If unselected, microservices will be created at the top-level in the project.</td>
+                <td>(Optional) Select to create all services defined in the template file within one application in ElectricFlow. If selected, then the application name must be provided. If not selected, microservices will be created at the top-level in the project.</td>
             </tr>
             
             <tr>
@@ -674,6 +674,13 @@ definitions retrieved from there.</p>
     
 
     <h1 id="releaseNotes">Release Notes</h1>
+    
+    <h3>@PLUGIN_KEY@ 1.5.2</h3>
+    <ul>
+        
+        <li>Fixed plugin documentation.</li>
+        
+    </ul>
     
     <h3>@PLUGIN_KEY@ 1.5.1</h3>
     <ul>
