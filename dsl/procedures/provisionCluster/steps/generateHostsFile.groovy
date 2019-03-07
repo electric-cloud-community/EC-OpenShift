@@ -2,7 +2,7 @@ $[/myProject/scripts/preamble]
 import groovy.json.*
 
 // Get Master VM IP from Properties set by EC-ESX plugin
-def jobId = "$[/myJob]"
+def jobId = '$[/myJob]'
 EFClient efClient = new EFClient()
 def result
 def uri = "/rest/v1.0/properties/ESX/master1/vms"
