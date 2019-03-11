@@ -39,7 +39,7 @@ try{
 	openshiftNotPresent = true
 }
 
-def jobId = "$[/myJob]"
+def jobId = '$[/myJob]'
 def payload = [:]
 payload << [
         propertyName: "OpenshiftNotPresent",
