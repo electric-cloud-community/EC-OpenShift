@@ -12,14 +12,25 @@ $setup->promotePlugin([
     {artifactName => '@PLUGIN_KEY@-Ansible', artifactVersion => '1.0.0', fromDirectory => 'lib/ansible'},
 ]);
 
-$commander->createAclEntry({
-    principalName => "project: $pluginName",
-    principalType => "user",
-    projectName => "/plugins/EC-Kubernetes/project",
-    procedureName => "flowpdk-setup",
-    executePrivilege => "allow",
-    objectType => 'procedure',
-});
+if ($promoteAction eq 'promote') {
+    $commander->createAclEntry({
+        principalName => "project: $pluginName",
+        principalType => "user",
+        projectName => "/plugins/EC-Kubernetes/project",
+        procedureName => "flowpdk-setup",
+        executePrivilege => "allow",
+        objectType => 'procedure',
+    });
+}
+elsif ($promoteAction eq 'demote') {
+    $commander->deleteAclEntry({
+        principalName => "project: $pluginName",
+        principalType => "user",
+        projectName => "/plugins/EC-Kubernetes/project",
+        procedureName => "flowpdk-setup",
+        objectType => 'procedure',
+    });
+}
 
 
 # ec_setup.pl shared code
