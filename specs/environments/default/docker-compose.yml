@@ -1,7 +1,7 @@
 version: '3'
 services:
   electric-flow:
-    image: "electricflow/efserver"
+    image: "electricflow/efserver:latest"
     ports:
       - "8000:8000"
       - "8443:8443"
@@ -12,6 +12,11 @@ services:
       - internal
     container_name: electricflow
     tty: true
+    extra_hosts:
+      - maven.org:127.0.0.1
+      - repo1.maven.org:127.0.0.1
+      - jcenter.bintray.com:127.0.0.1
+
 networks:
   internal:
     driver: bridge
