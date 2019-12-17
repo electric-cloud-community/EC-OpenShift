@@ -1,3 +1,5 @@
+my $xpath = $commander->deleteArtifact('com.electriccloud:@PLUGIN_KEY@-Grapes');
+
 # Plugin-specific setup code
 my $setup = ECSetup->new(
     commander => $commander,
@@ -7,9 +9,18 @@ my $setup = ECSetup->new(
     promoteAction => $promoteAction,
 );
 $setup->promotePlugin([
-    {artifactName => '@PLUGIN_KEY@-Grapes', artifactVersion => '1.0.0', fromDirectory => 'lib/grapes'},
     {artifactName => '@PLUGIN_KEY@-Ansible', artifactVersion => '1.0.0', fromDirectory => 'lib/ansible'},
 ]);
+
+$commander->createAclEntry({
+    principalName => "project: $pluginName",
+    principalType => "user",
+    projectName => "/plugins/EC-Kubernetes/project",
+    procedureName => "flowpdk-setup",
+    executePrivilege => "allow",
+    objectType => 'procedure',
+});
+
 
 # ec_setup.pl shared code
 #####################################
