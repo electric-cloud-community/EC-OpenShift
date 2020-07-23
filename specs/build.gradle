@@ -29,9 +29,12 @@ dependencies {
 }
 
 test {
-    systemProperties["COMMANDER_SECURE"] = '1'
-    def server = findProperty('commanderServer') ?: findProperty('COMMANDER_SERVER') ?: 'localhost'
+    def server = findProperty('server') ?: findProperty('COMMANDER_SERVER') ?: findProperty('commanderServer') ?: 'localhost'
     systemProperties['COMMANDER_SERVER'] = server
+    def secure = findProperty('secure') ?: findProperty('COMMANDER_SECURE') ?: findProperty('commanderSecure') ?: 1
+    systemProperties["COMMANDER_SECURE"] = secure
+    def password = findProperty('password')
+    systemProperties["COMMANDER_PASSWORD"] = password ?: 'changeme'
 
     testLogging {
         showStandardStreams = true
@@ -43,7 +46,9 @@ test {
     def destination = findProperty('reportDestination') ?: "spec-report"
     if (destination) {
         reports {
-            html.destination = destination
+            // html.destination = "$destination/spock-report"
+            html.setDestination(new File("$destination/spock-report"))
         }
+        systemProperty 'com.athaydes.spockframework.report.outputDir', destination
     }
 }
