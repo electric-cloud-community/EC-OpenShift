@@ -1,2 +1,0 @@
-ansiblePlaybook: playbook/site.yml
-inventory: playbook/inventory.ini
