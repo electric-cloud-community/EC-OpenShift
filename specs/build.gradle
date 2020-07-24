@@ -1,19 +1,6 @@
-//buildscript{
-//  repositories {
-//
-//      mavenCentral()
-//      maven { url "https://plugins.gradle.org/m2/" }
-//      mavenLocal()
-//
-//      dependencies{
-//        classpath 'com.cloudbees.cd.plugins:cbcd-plugin-build:1.4.0-SNAPSHOT'
-//      }
-//  }
-//}
-//
 
 plugins {
-    id "com.cloudbees.cd.plugins.specs" version "1.4.2.0"
+    id "com.cloudbees.cd.plugins.specs" version "1.5.11.0"
 }
 
 apply plugin: "groovy"
@@ -31,9 +18,6 @@ repositories {
     mavenCentral()
     maven {
         url "https://dl.bintray.com/ecpluginsdev/maven"
-    }
-    maven {
-        url 'https://oss.sonatype.org/content/repositories/snapshots'
     }
 }
 

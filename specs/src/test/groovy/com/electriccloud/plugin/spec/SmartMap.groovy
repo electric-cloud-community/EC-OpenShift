@@ -1,5 +1,6 @@
 package com.electriccloud.plugin.spec
 
+import spock.lang.Ignore
 import spock.lang.IgnoreRest
 
 class SmartMap extends OpenShiftHelper {
@@ -24,6 +25,7 @@ class SmartMap extends OpenShiftHelper {
         cleanupService(serviceName)
     }
 
+    @Ignore
     def 'get cluster topology'() {
         when:
         def result = getRealtimeClusterTopology()
@@ -65,6 +67,7 @@ class SmartMap extends OpenShiftHelper {
         assert result
     }
 
+    @Ignore
     def 'get pod details'() {
         when:
         def topology = getRealtimeClusterTopology()
