@@ -5,8 +5,8 @@ import groovy.transform.builder.Builder
 import groovy.transform.builder.ExternalStrategy
 import static Logger.*
 
-@Builder(builderStrategy = ExternalStrategy, forClass = Discovery, excludes = 'openShiftClient, accessToken, clusterEndpoint, discoveredSummary')
-public class DiscoveryBuilder {}
+// @Builder(builderStrategy = ExternalStrategy, forClass = Discovery, excludes = 'openShiftClient, accessToken, clusterEndpoint, discoveredSummary')
+// public class DiscoveryBuilder {}
 
 public class Discovery extends EFClient {
 
