@@ -1,3 +1,21 @@
+//buildscript{
+//  repositories {
+//
+//      mavenCentral()
+//      maven { url "https://plugins.gradle.org/m2/" }
+//      mavenLocal()
+//
+//      dependencies{
+//        classpath 'com.cloudbees.cd.plugins:cbcd-plugin-build:1.4.0-SNAPSHOT'
+//      }
+//  }
+//}
+//
+
+plugins {
+    id "com.cloudbees.cd.plugins.specs" version "1.4.2.0"
+}
+
 apply plugin: "groovy"
 apply plugin: 'idea'
 
@@ -12,43 +30,36 @@ repositories {
     jcenter()
     mavenCentral()
     maven {
-        url 'https://oss.sonatype.org/content/repositories/snapshots'
+        url "https://dl.bintray.com/ecpluginsdev/maven"
     }
     maven {
-        url  "https://dl.bintray.com/ecpluginsdev/maven"
+        url 'https://oss.sonatype.org/content/repositories/snapshots'
     }
-
 }
 
 dependencies {
-    compile 'org.codehaus.groovy:groovy-all:2.4.5:indy'
-    compile 'org.spockframework:spock-core:1.1-groovy-2.4-SNAPSHOT'
-    compile 'com.electriccloud:ec-specs-plugins-core:1.1'
-    compile 'com.jayway.restassured:rest-assured:2.4.0'
-    compile 'de.gesellix:docker-client:2018-01-26T21-28-05'
+    implementation 'org.codehaus.groovy:groovy-all:2.4.5:indy'
+    implementation 'org.spockframework:spock-core:1.1-groovy-2.4'
+    implementation 'com.jayway.restassured:rest-assured:2.4.0'
+    implementation 'com.electriccloud:ec-specs-plugins-core:1.9.1'
+    implementation 'de.gesellix:docker-client:2018-01-26T21-28-05'
+
+    testCompile 'org.slf4j:slf4j-api:1.7.13'
+    testCompile 'org.slf4j:slf4j-simple:1.7.13'
 }
 
 test {
-    def server = findProperty('server') ?: findProperty('COMMANDER_SERVER') ?: findProperty('commanderServer') ?: 'localhost'
-    systemProperties['COMMANDER_SERVER'] = server
-    def secure = findProperty('secure') ?: findProperty('COMMANDER_SECURE') ?: findProperty('commanderSecure') ?: 1
-    systemProperties["COMMANDER_SECURE"] = secure
-    def password = findProperty('password')
-    systemProperties["COMMANDER_PASSWORD"] = password ?: 'changeme'
+    systemProperties['COMMANDER_SERVER'] = findProperty('server') ?: 'localhost'
+    systemProperties['COMMANDER_SECURE'] = findProperty('secure') ?: 1
+    systemProperties['COMMANDER_PASSWORD'] = findProperty('password') ?: 'changeme'
+}
 
-    testLogging {
-        showStandardStreams = true
-        exceptionFormat = 'full'
-    }
-    outputs.upToDateWhen { false }
-    systemProperties['EC_SPECS_CLI'] = true
+sendAllureReports {
+    projectName = 'ec-openshift'
+}
 
-    def destination = findProperty('reportDestination') ?: "spec-report"
-    if (destination) {
-        reports {
-            // html.destination = "$destination/spock-report"
-            html.setDestination(new File("$destination/spock-report"))
-        }
-        systemProperty 'com.athaydes.spockframework.report.outputDir', destination
-    }
+configureTests {
+    environmentName = findProperty('envName') ?: 'default'
+    readEnvironmentVariables = true
+    readSecrets = true
 }

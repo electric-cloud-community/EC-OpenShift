@@ -1,15 +1,11 @@
 package com.electriccloud.plugin.spec
 
-import spock.lang.*
-import com.electriccloud.spec.*
-import groovyx.net.http.RESTClient
 import groovy.json.JsonBuilder
+import groovyx.net.http.RESTClient
+import spock.lang.*
+
 import static groovyx.net.http.ContentType.JSON
-import static groovyx.net.http.Method.DELETE
-import static groovyx.net.http.Method.GET
-import static groovyx.net.http.Method.PATCH
-import static groovyx.net.http.Method.POST
-import static groovyx.net.http.Method.PUT
+import static groovyx.net.http.Method.*
 
 class OpenShiftHelper extends ContainerHelper {
 
@@ -45,22 +41,22 @@ class OpenShiftHelper extends ContainerHelper {
         def endpoint = System.getenv('OPENSHIFT_CLUSTER')
         assert endpoint
         def pluginConfig = [
-            kubernetesVersion: getClusterVersion(),
-            clusterEndpoint  : endpoint,
-            testConnection   : 'false',
-            logLevel         : '2'
+                kubernetesVersion: getClusterVersion(),
+                clusterEndpoint  : endpoint,
+                testConnection   : 'false',
+                logLevel         : '2'
         ]
         def props = [:]
         if (System.getenv('RECREATE_CONFIG')) {
             props.recreate = true
         }
         createPluginConfiguration(
-            pluginName,
-            configName,
-            pluginConfig,
-            'test',
-            token,
-            props
+                pluginName,
+                configName,
+                pluginConfig,
+                'test',
+                token,
+                props
         )
     }
 
@@ -141,9 +137,9 @@ class OpenShiftHelper extends ContainerHelper {
         println apiPath
         def uri = "/apis/${apiPath}/namespaces/${namespace}/deployments"
         request(getEndpoint(),
-            uri, POST, null,
-            ["Authorization": "Bearer ${getToken()}"],
-            new JsonBuilder(payload).toString()
+                uri, POST, null,
+                ["Authorization": "Bearer ${getToken()}"],
+                new JsonBuilder(payload).toString()
         )
     }
 
@@ -208,16 +204,16 @@ class OpenShiftHelper extends ContainerHelper {
     static def getService(name) {
         def uri = "/api/v1/namespaces/${namespace}/services/${name}"
         request(
-            getEndpoint(), uri, GET,
-            null, ["Authorization": "Bearer ${getToken()}"], null).data
+                getEndpoint(), uri, GET,
+                null, ["Authorization": "Bearer ${getToken()}"], null).data
     }
 
     static def getDeployment(name) {
         def apiPath = versionSpecificAPIPath('deployments')
         def uri = "/apis/${apiPath}/namespaces/${namespace}/deployments/${name}"
         request(
-            getEndpoint(), uri, GET,
-            null, ["Authorization": "Bearer ${getToken()}"], null).data
+                getEndpoint(), uri, GET,
+                null, ["Authorization": "Bearer ${getToken()}"], null).data
     }
 
     static def createSecret(name, url, username, password) {
@@ -239,31 +235,31 @@ class OpenShiftHelper extends ContainerHelper {
 
         def uri = "/api/v1/namespaces/${namespace}/secrets"
         request(getEndpoint(),
-            uri, POST, null,
-            ["Authorization": "Bearer ${getToken()}"],
-            new JsonBuilder(secret).toString()
+                uri, POST, null,
+                ["Authorization": "Bearer ${getToken()}"],
+                new JsonBuilder(secret).toString()
         )
     }
 
     static def deleteSecret(name) {
         def uri = "/api/v1/namespaces/${namespace}/secrets/$name"
         request(getEndpoint(),
-            uri,
-            DELETE,
-            null,
-            ["Authorization": "Bearer ${getToken()}"],
-            null
+                uri,
+                DELETE,
+                null,
+                ["Authorization": "Bearer ${getToken()}"],
+                null
         )
     }
 
     static def deleteRoute(routeName) {
         def uri = "/oapi/v1/namespaces/${namespace}/routes/${routeName}"
         request(getEndpoint(),
-            uri,
-            DELETE,
-            null,
-            ["Authorization" :"Bearer ${getToken()}"],
-            null
+                uri,
+                DELETE,
+                null,
+                ["Authorization": "Bearer ${getToken()}"],
+                null
         )
     }
 
@@ -307,16 +303,16 @@ class OpenShiftHelper extends ContainerHelper {
 
         def headers = ["Authorization": "Bearer ${getToken()}"]
         def uri = "/apis/${apiPath}/namespaces/${namespace}/deployments/$serviceName"
-        request(getEndpoint(), uri, DELETE, null,  headers, null)
+        request(getEndpoint(), uri, DELETE, null, headers, null)
 
 //        RS
 
 
         def res = request(getEndpoint(),
-            "/apis/${apiPath}/namespaces/${namespace}/replicasets",
-            GET, null, headers, null)
+                "/apis/${apiPath}/namespaces/${namespace}/replicasets",
+                GET, null, headers, null)
 
-        res.data.items.each {rs ->
+        res.data.items.each { rs ->
             def matcher = rs.metadata.name =~ /(.*)-([^-]+)$/
             try {
                 def rsName = matcher[0][1]
@@ -330,11 +326,10 @@ class OpenShiftHelper extends ContainerHelper {
         }
 
 
-
         res = request(getEndpoint(),
-            "/api/v1/namespaces/${namespace}/pods",
-            GET,
-            null, headers, null)
+                "/api/v1/namespaces/${namespace}/pods",
+                GET,
+                null, headers, null)
 
         res.data.items.each { pod ->
             def matcher = pod.metadata.name =~ /(.*)-([^-]+)-([^-]+)$/
@@ -342,8 +337,8 @@ class OpenShiftHelper extends ContainerHelper {
                 def podName = matcher[0][1]
                 if (podName == serviceName) {
                     request(getEndpoint(),
-                        "/api/v1/namespaces/${namespace}/pods/${pod.metadata.name}",
-                        DELETE, null, headers, null
+                            "/api/v1/namespaces/${namespace}/pods/${pod.metadata.name}",
+                            DELETE, null, headers, null
                     )
                 }
             } catch (IndexOutOfBoundsException e) {
@@ -386,45 +381,45 @@ class OpenShiftHelper extends ContainerHelper {
         def selector = getSelector(serviceName)
         selector = 'test-smart-map'
         def deployment = [
-            kind    : 'Deployment',
-            metadata: [
-                name: serviceName,
-            ],
-            spec    : [
-                replicas: 1,
-                template: [
-                    spec    : [
-                        containers: [
-                            [
-                                name        : 'nginx',
-                                image       : 'nginx:1.10',
-                                ports       : [[containerPort: 80]],
-                                env         : [
-                                    [name: "TEST_ENV", "value": "TEST"]
+                kind    : 'Deployment',
+                metadata: [
+                        name: serviceName,
+                ],
+                spec    : [
+                        replicas: 1,
+                        template: [
+                                spec    : [
+                                        containers: [
+                                                [
+                                                        name        : 'nginx',
+                                                        image       : 'nginx:1.10',
+                                                        ports       : [[containerPort: 80]],
+                                                        env         : [
+                                                                [name: "TEST_ENV", "value": "TEST"]
+                                                        ],
+                                                        volumeMounts: [
+                                                                [name: 'my-volume', mountPath: '/tmp/path_in_container']
+                                                        ]
+                                                ]
+                                        ],
+                                        volumes   : [
+                                                [hostPath: [path: '/tmp/path'], name: 'my-volume']
+                                        ]
                                 ],
-                                volumeMounts: [
-                                    [name: 'my-volume', mountPath: '/tmp/path_in_container']
-                                ]
-                            ]
-                        ],
-                        volumes   : [
-                            [hostPath: [path: '/tmp/path'], name: 'my-volume']
-                        ]
-                    ],
-                    metadata: [labels: [app: selector]],
+                                metadata: [labels: [app: selector]],
 
+                        ]
                 ]
-            ]
         ]
 
         def service = [
-            kind      : 'Service',
-            apiVersion: 'v1',
-            metadata  : [name: serviceName],
-            spec      : [
-                selector: [app: selector],
-                ports   : [[protocol: 'TCP', port: 80, targetPort: 80]],
-            ]
+                kind      : 'Service',
+                apiVersion: 'v1',
+                metadata  : [name: serviceName],
+                spec      : [
+                        selector: [app: selector],
+                        ports   : [[protocol: 'TCP', port: 80, targetPort: 80]],
+                ]
         ]
         deploy(service, deployment)
     }
@@ -434,44 +429,44 @@ class OpenShiftHelper extends ContainerHelper {
         def selector = getSelector(serviceName)
 
         def service = [
-            kind      : 'Service',
-            apiVersion: 'v1',
-            metadata  : [name: serviceName],
-            spec      : [
-                type    : 'LoadBalancer',
-                selector: [app: selector],
-                ports   : [
-                    [protocol: 'TCP', port: 80, targetPort: 'first', name: 'first'],
-                    [protocol: 'TCP', port: 81, targetPort: 'second', name: 'second']
+                kind      : 'Service',
+                apiVersion: 'v1',
+                metadata  : [name: serviceName],
+                spec      : [
+                        type    : 'LoadBalancer',
+                        selector: [app: selector],
+                        ports   : [
+                                [protocol: 'TCP', port: 80, targetPort: 'first', name: 'first'],
+                                [protocol: 'TCP', port: 81, targetPort: 'second', name: 'second']
+                        ]
                 ]
-            ]
         ]
 
         def deployment = [
-            kind    : 'DeploymentConfig',
-            metadata: [
-                name: serviceName,
-            ],
-            spec    : [
-                replicas: 1,
-                template: [
-                    spec    : [
-                        containers: [
-                            [name: 'hello', image: 'imagostorm/hello-world:1.0', ports: [
-                                [containerPort: 8080, name: 'first']
-                            ]],
-                            [name: 'hello-2', 'image': 'imagostorm/hello-world:2.0', ports: [
-                                [containerPort: 8080, name: 'second']
-                            ]]
+                kind    : 'DeploymentConfig',
+                metadata: [
+                        name: serviceName,
+                ],
+                spec    : [
+                        replicas: 1,
+                        template: [
+                                spec    : [
+                                        containers: [
+                                                [name: 'hello', image: 'imagostorm/hello-world:1.0', ports: [
+                                                        [containerPort: 8080, name: 'first']
+                                                ]],
+                                                [name: 'hello-2', 'image': 'imagostorm/hello-world:2.0', ports: [
+                                                        [containerPort: 8080, name: 'second']
+                                                ]]
+                                        ]
+                                ],
+                                metadata: [
+                                        labels: [
+                                                app: selector
+                                        ]
+                                ]
                         ]
-                    ],
-                    metadata: [
-                        labels: [
-                            app: selector
-                        ]
-                    ]
                 ]
-            ]
         ]
 
         deployConfig(service, deployment)
@@ -480,53 +475,53 @@ class OpenShiftHelper extends ContainerHelper {
     def deployWithRoutes(serviceName) {
         def selector = getSelector(serviceName)
         def deployment = [
-            kind    : 'Deployment',
-            metadata: [
-                name: serviceName,
-            ],
-            spec    : [
-                replicas: 1,
-                template: [
-                    spec    : [
-                        containers: [
-                            [
-                                name        : 'nginx',
-                                image       : 'nginx:1.10',
-                                ports       : [[containerPort: 80]],
-                                env         : [
-                                    [name: "TEST_ENV", "value": "TEST"]
+                kind    : 'Deployment',
+                metadata: [
+                        name: serviceName,
+                ],
+                spec    : [
+                        replicas: 1,
+                        template: [
+                                spec    : [
+                                        containers: [
+                                                [
+                                                        name        : 'nginx',
+                                                        image       : 'nginx:1.10',
+                                                        ports       : [[containerPort: 80]],
+                                                        env         : [
+                                                                [name: "TEST_ENV", "value": "TEST"]
+                                                        ],
+                                                        volumeMounts: [
+                                                                [name: 'my-volume', mountPath: '/tmp/path_in_container']
+                                                        ]
+                                                ]
+                                        ],
+                                        volumes   : [
+                                                [hostPath: [path: '/tmp/path'], name: 'my-volume']
+                                        ]
                                 ],
-                                volumeMounts: [
-                                    [name: 'my-volume', mountPath: '/tmp/path_in_container']
-                                ]
-                            ]
-                        ],
-                        volumes   : [
-                            [hostPath: [path: '/tmp/path'], name: 'my-volume']
-                        ]
-                    ],
-                    metadata: [labels: [app: selector]],
+                                metadata: [labels: [app: selector]],
 
+                        ]
                 ]
-            ]
         ]
 
         def service = [
-            kind      : 'Service',
-            apiVersion: 'v1',
-            metadata  : [name: serviceName],
-            spec      : [
-                selector: [app: selector],
-                ports   : [[protocol: 'TCP', port: 80, targetPort: 80]],
-            ]
+                kind      : 'Service',
+                apiVersion: 'v1',
+                metadata  : [name: serviceName],
+                spec      : [
+                        selector: [app: selector],
+                        ports   : [[protocol: 'TCP', port: 80, targetPort: 80]],
+                ]
         ]
 
         def route = [
-            kind: 'Route',
-            metadata: [name: serviceName],
-            spec: [
-                host: '10.200.1.100', path: '/', port: [targetPort: 'test'], to: [kind: 'Service', name: serviceName]
-            ]
+                kind    : 'Route',
+                metadata: [name: serviceName],
+                spec    : [
+                        host: '10.200.1.100', path: '/', port: [targetPort: 'test'], to: [kind: 'Service', name: serviceName]
+                ]
         ]
         deploy(service, deployment)
         logger.debug("Created service $serviceName")
@@ -538,43 +533,43 @@ class OpenShiftHelper extends ContainerHelper {
         def selector = getSelector(serviceName)
 
         def deployment = [
-            kind    : 'Deployment',
-            metadata: [
-                name: serviceName,
-            ],
-            spec    : [
-                replicas: 2,
-                template: [
-                    spec    : [
-                        containers: [
-                            [name: 'hello', image: 'imagostorm/hello-world:1.0', ports: [
-                                [containerPort: 8080, name: 'first']
-                            ]],
-                            [name: 'hello-2', 'image': 'imagostorm/hello-world:2.0', ports: [
-                                [containerPort: 8080, name: 'second']
-                            ]]
+                kind    : 'Deployment',
+                metadata: [
+                        name: serviceName,
+                ],
+                spec    : [
+                        replicas: 2,
+                        template: [
+                                spec    : [
+                                        containers: [
+                                                [name: 'hello', image: 'imagostorm/hello-world:1.0', ports: [
+                                                        [containerPort: 8080, name: 'first']
+                                                ]],
+                                                [name: 'hello-2', 'image': 'imagostorm/hello-world:2.0', ports: [
+                                                        [containerPort: 8080, name: 'second']
+                                                ]]
+                                        ]
+                                ],
+                                metadata: [
+                                        labels: [
+                                                app: selector
+                                        ]
+                                ]
                         ]
-                    ],
-                    metadata: [
-                        labels: [
-                            app: selector
-                        ]
-                    ]
                 ]
-            ]
         ]
         def service = [
-            kind      : 'Service',
-            apiVersion: 'v1',
-            metadata  : [name: serviceName],
-            spec      : [
-                type    : 'LoadBalancer',
-                selector: [app: selector],
-                ports   : [
-                    [protocol: 'TCP', port: 80, targetPort: 'first', name: 'first'],
-                    [protocol: 'TCP', port: 81, targetPort: 'second', name: 'second']
+                kind      : 'Service',
+                apiVersion: 'v1',
+                metadata  : [name: serviceName],
+                spec      : [
+                        type    : 'LoadBalancer',
+                        selector: [app: selector],
+                        ports   : [
+                                [protocol: 'TCP', port: 80, targetPort: 'first', name: 'first'],
+                                [protocol: 'TCP', port: 81, targetPort: 'second', name: 'second']
+                        ]
                 ]
-            ]
         ]
 
         deploy(service, deployment)
@@ -583,39 +578,39 @@ class OpenShiftHelper extends ContainerHelper {
 
     def deployWithPercentage(serviceName) {
         def deployment = [
-            kind    : 'Deployment',
-            metadata: [
-                name: serviceName,
-            ],
-            spec    : [
-                replicas: 3,
-                strategy: [
-                    rollingUpdate: [
-                        maxSurge      : '25%',
-                        maxUnavailable: '25%'
-                    ]
+                kind    : 'Deployment',
+                metadata: [
+                        name: serviceName,
                 ],
-                template: [
-                    spec    : [
-                        containers: [
-                            [name: 'nginx', image: 'nginx:1.10', ports: [
-                                [containerPort: 80]
-                            ]]
+                spec    : [
+                        replicas: 3,
+                        strategy: [
+                                rollingUpdate: [
+                                        maxSurge      : '25%',
+                                        maxUnavailable: '25%'
+                                ]
                         ],
-                    ],
-                    metadata: [labels: [app: 'nginx_test_spec']]
+                        template: [
+                                spec    : [
+                                        containers: [
+                                                [name: 'nginx', image: 'nginx:1.10', ports: [
+                                                        [containerPort: 80]
+                                                ]]
+                                        ],
+                                ],
+                                metadata: [labels: [app: 'nginx_test_spec']]
+                        ]
                 ]
-            ]
         ]
 
         def service = [
-            kind      : 'Service',
-            apiVersion: 'v1',
-            metadata  : [name: serviceName],
-            spec      : [
-                selector: [app: 'nginx_test_spec'],
-                ports   : [[protocol: 'TCP', port: 80, targetPort: 80]]
-            ]
+                kind      : 'Service',
+                apiVersion: 'v1',
+                metadata  : [name: serviceName],
+                spec      : [
+                        selector: [app: 'nginx_test_spec'],
+                        ports   : [[protocol: 'TCP', port: 80, targetPort: 80]]
+                ]
         ]
         deploy(service, deployment)
     }
@@ -624,48 +619,48 @@ class OpenShiftHelper extends ContainerHelper {
     def deployWithLoadBalancer(serviceName) {
         def selector = getSelector(serviceName)
         def service = [
-            kind      : 'Service',
-            apiVersion: 'v1',
-            metadata  : [name: serviceName],
-            spec      : [
-                selector      : [app: selector],
-                type          : 'LoadBalancer',
-                loadBalancerIP: '35.224.8.81',
-                ports         : [
-                    [port: 80, targetPort: 80]
+                kind      : 'Service',
+                apiVersion: 'v1',
+                metadata  : [name: serviceName],
+                spec      : [
+                        selector      : [app: selector],
+                        type          : 'LoadBalancer',
+                        loadBalancerIP: '35.224.8.81',
+                        ports         : [
+                                [port: 80, targetPort: 80]
+                        ]
                 ]
-            ]
         ]
         def deployment = [
-            kind    : 'Deployment',
-            metadata: [
-                name: serviceName,
-            ],
-            spec    : [
-                replicas: 1,
-                template: [
-                    spec    : [
-                        containers: [
-                            [
-                                name        : 'nginx',
-                                image       : 'nginx:1.10',
-                                ports       : [[containerPort: 80]],
-                                env         : [
-                                    [name: "TEST_ENV", "value": "TEST"]
+                kind    : 'Deployment',
+                metadata: [
+                        name: serviceName,
+                ],
+                spec    : [
+                        replicas: 1,
+                        template: [
+                                spec    : [
+                                        containers: [
+                                                [
+                                                        name        : 'nginx',
+                                                        image       : 'nginx:1.10',
+                                                        ports       : [[containerPort: 80]],
+                                                        env         : [
+                                                                [name: "TEST_ENV", "value": "TEST"]
+                                                        ],
+                                                        volumeMounts: [
+                                                                [name: 'my-volume', mountPath: '/tmp/path_in_container']
+                                                        ]
+                                                ]
+                                        ],
+                                        volumes   : [
+                                                [hostPath: [path: '/tmp/path'], name: 'my-volume']
+                                        ]
                                 ],
-                                volumeMounts: [
-                                    [name: 'my-volume', mountPath: '/tmp/path_in_container']
-                                ]
-                            ]
-                        ],
-                        volumes   : [
-                            [hostPath: [path: '/tmp/path'], name: 'my-volume']
-                        ]
-                    ],
-                    metadata: [labels: [app: selector]],
+                                metadata: [labels: [app: selector]],
 
+                        ]
                 ]
-            ]
         ]
 
         deploy(service, deployment)
@@ -676,40 +671,40 @@ class OpenShiftHelper extends ContainerHelper {
         secretName = secretName.replaceAll('_', '-')
         createSecret(secretName, 'registry.hub.docker.com', 'ecplugintest', 'qweqweqwe')
         def deployment = [
-            kind    : 'Deployment',
-            metadata: [
-                name: serviceName,
-            ],
-            spec    : [
-                replicas: 1,
-                template: [
-                    spec    : [
-                        containers      : [
-                            [name: 'hello', image: 'registry.hub.docker.com/imagostorm/hello-world:1.0', ports: [
-                                [containerPort: 80]
-                            ]]
-                        ],
-                        imagePullSecrets: [
-                            [name: secretName]
+                kind    : 'Deployment',
+                metadata: [
+                        name: serviceName,
+                ],
+                spec    : [
+                        replicas: 1,
+                        template: [
+                                spec    : [
+                                        containers      : [
+                                                [name: 'hello', image: 'registry.hub.docker.com/imagostorm/hello-world:1.0', ports: [
+                                                        [containerPort: 80]
+                                                ]]
+                                        ],
+                                        imagePullSecrets: [
+                                                [name: secretName]
+                                        ]
+                                ],
+                                metadata: [
+                                        labels: [
+                                                app: 'nginx_test_spec'
+                                        ]
+                                ]
                         ]
-                    ],
-                    metadata: [
-                        labels: [
-                            app: 'nginx_test_spec'
-                        ]
-                    ]
                 ]
-            ]
         ]
 
         def service = [
-            kind      : 'Service',
-            apiVersion: 'v1',
-            metadata  : [name: serviceName],
-            spec      : [
-                selector: [app: 'nginx_test_spec'],
-                ports   : [[protocol: 'TCP', port: 80, targetPort: 80]]
-            ]
+                kind      : 'Service',
+                apiVersion: 'v1',
+                metadata  : [name: serviceName],
+                spec      : [
+                        selector: [app: 'nginx_test_spec'],
+                        ports   : [[protocol: 'TCP', port: 80, targetPort: 80]]
+                ]
         ]
         deploy(service, deployment)
         secretName
@@ -718,61 +713,61 @@ class OpenShiftHelper extends ContainerHelper {
     def deployLiveness(serviceName) {
 
         def container = [
-            args          : ['/server'],
-            image         : 'k8s.gcr.io/liveness',
-            livenessProbe : [
-                httpGet            : [
-                    path       : '/healthz',
-                    port       : 8080,
-                    httpHeaders: [
-                        [name: 'X-Custom-Header', value: 'Awesome']
-                    ]
+                args          : ['/server'],
+                image         : 'k8s.gcr.io/liveness',
+                livenessProbe : [
+                        httpGet            : [
+                                path       : '/healthz',
+                                port       : 8080,
+                                httpHeaders: [
+                                        [name: 'X-Custom-Header', value: 'Awesome']
+                                ]
+                        ],
+                        initialDelaySeconds: 15,
+                        timeoutSeconds     : 1
                 ],
-                initialDelaySeconds: 15,
-                timeoutSeconds     : 1
-            ],
-            readinessProbe: [
-                exec               : [
-                    command: [
-                        'cat',
-                        '/tmp/healthy'
-                    ]
+                readinessProbe: [
+                        exec               : [
+                                command: [
+                                        'cat',
+                                        '/tmp/healthy'
+                                ]
+                        ],
+                        initialDelaySeconds: 5,
+                        periodSeconds      : 5,
                 ],
-                initialDelaySeconds: 5,
-                periodSeconds      : 5,
-            ],
-            name          : 'liveness-readiness'
+                name          : 'liveness-readiness'
         ]
         def deployment = [
-            kind    : 'Deployment',
-            metadata: [
-                name: serviceName,
-            ],
-            spec    : [
-                replicas: 1,
-                template: [
-                    spec    : [
-                        containers: [
-                            container
-                        ],
-                    ],
-                    metadata: [
-                        labels: [
-                            app: 'liveness-probe'
+                kind    : 'Deployment',
+                metadata: [
+                        name: serviceName,
+                ],
+                spec    : [
+                        replicas: 1,
+                        template: [
+                                spec    : [
+                                        containers: [
+                                                container
+                                        ],
+                                ],
+                                metadata: [
+                                        labels: [
+                                                app: 'liveness-probe'
+                                        ]
+                                ]
                         ]
-                    ]
                 ]
-            ]
         ]
 
         def service = [
-            kind      : 'Service',
-            apiVersion: 'v1',
-            metadata  : [name: serviceName],
-            spec      : [
-                selector: [app: 'liveness-probe'],
-                ports   : [[protocol: 'TCP', port: 80, targetPort: 8080]]
-            ]
+                kind      : 'Service',
+                apiVersion: 'v1',
+                metadata  : [name: serviceName],
+                spec      : [
+                        selector: [app: 'liveness-probe'],
+                        ports   : [[protocol: 'TCP', port: 80, targetPort: 8080]]
+                ]
         ]
 
         deploy(service, deployment)
@@ -781,11 +776,11 @@ class OpenShiftHelper extends ContainerHelper {
 
     def deployRoute(serviceName, routeName) {
         def route = [
-            kind: 'Route',
-            metadata: [name: routeName],
-            spec: [
-                host: '10.200.1.100', path: '/', port: [targetPort: 'test'], to: [kind: 'Service', name: serviceName]
-            ]
+                kind    : 'Route',
+                metadata: [name: routeName],
+                spec    : [
+                        host: '10.200.1.100', path: '/', port: [targetPort: 'test'], to: [kind: 'Service', name: serviceName]
+                ]
         ]
         createRoute(route)
     }
