@@ -5,6 +5,7 @@ import groovy.json.JsonSlurper
 import spock.lang.*
 import com.electriccloud.spec.*
 
+@Ignore
 class Discover extends OpenShiftHelper {
     static def projectName = 'EC-OpenShift Specs Discover'
     static def clusterName = 'OpenShift Spec Cluster'
@@ -121,6 +122,7 @@ class Discover extends OpenShiftHelper {
         dsl "deleteApplication(projectName:'$projectName', applicationName: '$applicationName')"
     }
 
+    @Ignore
     def "create environment from scratch"() {
         given:
         def sampleName = 'nginx-spec-scratch'
