@@ -3,247 +3,136 @@ Plugin version @PLUGIN_VERSION@
 Revised on October 13, 2020
 
 
-
-
-
-== Overview
-
-EC-OpenShift plugin integrates with the https://www.openshift.com/[OpenShift container platform] and helps you manage microservices based applications deployments and releases on both on-premise as well as hosted OpenShift offerings.
-
-In case of on-premise setup, plugin helps you in addition to install https://www.openshift.org/[OpenShift Origin on VMWare]. Plugin supports the following topologies:
-
-* *Minimal*: Sets up one OpenShift master, embedded etcd and user supplied number of nodes. This is typically used for creating an OpenShift cluster for a Development environment .
-* *Multiple Etcd*: Sets up one OpenShift master, separate cluster of three etcd instances and user supplied number of nodes.
-* *Multiple Etcd + HAProxy*: Highly available setup with three OpenShift masters, cluster of three etcd instances and user supplied number of nodes. This is meant for a production
-environment.
-
-
-
-
-
-
-
-
 == Prerequisites
+
+[source,shell]
 ----
-    # Login using cluster admin credentials
+# Login using cluster admin credentials
     oc login cluster_IP_here:8443 --username=<cluster_admin_user_here> --password=<admin_user_password_here>
 
-    # Create a service account in the current project say 'us-project-test'. Full name of the serviceaccount will be system:serviceaccount:us-project-test:erobot
+# Create a service account in the current project say 'us-project-test'. Full name of the serviceaccount will be system:serviceaccount:us-project-test:erobot
     oc create serviceaccount erobot
 
-    # Grant the following roles to allow the service account create resources in the cluster such as projects.
+# Grant the following roles to allow the service account create resources in the cluster such as projects.
     sudo ./oadm --config='openshift.local.config/master/openshift-master.kubeconfig' policy add-cluster-role-to-user edit system:serviceaccount:us-project-test:erobot
     sudo ./oadm --config='openshift.local.config/master/openshift-master.kubeconfig' policy add-cluster-role-to-user cluster-reader system:serviceaccount:us-project-test:erobot
 
-    # Describe the service account to discover the secret token name
+# Describe the service account to discover the secret token name
     oc describe serviceaccount erobot
 
-    # Describe the secret token to get the token value, say 'erobot-token-8zlsh'
+# Describe the secret token to get the token value, say 'erobot-token-8zlsh'
     oc describe secret erobot-token-8zlsh
-    or
+        or
     oc describe secret erobot-token-8zlsh > oc-secret-with-token.txt
 
-    # You will need to provide this token value in the plugin configuration for the Service Account Key value.
+# You will need to provide this token value in the plugin configuration for the Service Account Key value.
 ----
 
 
+== Plugin configurations
 
+Plugin configurations are sets of parameters that apply across some or all of the plugin procedures. They reduce repetition of common values, create predefined parameter sets for end users, and securely store credentials where needed. Each configuration is given a unique name that is entered in designated parameters on procedures that use them.
 
-== Plugin Configurations
-Plugin configurations are sets of parameters that apply
-across some or all of the plugin procedures. They
-reduce repetition of common values, create
-predefined parameter sets for end users, and
-securely store credentials where needed. Each configuration
-is given a unique name that is entered in designated
-parameters on procedures that use them.
+=== Creating plugin configurations
 
-
-=== Creating Plugin Configurations
 To create plugin configurations in {CD}, do these steps:
 
-* Go to **Administration** &gt;**Plugins** to open the Plugin Manager.
-* Find the @PLUGIN_NAME@ row.
-* Click *Configure* to open the
-     Configurations page.
+* Go to menu:Administration[Plugins] to open the Plugin Manager.
+* Find the EC-OpenShift-x.y.z row.
+* Click *Configure* to open the Configurations page.
 * Click *Create Configuration* as per the description of parameters below.
 
-
-
-=== Configuration Procedure Parameters
+=== Configuration procedure parameters
 [cols=",",options="header",]
 |===
 |Parameter |Description
 
 |__**Configuration**__ | Unique name for the plugin configuration.
-
-
 |Description | Description for the plugin configuration.
-
-
-|__**Openshift API Endpoint**__ | The endpoint at which Openshift API will be reachable. Example, https://192.168.20.20:8443.
-
-
-|__**Service Account**__ | The bearer token for the service account that has access to create resources in the Openshift cluster
-
-
-|Kubernetes Version | Kubernetes version running on the Openshift cluster master
-
-
-|Test Connection | Check this checkbox to verify connectivity to the Openshift cluster master.
-
-
+|__**OpenShift API Endpoint**__ | The endpoint at which OpenShift API will be reachable. Example, https://192.168.20.20:8443.
+|__**Service Account**__ | The bearer token for the service account that has access to create resources in the OpenShift cluster
+|Kubernetes Version | Kubernetes version running on the OpenShift cluster master
+|Test Connection | Check this checkbox to verify connectivity to the OpenShift cluster master.
 |Log Level | Log level to use for logging output. Error=4, Warning=3, Info=2, Debug=1.
-
-
 |===
 
+== Plugin procedures
 
 
-
-
-[[procedures]]
-== Plugin Procedures
-
-
-
-[[DeployService]]
-=== Deploy Service
-
+=== Deploy service
 
 Deploys a service, creating or updating pod definitions, service and deployment in the OpenShift project on the cluster. The OpenShift project(namespace) is created if it does not exist.
 
-
-
-==== Deploy Service Parameters
+==== Deploy service parameters
 [cols=",",options="header",]
 |===
 | Parameter | Description
 
 | __**Service Name**__ | The name of the service in {CD} that encapsulates the service to be deployed on the OpenShift cluster.
-
-
 | Service Revision ID | Revision Id of the service in {CD}.
-
-
 | __**Project Name**__ | The name of the project that the service belongs to. In case of an application-level service it also owns the application.
-
-
 | Application Name | The name of the application that the service belongs to. Not applicable for a top-level service.
-
-
 | Application Revision ID | Revision Id of the application version that the service belongs to.
-
-
 | __**Cluster Name**__ | The name of the cluster in {CD} that encapsulates the OpenShift cluster on which the service is to be deployed.
-
-
 | Cluster Or Environment Project Name | The name of the project that the cluster belongs to if it is a top-level project cluster. Or the name of the project that the environment belongs to if it is an environment-scoped cluster.
-
-
 | Environment Name | The name of the environment that the cluster belongs to. Not applicable for a top-level project cluster.
-
-
 | Results Property Sheet | Name of the property sheet where the output properties for the deployed service will be saved. If not specified, will default to '/myParent/parent'.
-
-
 |===
 
+=== Undeploy service
 
+Undeploys a previously deployed service on the OpenShift cluster.
 
-
-
-
-[[UndeployService]]
-=== Undeploy Service
-
-
-Undeploys a previously deployed service on the OpenShift cluster
-
-
-
-==== Undeploy Service Parameters
+==== Undeploy service parameters
 [cols=",",options="header",]
 |===
 | Parameter | Description
 
 | __**Service Name**__ | The name of the service in {CD} that encapsulates the service that was previously deployed on the OpenShift cluster.
-
-
 | Service Revision ID | Revision Id of the service in {CD}.
-
-
 | __**Project Name**__ | The name of the project that the service belongs to. In case of an application-level service it also owns the application.
-
-
 | Application Name | The name of the application that the service belongs to. Not applicable for a top-level service.
-
-
 | Application Revision ID | Revision Id of the application version that the service belongs to.
-
-
 | __**Environment Name**__ | The name of the environment that the cluster belongs to.
-
-
 | Environment Project Name | The name of the project that the environment belongs to. If not specified, the environment is assumed to be in the same project as the service.
-
-
 | Cluster Name | The name of the cluster in the environment on which the service was previously deployed. If not specified, the application tier mapping will be used to find the cluster name.
-
-
 |===
 
 
-
-
-
-
-[[Discover]]
 === Discover
-
 
 Automatically create microservice models in {CD} for the services and the pods discovered within a project on a OpenShift cluster.
 
+.  *Select your method of discovery from a OpenShift Cluster*   There are two options for connecting to OpenShift for discovery
+**  *Existing {CD} Environment and Cluster*   Use the Cluster configuration details in an existing {CD} environment to connect to OpenShift. Enter details for the existing environment and cluster in the following parameters:
 
- .  *Select your method of discovery from a OpenShift Cluster*   There are two options for connecting to OpenShift for discovery
-            
+*** Environment Project Name: The project containing the existing environment
+*** Environment Name:  the name of an existing environment that contains the OpenShift backend cluster to be discovered
+*** Cluster Name: The name of the {CD} cluster in the environment above that represents the OpenShift cluster
 
- **  *Existing {CD} Environment and Cluster*   Use the Cluster configuration details in an existing {CD} environment to connect to OpenShift. Enter details for the existing environment and cluster in the following parameters:
-                    
+**  *OpenShift Connection Details*   Enter OpenShift endpoint and Account details to directly connect to the endpoint and discover the clusters and pods.  Enter the endpoint and account details in the following parameters:
 
- *** Environment Project Name: The project containing the existing environment
+*** OpenShift Endpoint: The endpoint where the OpenShift endpoint will be reachable
+*** Service Account API Token
 
- *** Environment Name:  the name of an existing environment that contains the OpenShift backend cluster to be discovered
+If selecting this connection option, you can optionally enter a new values for *Environment Name* and *Cluster Name* parameters, to create a new environment and cluster in {CD} based on the discovered services and pods.
++
+  *Determine how the discovered microservices will be created in {CD}*
++
+  *Create the microservices individually at the top-level within the project.*
++
+All discovered microservices are created at the top-level.  Enter the following parameters:
 
- *** Cluster Name: The name of the {CD} cluster in the environment above that represents the OpenShift cluster
+*** Project Name: Enter the name of the project where the microservices will be created.
++
+*Create the Microservices within an application in {CD}.*  All discovered microservices will be created as services within a new application.
 
- **  *OpenShift Connection Details*   Enter OpenShift endpoint and Account details to directly connect to the endpoint and discover the clusters and pods.  Enter the endpoint and account details in the following parameters:
-                    
+Enter the following parameters:
+*** Project Name: Enter the name of the project where the new application will be created
+*** Create Microservices within and Application:  Select the checkbox
+*** Application Name:  The name of a new application which will be created in {CD} containing the discovered services
 
- *** OpenShift Endpoint: The endpoint where the OpenShift endpoint will be reachable
-
- *** Service Account API Token
-
- *** _If selecting this connection option, you can optionally enter a new values for Environment Name and Cluster Name parameters, to create a new environment and cluster in {CD} based on the discovered services and pods._
- *  *Determine how the discovered microservices will be created in {CD}* 
- **  *Create the microservices individually at the top-level within the project.*  All discovered microservices will be created at the top-level.  Enter the following parameters:
-                    
-
- *** Project Name: Enter the name of the project where the microservices will be created
-
- **  *Create the Microservices within an application in {CD}.*  All discovered microservices will be created as services within a new application. Enter the following parameters:
-                    
-
- *** Project Name: Enter the name of the project where the new application will be created
-
- *** Create Microservices within and Application:  Select the checkbox
-
- *** Application Name:  The name of a new application which will be created in {CD} containing the discovered services
-
-
-
-Procedure looks for services and deployments on OpenShift
+The procedure looks for services and deployments on OpenShift
 cluster and transfers data into {CD}. Services found
 in cluster will be mapped to Services objects in {CD},
 then associated deployments will be found and containers
@@ -252,119 +141,61 @@ definitions retrieved from there.
 If the object with the provided name already exists in the {CD}, this object will be skipped and a warning message will be emitted to logs.
 
 
-==== Discover Parameters
+==== Discover parameters
 [cols=",",options="header",]
 |===
 | Parameter | Description
 
 | __**Environment Project Name**__ | The project containing the existing environment, or where the new environment will be created.
-
-
 | __**Environment Name**__ | Provide the name of an existing environment that contains the OpenShift-backend cluster to be discovered. If the environment does not already exist, provide the OpenShift connection details below for discovery, and a new environment will be created.
-
-
 | __**Cluster Name**__ | In an existing environment, provide the name of the {CD} cluster representing the OpenShift cluster whose deployed services are to be discovered. If the environment does not already exist, provide the name of the cluster to be created in the new environment.
-
-
 | OpenShift API Endpoint | The endpoint at which the OpenShift API will be reachable. Must be an IP address or a resolvable DNS name. This field is required and used only if you are not providing an existing environment above for discovery.
-
-
 | Service Account API Token | Service account bearer token for a service account which has permissions to create resources in the OpenShift cluster. This field is required and used only if you are not providing an existing environment above for discovery.
-
-
 | __**OpenShift project**__ | The name of the OpenShift project within which the deployed services should be discovered. Default to 'default' namespace.
-
-
 | __**Project Name**__ | The name of project in which the discovered microservices will be created.
-
-
 | Create Microservices within an Application | (Optional) Select to create all discovered services in the OpenShift project within one application in {CD}. If selected, then the application name must be provided. If unselected, microservices will be created at the top-level in the project.
-
-
 | Application Name | The name of the new application that will contain the microservices. Required only if 'Create Microservices within an Application' is selected.
-
-
 |===
 
+=== Import microservices
 
+Create microservices in {CD} by importing an OpenShift template (YAML file) containing services and deployment configurations.
 
+ * *Copy and enter the content of your template (YAML file)*
+ * *Determine how the new microservices will be created in {CD}*
 
-
-
-[[ImportMicroservices]]
-=== Import Microservices
-
-
-
-        Create microservices in {CD} by importing an OpenShift template (YAML file) containing services and deployment configurations.
-        
-
- .  *Copy and enter the content of your template (YAML file)* 
- .  *Determine how the new microservices will be created in {CD}* 
  **  *Create the microservices individually at the top-level within the project.*  All microservices will be created at the top-level. Enter the following parameters:
-                    
 
  *** Project Name: Enter the name of the project where the microservices will be created
 
  **  *Create the Microservices within an application in {CD}.*  All microservices will be created as services within a new application. Enter the following parameters:
-                    
 
  *** Project Name: Enter the name of the project where the new application will be created
-
  *** Create Microservices within and Application: Select the checkbox
-
  *** Application Name:  The name of a new application which will be created in {CD} containing the new services.
 
- *  *Optionally map the services to an existing Environment Cluster*  Select an existing Environment that contains a cluster with OpenShift configuration details where the new microservices can be deployed. Enter the following parameters:
-                
+ *  *Optionally map the services to an existing Environment Cluster*  Select an existing environment that contains a cluster with OpenShift configuration details where the new microservices can be deployed. Enter the following parameters:
 
  ** Environment Project Name: The project containing the {CD} environment where the services will be deployed.
-
  ** Environment Name: The name of the existing environment that contains a cluster where the newly created microservice(s) will be deployed.
-
  ** Cluster Name: The name of an existing EC-OpenShift backed cluster in the environment above where the newly created microservice(s) will be deployed.
 
 
-
-
-==== Import Microservices Parameters
+==== Import microservices parameters
 [cols=",",options="header",]
 |===
 | Parameter | Description
-
 | __**OpenShift Template Content (YAML File)**__ | Content of an OpenShift template (YAML file) containing related services and deployments definitions.
-
-
 | Template Parameter Values | Template parameter values to use. Format "paramName1=value1, paramName2=value2"
-
-
 | __**Project Name**__ | The name of the {CD} project in which the application or microservices will be created.
-
-
 | Create Microservices within an Application | (Optional) Select to create all services defined in the template file within one application in {CD}. If selected, then the application name must be provided. If not selected, microservices will be created at the top-level in the project.
-
-
 | Application Name | (Optional) The name of the new application that will contain the microservices. Required only if 'Create Microservices within an Application' is selected.
-
-
 | Environment Project Name | (Optional) The project containing the Environment where the services will be deployed.
-
-
 | Environment Name | (Optional) The name of an existing environment that contains a cluster where the newly created microservice(s) will be deployed.
-
-
 | Cluster Name | (Optional) The name of the existing {CD} cluster representing a OpenShift cluster in the environment above where the newly created microservice(s) will be deployed.
-
-
 |===
 
-
-
-
-
-
-[[ProvisionClusteronESX]]
-=== Provision Cluster on ESX
+=== Provision cluster on ESX
 
 
 Provisions a OpenShift cluster. Pods, services, and replication controllers all run on top of a cluster.
@@ -390,201 +221,114 @@ Once VMs are available, the procedure uses https://github.com/openshift/openshif
 * https://buildlogs.centos.org/centos/7/paas/x86_64/openshift-origin/origin-docker-excluder-1.4.0-2.el7.noarch.rpm[origin-docker-excluder] and https://buildlogs.centos.org/centos/7/paas/x86_64/openshift-origin/origin-excluder-1.4.0-2.el7.noarch.rpm[origin-excluder] RPMs must be already installed on OVF template.
 
 
-==== Provision Cluster on ESX Parameters
+==== Provision cluster on ESX parameters
 [cols=",",options="header",]
 |===
 | Parameter | Description
 
 | __**ESX plugin configuration**__ | ESX plugin configuration name. ESX plugin is used create underlying VM hosts for OpenShift cluster setup by importing OVF templates.
-
-
 | __**ESX Datastore**__ | Name of the datastore to be used.
-
-
 | __**ESX Host**__ | Name of the host where virtual machines will be imported.
-
-
 | __**Path to OVF Tool**__ | Install location of the ovftool binary.
-
-
 | __**Path to OVF package**__ | Absoulte path to the directory where OVF packages are stored.
-
-
 | __**OpenShift Project**__ | The name of the OpenShift project to which the services and deployments will be deployed. If the project does not exist, it will be created during service deployment. The project name must match the regex [a-z0-9]([-a-z0-9]*[a-z0-9])? (e.g. 'my-name' or '123-abc').
-
-
 | __**OpenShift Service Account**__ | The name of service account to create after OpenShift cluster is setup.Service account name must match the regex [a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)* (e.g. 'example.com')
-
-
-| __**OpenShift VM name prefix**__ | Prefix to be prepended to VM names and their hostnames to uniquely distinguish them from other OpenShift setups. 
-
-
+| __**OpenShift VM name prefix**__ | Prefix to be prepended to VM names and their hostnames to uniquely distinguish them from other OpenShift setups.
 | __**OpenShift Plugin configuration Name**__ | Name OpenShift plugin configaration to create after OpenShift cluster is setup.
-
-
 | OpenShift Master Node Memory (in MBs) |  Memory in MB for master VM(s).
-
-
 | OpenShift Master Node CPUs | Number of CPUs for master VM(s).
-
-
 | OpenShift Worker Node Memory (in MBs) | Memory in MB for node VMs.
-
-
 | OpenShift Worker Node CPUs | Number of CPUs for node VMs.
-
-
 | __**Topology**__ | Indicates which OpenShift topology to deploy
-
-
 | __**Number of worker nodes**__ | Number of nodes to add to the OpenShift cluster.
-
-
 | __**Domain Name**__ | Domain name to use for imported OpenShift VMs.(e.g. xyz.yourcompany.com)
-
-
 | __**User login to use**__ | The user to be used by ansible to login into VMs. The user should have preconfigured passwordless SSH access to the imported VMs.
-
-
 |===
 
-
-
-
-
-
-[[CheckCluster]]
-=== Check Cluster
-
+=== Check cluster
 
 Checks that the configured OpenShift cluster is accessible using the given service account bearer token.
 
-
 The procedure checks if the OpenShift cluster exists and is reachable using the cluster details provided in the plugin configuration.
 
-
-==== Check Cluster Parameters
+==== Check cluster parameters
 [cols=",",options="header",]
 |===
 | Parameter | Description
-
-| __**Configuration**__ | The name of an existing configuration which holds all the connection information for OpenShift cluster.
-
-
+| `configuration` | The name of an existing configuration which holds all the connection information for OpenShift cluster.
 | __**OpenShift Project**__ | The name of the OpenShift project to which the services and deployments should be deployed. If the project does not exist, it will be created during service deployment.
-
-
 |===
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 [[rns]]
 == Release notes
 
-
 === EC-OpenShift 1.6.1
 
-- Renaming from "CloudBees Flow" to "{CD}".
+- Renaming to "{CD}".
 
 
 === EC-OpenShift 1.6.0
 
 - Provisioning of Binary Dependencies (for example Grape jars) in the agent resource, required by this plugin, is now delivered through a newly introduced mechanism called Plugin Dependency Management. Binary dependencies will now be seamlessly delivered to the agent resource from the Flow Server, any time a new version of a plugin is invoked the first time. Flow Repository set up is no longer required for this plugin.
 
-
 === EC-OpenShift 1.5.4
 
-- Renaming from "Electric Cloud" to "CloudBees"
-
+- Renaming to "CloudBees"
 
 === EC-OpenShift 1.5.3
 
 - Configurations can be created by users with "@" sign in a name.
 
-
 === EC-OpenShift 1.5.2
 
 - Fixed plugin documentation.
-
 
 === EC-OpenShift 1.5.1
 
 - Updated the plugin icon.
 
-
 === EC-OpenShift 1.5.0
 
 - Improved plugin promotion time.
 
-
 === EC-OpenShift 1.4.1
 
-- Fixed 'Import Microservices' procedure by the following:
- * fixed handling of default values for template parameters;
- * fixed parsing of image URL for cases of non default registry and repository namespace which contains dots;
- * fixed parsing of service port name which may be used by route as target port reference;
- * procedure now can succeed without optional parameters related to environment mapping provided.
+Fixed 'Import Microservices' procedure by the following:
+ ** fixed handling of default values for template parameters;
+ ** fixed parsing of image URL for cases of non default registry and repository namespace which contains dots;
+ ** fixed parsing of service port name which may be used by route as target port reference;
+ ** procedure now can succeed without optional parameters related to environment mapping provided.
 
-
-- Fixed 'Deploy Service' procedure by the following - deploy of route can now succeed without hostname provided.
-
-- Added 'Test Connection' step for 'EditConfiguration' procedure.
+* Fixed 'Deploy Service' procedure by the following - deploy of route can now succeed without hostname provided.
+* Added 'Test Connection' step for 'EditConfiguration' procedure.
 
 
 === EC-OpenShift 1.4.0
 
 - Configured the plugin to allow the ElectricFlow UI to create configs inline of procedure form.
-
 - Added new procedures: Discovery, Import Microservices.
-
 
 === EC-OpenShift 1.3.2
 
 - Fixed non-ascii characters in help file.
-
 - Added support for retrieving and creating the plugin configurations through the "Configurations" option on the application process step and the pipeline stage task editors.
-
 - Configured the 'setup' procedure step that retrieves groovy dependency jars to run all subsequent procedure steps on the same resource.
 
 
 === EC-OpenShift 1.3.1
 
 - __Requires EC-Kubernetes plugin version 1.0.5 or higher to be installed.__
-
 - Removed unused parameter __additionalAttributes__ from container mapping configuration.
-
 - When deploying a microservice through ElectricFlow on an OpenShift cluster, the plugin will now monitor the deployment progress in the cluster and cause the step to fail in case the deployment does not complete within the deployment timeout configured as part of the service mapping. The default timeout value is 120 seconds.
-
 - When deploying a microservice through ElectricFlow on an OpenShift cluster, the service name to use in OpenShift can now be overridden through the service mapping.
-
 - When deploying a microservice through ElectricFlow on an OpenShift cluster, the deployment name to use in the cluster can now be overridden through the service mapping. See section **Blue/Green Deployments** in the EC-Kubernetes plugin help for details on how this ability can be used to implement a blue/green deployment strategy.
-
 - Added support for canary deployments. See section **Canary Deployments** in the EC-Kubernetes plugin help for details.
 
 
 === EC-OpenShift 1.3.0
 
 - Renamed __Provision Cluster__ procedure to a more specific __Provision Cluster on ESX__. The parameters in the renamed procedure remain the same.
-
 - Updated the 'provisionCluster' operation used during service deployment to use the 'Check Cluster' procedure that checks that the OpenShift cluster exists and is available for service deployments.
-
 - Added procedure __Undeploy Service__ to undeploy a previously deployed service.
-
-- Added 'kubernetesVersion' parameter in the plugin configuration to allow the user to identify the Kubernetes version running on the Openshift cluster master. The parameter will default to '1.6' if no value is specified.
-
-
+- Added 'kubernetesVersion' parameter in the plugin configuration to allow the user to identify the Kubernetes version running on the OpenShift cluster master. The parameter will default to '1.6' if no value is specified.
