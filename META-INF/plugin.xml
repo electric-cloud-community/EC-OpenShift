@@ -11,7 +11,7 @@
   <help>help.xml</help>
   <key>EC-OpenShift</key>
   <label>EC-OpenShift</label>
-  <version>1.6.3</version>
+  <version>1.6.4</version>
   <hasAdoc>true</hasAdoc>
   <catalogLabel>OpenShift container platform</catalogLabel>
   <detailedDescription>This plugin integrates with the OpenShift container platform and helps you manage microservices based applications deployments and releases on both on-premise as well as hosted OpenShift offerings.</detailedDescription>
