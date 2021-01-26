@@ -48,7 +48,9 @@ environment.
 ----
 
 
+== Known issues
 
+* In some rare cases, EC-OpenShift could not work if OpenShift configured to use TLSv1.3 due to https://bugs.openjdk.java.net/browse/JDK-8236039
 
 == Plugin Configurations
 Plugin configurations are sets of parameters that apply
@@ -496,10 +498,13 @@ The procedure checks if the OpenShift cluster exists and is reachable using the 
 [[rns]]
 == Release notes
 
+=== EC-OpenShift 1.6.4
+
+- Documentation has been updated.
 
 === EC-OpenShift 1.6.3
 
-- Theh documentation has been migrated to the main documentation site.
+- The documentation has been migrated to the main documentation site.
 
 
 === EC-OpenShift 1.6.2
