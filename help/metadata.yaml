@@ -1,3 +1,6 @@
+knownIssues: |
+  * In some rare cases, EC-OpenShift could not work if OpenShift configured to use TLSv1.3 due to https://bugs.openjdk.java.net/browse/JDK-8236039
+
 excludeProcedures:
   - Setup
   - Define Container
