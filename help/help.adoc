@@ -8,6 +8,12 @@ Revised on June 03, 2021
 
 == Overview
 
+= The plugin has been deprecated
+
+This plugin was deprecated.
+
+'''''
+
 EC-OpenShift plugin integrates with the https://www.openshift.com/[OpenShift container platform] and helps you manage microservices based applications deployments and releases on both on-premise as well as hosted OpenShift offerings.
 
 In case of on-premise setup, plugin helps you in addition to install https://www.openshift.org/[OpenShift Origin on VMWare]. Plugin supports the following topologies:
