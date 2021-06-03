@@ -1,0 +1,15 @@
+= The plugin has been deprecated
+
+This plugin was deprecated.
+
+'''''
+
+EC-OpenShift plugin integrates with the https://www.openshift.com/[OpenShift container platform] and helps you manage microservices based applications deployments and releases on both on-premise as well as hosted OpenShift offerings.
+
+In case of on-premise setup, plugin helps you in addition to install https://www.openshift.org/[OpenShift Origin on VMWare]. Plugin supports the following topologies:
+
+* *Minimal*: Sets up one OpenShift master, embedded etcd and user supplied number of nodes. This is typically used for creating an OpenShift cluster for a Development environment .
+* *Multiple Etcd*: Sets up one OpenShift master, separate cluster of three etcd instances and user supplied number of nodes.
+* *Multiple Etcd + HAProxy*: Highly available setup with three OpenShift masters, cluster of three etcd instances and user supplied number of nodes. This is meant for a production
+environment.
+

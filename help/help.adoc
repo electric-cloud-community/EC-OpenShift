@@ -1,12 +1,18 @@
 Plugin version @PLUGIN_VERSION@
 
-Revised on October 15, 2020
+Revised on June 03, 2021
 
 
 
 
 
 == Overview
+
+= The plugin has been deprecated
+
+This plugin was deprecated.
+
+'''''
 
 EC-OpenShift plugin integrates with the https://www.openshift.com/[OpenShift container platform] and helps you manage microservices based applications deployments and releases on both on-premise as well as hosted OpenShift offerings.
 
@@ -16,6 +22,8 @@ In case of on-premise setup, plugin helps you in addition to install https://www
 * *Multiple Etcd*: Sets up one OpenShift master, separate cluster of three etcd instances and user supplied number of nodes.
 * *Multiple Etcd + HAProxy*: Highly available setup with three OpenShift masters, cluster of three etcd instances and user supplied number of nodes. This is meant for a production
 environment.
+
+
 
 
 
@@ -48,11 +56,10 @@ environment.
 ----
 
 
-== Known issues
 
-* In some rare cases, EC-OpenShift could not work if OpenShift configured to use TLSv1.3 due to https://bugs.openjdk.java.net/browse/JDK-8236039
 
-== Plugin Configurations
+== Plugin configurations
+
 Plugin configurations are sets of parameters that apply
 across some or all of the plugin procedures. They
 reduce repetition of common values, create
@@ -62,10 +69,11 @@ is given a unique name that is entered in designated
 parameters on procedures that use them.
 
 
-=== Creating Plugin Configurations
+=== Creating plugin configurations
+
 To create plugin configurations in {CD}, do these steps:
 
-* Go to **Administration** &gt;**Plugins** to open the Plugin Manager.
+* Go to menu:Admistration[Plugins] to open the Plugin Manager.
 * Find the @PLUGIN_NAME@ row.
 * Click *Configure* to open the
      Configurations page.
@@ -73,7 +81,8 @@ To create plugin configurations in {CD}, do these steps:
 
 
 
-=== Configuration Procedure Parameters
+=== Configuration procedure parameters
+
 [cols=",",options="header",]
 |===
 |Parameter |Description
@@ -106,7 +115,8 @@ To create plugin configurations in {CD}, do these steps:
 
 
 [[procedures]]
-== Plugin Procedures
+== Plugin procedures
+
 
 
 
@@ -118,10 +128,10 @@ Deploys a service, creating or updating pod definitions, service and deployment 
 
 
 
-==== Deploy Service Parameters
+==== Deploy Service parameters
 [cols=",",options="header",]
 |===
-| Parameter | Description
+|Parameter |Description
 
 | __**Service Name**__ | The name of the service in {CD} that encapsulates the service to be deployed on the OpenShift cluster.
 
@@ -165,10 +175,10 @@ Undeploys a previously deployed service on the OpenShift cluster
 
 
 
-==== Undeploy Service Parameters
+==== Undeploy Service parameters
 [cols=",",options="header",]
 |===
-| Parameter | Description
+|Parameter |Description
 
 | __**Service Name**__ | The name of the service in {CD} that encapsulates the service that was previously deployed on the OpenShift cluster.
 
@@ -254,10 +264,11 @@ definitions retrieved from there.
 If the object with the provided name already exists in the {CD}, this object will be skipped and a warning message will be emitted to logs.
 
 
-==== Discover Parameters
+
+==== Discover parameters
 [cols=",",options="header",]
 |===
-| Parameter | Description
+|Parameter |Description
 
 | __**Environment Project Name**__ | The project containing the existing environment, or where the new environment will be created.
 
@@ -329,10 +340,10 @@ If the object with the provided name already exists in the {CD}, this object wil
 
 
 
-==== Import Microservices Parameters
+==== Import Microservices parameters
 [cols=",",options="header",]
 |===
-| Parameter | Description
+|Parameter |Description
 
 | __**OpenShift Template Content (YAML File)**__ | Content of an OpenShift template (YAML file) containing related services and deployments definitions.
 
@@ -392,10 +403,10 @@ Once VMs are available, the procedure uses https://github.com/openshift/openshif
 * https://buildlogs.centos.org/centos/7/paas/x86_64/openshift-origin/origin-docker-excluder-1.4.0-2.el7.noarch.rpm[origin-docker-excluder] and https://buildlogs.centos.org/centos/7/paas/x86_64/openshift-origin/origin-excluder-1.4.0-2.el7.noarch.rpm[origin-excluder] RPMs must be already installed on OVF template.
 
 
-==== Provision Cluster on ESX Parameters
+==== Provision Cluster on ESX parameters
 [cols=",",options="header",]
 |===
-| Parameter | Description
+|Parameter |Description
 
 | __**ESX plugin configuration**__ | ESX plugin configuration name. ESX plugin is used create underlying VM hosts for OpenShift cluster setup by importing OVF templates.
 
@@ -462,13 +473,16 @@ Once VMs are available, the procedure uses https://github.com/openshift/openshif
 Checks that the configured OpenShift cluster is accessible using the given service account bearer token.
 
 
+
 The procedure checks if the OpenShift cluster exists and is reachable using the cluster details provided in the plugin configuration.
 
 
-==== Check Cluster Parameters
+
+
+==== Check Cluster parameters
 [cols=",",options="header",]
 |===
-| Parameter | Description
+|Parameter |Description
 
 | __**Configuration**__ | The name of an existing configuration which holds all the connection information for OpenShift cluster.
 
@@ -494,13 +508,20 @@ The procedure checks if the OpenShift cluster exists and is reachable using the 
 
 
 
+== Known issues
+* In some rare cases, EC-OpenShift could not work if OpenShift configured to use TLSv1.3 due to https://bugs.openjdk.java.net/browse/JDK-8236039
+
+
+
 
 [[rns]]
 == Release notes
 
+
 === EC-OpenShift 1.6.4
 
 - Documentation has been updated.
+
 
 === EC-OpenShift 1.6.3
 
